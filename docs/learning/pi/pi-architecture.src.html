@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-CN" data-register="blueprint">
+<head>
+<title>Pi 中文架构图解</title>
+<link rel="stylesheet" href="kit.css" data-ve-kit>
+<style>
+main{max-width:1160px;margin:auto}h1,h2,h3,p,button,figcaption{font-family:"IBM Plex Sans","PingFang SC","Microsoft YaHei",sans-serif}.map-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-4)}.map-group{border-top:1px solid var(--border-bright);padding-top:var(--s-3)}.pkg{display:block;width:100%;text-align:left;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:var(--r-1);padding:var(--s-3);margin-top:var(--s-2);cursor:pointer}.pkg strong,.pkg small{display:block}.pkg small{color:var(--text-dim);margin-top:var(--s-1)}.pkg[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-dim)}.pkg.is-dep{border-style:dashed;border-color:var(--accent)}.pkg:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.detail{border-top:1px solid var(--border-bright);margin-top:var(--s-4);padding:var(--s-4) 0}.detail p{margin:var(--s-2) 0}.meta code{overflow-wrap:anywhere}.route-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s-3)}.route-list a{padding:var(--s-3);border-bottom:1px solid var(--border);display:block}.note{border-left:2px solid var(--accent);padding-left:var(--s-3)}.sources p{overflow-wrap:anywhere}pre{overflow:auto}@media(max-width:760px){.map-grid,.route-list{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="ve-toc" aria-label="章节导航"><div><a href="#overview">整体架构</a><a href="#packages">全部包</a><a href="#request">一次请求</a><a href="#inside">模块展开</a><a href="#reading">从哪里读</a><a href="#sources">源码依据</a></div><span class="pos"></span></nav>
+<main>
+<header id="overview">
+<p class="eyebrow">Pi 源码学习 · 从架构开始</p>
+<h1>先认识三个核心包</h1>
+<p class="lead">coding-agent 组织产品能力，agent 执行工具循环，ai 连接模型。</p>
+<p class="meta">当前源码基线 <code>5d74f40</code> · 面向首次接触仓库的读者</p>
+</header>
+<figure>
+<ve-flow label="CLI 经 coding-agent 创建 agent 工具循环，注入 ai 模型请求；TUI、工具和会话保存由产品层连接。">
+<ve-node id="hero-cli" at="2 1" sub="参数、模式、会话" key>coding-agent</ve-node>
+<ve-node id="hero-agent" at="3 1" sub="模型与工具循环">agent</ve-node>
+<ve-node id="hero-ai" at="4 1" sub="认证、目录、请求">ai</ve-node>
+<ve-node id="hero-model" at="5 1" sub="外部服务">模型提供商</ve-node>
+<ve-node id="hero-tui" at="1 1" sub="终端输入与显示">tui</ve-node>
+<ve-node id="hero-tools" at="3 2" sub="文件、命令、扩展">本地工具</ve-node>
+<ve-node id="hero-session" at="2 2" sub="SessionManager" shape="db">JSONL 会话</ve-node>
+<ve-edge from="hero-cli" to="hero-agent" label="创建并驱动" hot></ve-edge>
+<ve-edge from="hero-agent" to="hero-ai" label="注入请求函数" hot></ve-edge>
+<ve-edge from="hero-ai" to="hero-model" label="请求模型" hot></ve-edge>
+<ve-edge from="hero-cli" to="hero-tui" label="组织交互"></ve-edge>
+<ve-edge from="hero-agent" to="hero-tools" label="执行调用"></ve-edge>
+<ve-edge from="hero-cli" to="hero-session" label="保存记录"></ve-edge>
+</ve-flow>
+<figcaption>图 1 · CLI 主链。ai 箭头表示注入函数最终到达的模型能力；图中省略细部适配。</figcaption>
+</figure>
+<p class="note">durable、chord、env 属于同仓库的另一组运行库。当前 CLI 没有依赖它们；先认识其位置，再学习内部机制。</p>
+<section id="packages">
+<div class="sec-head"><p class="ve-label">仓库地图</p><h2>点一个包，看它负责什么</h2></div>
+<figure>
+<div class="map-grid" id="package-map">
+<div class="map-group"><h3>编码助手与界面</h3><button class="pkg" type="button" data-package="coding-agent" aria-pressed="false"><strong>coding-agent</strong><small>终端产品与 SDK</small></button><button class="pkg" type="button" data-package="agent" aria-pressed="false"><strong>agent</strong><small>模型与工具循环</small></button><button class="pkg" type="button" data-package="ai" aria-pressed="false"><strong>ai</strong><small>模型目录、认证、流</small></button><button class="pkg" type="button" data-package="tui" aria-pressed="false"><strong>tui</strong><small>终端界面</small></button></div>
+<div class="map-group"><h3>应用运行库与开发工具</h3><button class="pkg" type="button" data-package="durable" aria-pressed="false"><strong>durable</strong><small>持久任务与会话运行库</small></button><button class="pkg" type="button" data-package="chord" aria-pressed="false"><strong>chord</strong><small>对象与应用运行库</small></button><button class="pkg" type="button" data-package="env" aria-pressed="false"><strong>env</strong><small>本地与远程执行</small></button><button class="pkg" type="button" data-package="evals" aria-pressed="false"><strong>evals</strong><small>开发评测工具</small></button></div>
+<div class="map-group"><h3>基础能力与接入</h3><button class="pkg" type="button" data-package="codemode" aria-pressed="false"><strong>codemode</strong><small>代码执行能力</small></button><button class="pkg" type="button" data-package="mcp" aria-pressed="false"><strong>mcp</strong><small>外部工具接入</small></button><button class="pkg" type="button" data-package="schema" aria-pressed="false"><strong>schema</strong><small>数据形状与校验</small></button><button class="pkg" type="button" data-package="telemetry" aria-pressed="false"><strong>telemetry</strong><small>观测契约</small></button></div>
+</div>
+<div class="detail" id="package-detail" aria-live="polite"><h3>coding-agent</h3><p>终端编码助手的产品层，组织会话、模型、工具、扩展和交互模式。</p><p>直接依赖：agent、ai、codemode、mcp、tui。</p><p><a href="../../../packages/coding-agent/src/main.ts">源码入口：main.ts</a></p></div>
+<figcaption>图 2 · 覆盖全部顶层包；点选包使用实框，其 dependencies 使用虚框。这里的依赖是安装声明，包含类型依赖；evals 的开发依赖另列。</figcaption>
+</figure>
+<details><summary>完整依赖表与四个扩展示例</summary><div class="ve-table"><table><thead><tr><th>包</th><th>直接内部 dependencies</th></tr></thead><tbody><tr><td>agent</td><td>ai、schema</td></tr><tr><td>ai</td><td>schema、telemetry</td></tr><tr><td>chord</td><td>schema、telemetry</td></tr><tr><td>codemode</td><td>无</td></tr><tr><td>coding-agent</td><td>agent、ai、codemode、mcp、tui</td></tr><tr><td>durable</td><td>chord、ai、codemode、schema、telemetry</td></tr><tr><td>env</td><td>chord、durable</td></tr><tr><td>evals</td><td>无；开发依赖：ai、coding-agent</td></tr><tr><td>mcp</td><td>无</td></tr><tr><td>schema</td><td>无</td></tr><tr><td>telemetry</td><td>无</td></tr><tr><td>tui</td><td>无</td></tr></tbody></table></div><p>四个额外 workspace：with-deps、custom-provider-anthropic、custom-provider-gitlab-duo、gondolin。它们是扩展示例，位于 coding-agent/examples/extensions。</p><p><a href="inventory.json">完整工作区与 import 证据</a> · <a href="public-api.tsv">公开导出声明索引</a></p></details>
+</section>
+<section id="request">
+<div class="sec-head"><p class="ve-label">跟一次真实代码路径</p><h2>读取文件后，模型还要再回答一次</h2></div>
+<figure class="ve-steps">
+<ve-flow label="读取 README 的示例流程：输入，准备会话，请求模型，调用 read，加入结果，再请求模型，输出解释并保存普通消息。">
+<ve-node id="req-input" at="1 1" sub="终端或程序" data-s="0 1">用户输入</ve-node>
+<ve-node id="req-session" at="2 1" sub="hooks 与上下文" data-s="0 2">AgentSession</ve-node>
+<ve-node id="req-loop" at="3 1" sub="agent-loop" data-s="0 3 6">工具循环</ve-node>
+<ve-node id="req-model" at="4 1" sub="ModelRuntime" data-s="0 4 7">模型请求</ve-node>
+<ve-node id="req-read" at="4 2" sub="校验后执行" data-s="0 5">read 工具</ve-node>
+<ve-node id="req-result" at="3 2" sub="加入当前上下文" data-s="0 6">toolResult</ve-node>
+<ve-node id="req-output" at="2 2" sub="文本与事件" data-s="0 8">输出解释</ve-node>
+<ve-node id="req-log" at="1 2" sub="SessionManager" shape="db" data-s="0 8">会话记录</ve-node>
+<ve-edge from="req-input" to="req-session" label="prompt" data-s="0 1 2"></ve-edge>
+<ve-edge from="req-session" to="req-loop" label="agent.prompt" data-s="0 3"></ve-edge>
+<ve-edge from="req-loop" to="req-model" label="请求" data-s="0 4 7"></ve-edge>
+<ve-edge from="req-model" to="req-read" label="toolCall" data-s="0 5"></ve-edge>
+<ve-edge from="req-read" to="req-result" label="返回内容" data-s="0 6"></ve-edge>
+<ve-edge from="req-result" to="req-loop" label="继续循环" data-s="0 6 7"></ve-edge>
+<ve-edge from="req-session" to="req-output" label="转发结果事件" data-s="0 8"></ve-edge>
+<ve-edge from="req-output" to="req-log" label="普通消息记录" data-s="0 8"></ve-edge>
+</ve-flow>
+<div class="ve-player">
+<ol class="ve-cap">
+<li data-n="1/8">输入“读取 README 并解释它”。交互、print、RPC 都进入会话层。</li>
+<li data-n="2/8">AgentSession.prompt 处理扩展、skill/template 和上下文准备。（agent-session.ts:2113）</li>
+<li data-n="3/8">会话调用 agent.prompt，进入通用工具循环。（agent-session.ts:1920）</li>
+<li data-n="4/8">循环转换消息，通过 SDK 注入的 streamFn 请求 ModelRuntime。（agent-loop.ts:390）</li>
+<li data-n="5/8">模型返回 read 调用。Pi 查找工具、校验参数，经过 hooks 后执行。（agent-loop.ts:718）</li>
+<li data-n="6/8">文件内容作为 toolResult 加入上下文。工具失败时也可以返回错误结果。（agent-loop.ts:285）</li>
+<li data-n="7/8">循环携带工具结果再次请求模型，因此一次输入可以触发多次模型请求。（agent-loop.ts:208）</li>
+<li data-n="8/8">最终文本以事件送往输出端；session 在普通 message_end 上记录消息，收尾后发 agent_settled。（agent-session.ts:1119）</li>
+</ol>
+<button type="button" data-go="-1" aria-label="上一步">上一步</button><button type="button" data-play aria-label="播放流程">播放</button><input type="range" aria-label="选择流程步骤"><button type="button" data-go="1" aria-label="下一步">下一步</button>
+</div>
+<figcaption>图 3 · 从源码推演的示例，未调用真实模型。默认显示全貌，点“播放”从头理解；记录也发生在用户消息和工具结果等普通消息结束时，不仅发生在最后一步。</figcaption>
+</figure>
+</section>
+<section id="inside">
+<div class="sec-head"><p class="ve-label">模块展开</p><h2>产品会话、模型接入、持久任务各有边界</h2></div>
+<figure>
+<ve-flow label="CLI 创建会话时组装设置、模型服务、资源加载器和会话管理器，再创建 Agent 与 AgentSession。">
+<ve-node id="sdk-main" at="1 1" sub="选择 cwd 与会话">main</ve-node>
+<ve-node id="sdk-services" at="2 1" sub="设置 / 模型 / 资源">services</ve-node>
+<ve-node id="sdk-create" at="3 1" sub="创建运行对象">SDK</ve-node>
+<ve-node id="sdk-agent" at="4 1" sub="通用工具循环">Agent</ve-node>
+<ve-node id="sdk-session" at="3 2" sub="扩展 / 压缩 / 重试">AgentSession</ve-node>
+<ve-node id="sdk-store" at="2 2" sub="历史与投影" shape="db">SessionManager</ve-node>
+<ve-edge from="sdk-main" to="sdk-services" label="创建服务"></ve-edge>
+<ve-edge from="sdk-services" to="sdk-create" label="注入服务"></ve-edge>
+<ve-edge from="sdk-create" to="sdk-agent" label="创建"></ve-edge>
+<ve-edge from="sdk-create" to="sdk-session" label="创建并封装"></ve-edge>
+<ve-edge from="sdk-session" to="sdk-store" label="追加和投影"></ve-edge>
+</ve-flow>
+<figcaption>图 4 · coding-agent 的组装。main 负责启动，SDK 负责创建，AgentSession 负责产品级会话协调。</figcaption>
+</figure>
+<figure>
+<ve-flow label="ModelRuntime 使用 Models 组合 Provider，并准备请求后委托 Provider，API 实现最终连接模型服务。">
+<ve-node id="ai-runtime" at="1 1" sub="产品层选择与请求">ModelRuntime</ve-node>
+<ve-node id="ai-models" at="1 2" sub="Provider 组合接口">Models</ve-node>
+<ve-node id="ai-provider" at="2 1" sub="认证 / 目录 / 流">Provider</ve-node>
+<ve-node id="ai-api" at="3 1" sub="按 model.api 分发">API 实现</ve-node>
+<ve-node id="ai-external" at="3 2" sub="外部服务">模型</ve-node>
+<ve-edge from="ai-runtime" to="ai-models" label="组合"></ve-edge>
+<ve-edge from="ai-models" to="ai-provider" label="管理"></ve-edge>
+<ve-edge from="ai-runtime" to="ai-provider" label="准备后委托"></ve-edge>
+<ve-edge from="ai-provider" to="ai-api" label="选择实现"></ve-edge>
+<ve-edge from="ai-api" to="ai-external" label="网络请求"></ve-edge>
+</ve-flow>
+<figcaption>图 5 · ai 的新接口按实例组合能力。旧全局注册器属于 compat 子入口；当前 CLI 仍使用部分 compat API。</figcaption>
+</figure>
+<figure>
+<ve-flow label="完整会话历史经分支、context_edit 和压缩摘要计算投影，模型只接收当前投影。">
+<ve-node id="history-log" at="1 2" sub="SessionManager">内存条目与分支</ve-node>
+<ve-node id="history-project" at="2 2" sub="计算当前可见消息">当前投影</ve-node>
+<ve-node id="history-model" at="3 2" sub="本次可见的消息">模型上下文</ve-node>
+<ve-node id="history-edit" at="2 1" sub="调整可见消息">context_edit</ve-node>
+<ve-node id="history-compact" at="2 3" sub="摘要与保留范围">compaction</ve-node>
+<ve-node id="history-file" at="1 3" sub="持久会话才写入" shape="db">JSONL 文件</ve-node>
+<ve-edge from="history-log" to="history-project" label="读取当前分支"></ve-edge>
+<ve-edge from="history-edit" to="history-project" label="应用编辑"></ve-edge>
+<ve-edge from="history-compact" to="history-project" label="缩短上下文"></ve-edge>
+<ve-edge from="history-project" to="history-model" label="生成请求消息"></ve-edge>
+<ve-edge from="history-log" to="history-file" label="按策略写入"></ve-edge>
+</ve-flow>
+<figcaption>图 6 · 投影从内存记录构建，不是每次请求重读文件。上下文压缩保留原始记录，内存会话不写 JSONL 文件。</figcaption>
+</figure>
+<h3>进阶：Durable / Chord / Env 解决什么问题？</h3>
+<figure>
+<ve-flow label="其他应用通过 Harness 打开持久任务运行库，调度 generation、tool 和 compaction，选择 Storage 和 ExecutionEnv。">
+<ve-node id="dur-harness" at="1 1" sub="模型与适配器">Harness.open</ve-node>
+<ve-node id="dur-tasks" at="2 1" sub="生成、工具、压缩">任务调度</ve-node>
+<ve-node id="dur-ai" at="3 1" sub="请求模型">pi-ai</ve-node>
+<ve-node id="dur-storage" at="2 3" sub="可选 Chord Store" shape="db">Storage</ve-node>
+<ve-node id="dur-env" at="1 2" sub="本地或 SSH daemon">ExecutionEnv</ve-node>
+<ve-node id="dur-transaction" at="2 2" sub="Session 事务边界">状态提交</ve-node>
+<ve-edge from="dur-harness" to="dur-tasks" label="提交并调度"></ve-edge>
+<ve-edge from="dur-tasks" to="dur-ai" label="请求模型"></ve-edge>
+<ve-edge from="dur-tasks" to="dur-transaction" label="提交状态"></ve-edge>
+<ve-edge from="dur-transaction" to="dur-storage" label="持久提交"></ve-edge>
+<ve-edge from="dur-harness" to="dur-env" label="可选注入"></ve-edge>
+</ve-flow>
+<figcaption>图 7 · 这组能力供应用组合使用，不是当前 CLI 必经链路。Durable Storage 与 CLI SessionManager 是两套实现。</figcaption>
+</figure>
+</section>
+<section id="reading">
+<div class="sec-head"><p class="ve-label">开始读代码</p><h2>先读入口，再追一条工具调用</h2></div>
+<div class="route-list"><a href="../../../packages/coding-agent/src/cli.ts">第一站 · cli.ts<br><small>只有几行，先认识 import 和函数调用。</small></a><a href="../../../packages/coding-agent/src/main.ts">第二站 · main.ts<br><small>模式、会话、工作目录和服务组装。</small></a><a href="../../../packages/coding-agent/src/core/sdk.ts">第三站 · sdk.ts<br><small>看 Agent 与 AgentSession 怎样创建。</small></a><a href="../../../packages/agent/src/agent-loop.ts">第四站 · agent-loop.ts<br><small>模型、工具、结果、继续请求。</small></a></div>
+<p><a href="TYPESCRIPT.md">TypeScript 中文注释入门</a> · <a href="../../../ARCHITECTURE.md">完整架构导读</a> · <a href="../../../ARCHITECTURE_DIAGRAMS.md">全部架构图源码</a></p>
+<p>下一次带读：从 cli.ts 开始，每次只引入看懂当前代码所需的语法。</p>
+</section>
+<section class="sources" id="sources" aria-label="源码依据">
+<h2>关键箭头对应这些源码</h2>
+<p><a href="../../../packages/coding-agent/src/main.ts">main.ts</a> · <a href="../../../packages/coding-agent/src/core/sdk.ts">sdk.ts</a> · <a href="../../../packages/coding-agent/src/core/agent-session.ts">agent-session.ts</a> · <a href="../../../packages/agent/src/agent-loop.ts">agent-loop.ts</a></p>
+<p><a href="../../../packages/coding-agent/src/core/session-manager.ts">session-manager.ts</a> · <a href="../../../packages/coding-agent/src/core/model-runtime.ts">model-runtime.ts</a> · <a href="../../../packages/ai/src/models.ts">ai/models.ts</a> · <a href="../../../packages/durable/src/harness/harness.ts">durable/harness.ts</a></p>
+<p><a href="SUMMARY.md">仓库摘要</a> · <a href="INTERFACES.md">CLI、RPC、工具与 HTTP 接口附录</a> · <a href="VERIFICATION.md">验证与覆盖范围</a></p>
+<p class="meta">包依赖按 manifest 全量盘点；关键调用读实现核对。流程为源码推演，未运行真实模型、远程 SSH 或完整测试。</p>
+</section>
+</main>
+<script id="package-data" type="application/json">{"agent": {"name": "agent", "purpose": "通用 Agent：保存内存状态，执行模型请求和工具调用循环。", "short": "模型与工具循环", "file": "packages/agent/src/agent.ts", "dependencies": ["ai", "schema"], "devDependencies": []}, "ai": {"name": "ai", "purpose": "统一模型与消息能力；通过 Models 和 Provider 接入目录、认证和流式请求。", "short": "模型目录、认证、流", "file": "packages/ai/src/models.ts", "dependencies": ["schema", "telemetry"], "devDependencies": []}, "chord": {"name": "chord", "purpose": "跨进程对象运行库：合约、宿主、引用、文档、store、链接及平台适配。", "short": "对象与应用运行库", "file": "packages/chord/src/index.ts", "dependencies": ["schema", "telemetry"], "devDependencies": []}, "codemode": {"name": "codemode", "purpose": "QuickJS WASM 执行代码，只通过注入的工具能力与外界交互。", "short": "代码执行能力", "file": "packages/codemode/src/index.ts", "dependencies": [], "devDependencies": []}, "coding-agent": {"name": "coding-agent", "purpose": "编码助手产品层：组织会话、模型、工具、扩展和交互模式。", "short": "终端产品与 SDK", "file": "packages/coding-agent/src/main.ts", "dependencies": ["agent", "ai", "codemode", "mcp", "tui"], "devDependencies": []}, "durable": {"name": "durable", "purpose": "持久化 conversation、task、document，调度模型与工具任务并支持恢复。", "short": "持久任务与会话运行库", "file": "packages/durable/src/harness/harness.ts", "dependencies": ["chord", "ai", "codemode", "schema", "telemetry"], "devDependencies": []}, "env": {"name": "env", "purpose": "本地及 SSH 执行环境，远程实现连接 Rust daemon。", "short": "本地与远程执行", "file": "packages/env/src/index.ts", "dependencies": ["chord", "durable"], "devDependencies": []}, "evals": {"name": "evals", "purpose": "私有评测 harness、Docker 评测环境和报告生成。", "short": "开发评测工具", "file": "packages/evals/src/cli.ts", "dependencies": [], "devDependencies": ["ai", "coding-agent"]}, "mcp": {"name": "mcp", "purpose": "MCP 客户端，连接外部 stdio/HTTP server 的工具与资源。", "short": "外部工具接入", "file": "packages/mcp/src/client.ts", "dependencies": [], "devDependencies": []}, "schema": {"name": "schema", "purpose": "构造 JSON Schema 并在运行时校验外部数据。", "short": "数据形状与校验", "file": "packages/schema/src/index.ts", "dependencies": [], "devDependencies": []}, "telemetry": {"name": "telemetry", "purpose": "供应商无关的 trace、span、metric 契约及参考适配器。", "short": "观测契约", "file": "packages/telemetry/src/index.ts", "dependencies": [], "devDependencies": []}, "tui": {"name": "tui", "purpose": "终端 UI：输入、布局、组件与差量渲染。", "short": "终端界面", "file": "packages/tui/src/index.ts", "dependencies": [], "devDependencies": []}}</script>
+<script>
+const packageData=JSON.parse(document.getElementById('package-data').textContent);
+const packageButtons=Array.from(document.querySelectorAll('button[data-package]'));
+const packageDetail=document.getElementById('package-detail');
+for(const button of packageButtons){button.addEventListener('click',()=>{const selected=packageData[button.dataset.package];for(const peer of packageButtons){peer.setAttribute('aria-pressed',String(peer===button));peer.classList.toggle('is-dep',selected.dependencies.includes(peer.dataset.package));}packageDetail.replaceChildren();const title=document.createElement('h3');title.textContent=selected.name;const purpose=document.createElement('p');purpose.textContent=selected.purpose;const dependencies=document.createElement('p');dependencies.textContent='直接内部 dependencies：'+(selected.dependencies.join('、')||'无')+'。';const source=document.createElement('p');const link=document.createElement('a');link.href='../../../'+selected.file;link.textContent='源码入口：'+selected.file;source.append(link);packageDetail.append(title,purpose,dependencies,source);if(selected.devDependencies.length){const dev=document.createElement('p');dev.textContent='开发依赖：'+selected.devDependencies.join('、')+'。';packageDetail.append(dev);}});}
+packageButtons.find(button=>button.dataset.package==='coding-agent').click();
+</script>
+</body>
+</html>

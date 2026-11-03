@@ -495,6 +495,7 @@ export class AgentSession {
 	/** Prompt options after before_agent_start mutations for the active run. */
 	private _runSystemPromptOptions?: NormalizedBuildSystemPromptOptions;
 
+	// 中文主线 1：会话层把 Agent、会话记录、配置、扩展和工具接起来。学习导航见 docs/learning/pi/QUERY_CALL_CHAIN.md。
 	constructor(config: AgentSessionConfig) {
 		this.agent = config.agent;
 		this.sessionManager = config.sessionManager;
@@ -523,10 +524,15 @@ export class AgentSession {
 
 		// Always subscribe to agent events for internal handling
 		// (session persistence, extensions, auto-compaction, retry logic)
+		// 关键接线：订阅低层 Agent 事件。以后每次 message_end 都通过 _handleAgentEvent 保存完整消息。
 		this._unsubscribeAgent = this.agent.subscribe(this._handleAgentEvent);
+		// 安装工具前/后钩子，接扩展拦截与结果图片处理。这里只是注册回调，不执行工具。
 		this._installAgentToolHooks();
+		// 安装回合间刷新回调；工具执行完准备再问模型时，检查压缩并更新提示词/工具。
 		this._installAgentNextTurnRefresh();
+		// 安装每次请求前的投影回调：从会话记录中选出本次真正应该发给模型的消息。
 		this._installAgentRequestProjection();
+		// 接上回合结束扩展；扩展可能要求继续运行，所以不能只看模型有没有输出工具就判定会话空闲。
 		this._installAgentBoundaryHooks();
 		this._installHiddenDeclarationsProjection();
 		this._installAgentForcedPromptProjection();
@@ -789,44 +795,73 @@ export class AgentSession {
 		);
 	}
 
+	// 工具之后再请求模型前，也有机会检查压缩；不是只在用户发新问题时压缩。
 	private async _compactBeforeNextAssistantResponse(context: AgentContext): Promise<AgentContext> {
+		// 从内存里的会话树投影当前有效历史，包括压缩/编辑的效果；不是每次读一遍磁盘 JSONL。
 		const projection = this.sessionManager.buildSessionProjection();
 		// A virtual selection is checked in prepareRequest, against the model the request is routed to.
+		// 取当前模型选择，压缩阈值需要知道它的上下文窗口。
 		const model = this.model;
+		// 没有模型或没超阈值就直接用投影；虚拟模型留到路由确定具体模型后再判断。
 		if (!model || isVirtualModel(model) || !this._exceedsCompactionThreshold(model, projection)) {
+			// 保留工具等上下文字段，用当前有效历史替换 messages。
 			return { ...context, messages: projection.messages };
 		}
+		// 超阈值时执行自动压缩；默认方案会调用模型生成摘要，false 表示不重试已完成回答。
 		await this._runAutoCompaction("threshold", false);
+		// 压缩后重新投影，拿到“摘要 + 保留原文”等最终历史供下一次请求使用。
 		return { ...context, messages: this.sessionManager.buildSessionProjection().messages };
 	}
 
+	// 注册每次模型请求前都执行的回调；函数安装一次，内部 async 函数会执行很多次。
 	private _installAgentRequestProjection(): void {
+		// 保留之前安装的回调，包装时不丢掉已有逻辑。
 		const previousPrepareRequest = this.agent.prepareRequest;
+		// 真正进入请求前才运行这个箭头函数，获得本次 context、模型及取消信号。
 		this.agent.prepareRequest = async (request, signal) => {
+			// 重试路由可能需要知道上一条失败回复；正常路径是 undefined。
 			const failed = this._failedResponse;
+			// 失败回复已保存在局部变量，清空一次性标记，避免下一次正常请求仍被当作重试。
 			this._failedResponse = undefined;
+			// 抽出构建请求快照的小函数；若路由后又发生压缩，可以重新构建一次。
 			const prepare = async () => {
+				// 从内存里的会话树投影当前有效历史，包括压缩/编辑的效果；不是每次读一遍磁盘 JSONL。
 				const projection = this.sessionManager.buildSessionProjection();
+				// 组装以 SessionManager 为准的上下文，防止 Agent 里的临时副本落后于会话编辑。
 				const canonicalContext = {
+					// 保留原上下文其他字段，下面替换消息和可执行工具。
 					...request.context,
+					// 请求使用当前有效历史，不等同于 JSONL 文件里所有原始条目。
 					messages: projection.messages,
 					// Messages declare the provider-visible loadout; context.tools keeps executable implementations.
+					// 保留工具的本地实现；模型实际看到的声明则来自 system 消息。
 					tools: this.agent.state.tools.slice(),
 				};
+				// 先把标准上下文交给此前的 prepareRequest 回调，让调用者继续修改本次请求。
 				const previous = await previousPrepareRequest?.(
 					{
+						// 保留请求原有字段，再覆盖需要刷新的模型/上下文。
 						...request,
+						// 将权威投影作为之前回调的输入。
 						context: canonicalContext,
+						// 基于 Agent 当前模型选择构建本次请求，避免用旧快照中的模型。
 						model: this.agent.state.model,
+						// 使用当前思考级别；工具执行期间设置也可能变化。
 						thinkingLevel: this.agent.state.thinkingLevel,
 					},
+					// 继续传递用户取消信号。
 					signal,
 				);
+				// 返回回调结果、最终上下文和投影，后面路由与压缩检查都要用。
 				return { previous, context: previous?.context ?? canonicalContext, projection };
 			};
+			// await 等快照准备好；解构一次取出三个字段，let 允许压缩后重新赋值。
 			let { previous, context, projection } = await prepare();
+			// 此前回调明确换了模型则尊重它，否则采用 Agent 当前选择。
 			const model = previous?.model ?? this.agent.state.model;
+			// 思考级别也允许回调覆盖；?? 不会把合法的 false/空字符串误当缺失。
 			const thinkingLevel = previous?.thinkingLevel ?? this.agent.state.thinkingLevel;
+			// 普通物理模型走这里直接返回；后面的虚拟模型路由不是每次请求都必须经历。
 			if (!isVirtualModel(model)) return { ...previous, context, model, thinkingLevel };
 
 			// The selection stays in agent state; only this request uses the routed model. A routing
@@ -838,6 +873,7 @@ export class AgentSession {
 			const route = await this._modelRuntime.resolveModel(model, convertToLlm(context.messages), {
 				reason: failed ? "retry" : userTurn ? "user" : "continuation",
 				thinkingLevel,
+				// 继续传递用户取消信号。
 				signal,
 				failed,
 				state,
@@ -852,6 +888,7 @@ export class AgentSession {
 			// The route stands: the router already decided this request. The state entry does not change
 			// the projection.
 			if (this._exceedsCompactionThreshold(route.model, projection)) {
+				// 超阈值时执行自动压缩；默认方案会调用模型生成摘要，false 表示不重试已完成回答。
 				await this._runAutoCompaction("threshold", false);
 				({ previous, context } = await prepare());
 			}
@@ -911,16 +948,22 @@ export class AgentSession {
 		};
 	}
 
+	// 在两次模型回答之间安装刷新钩子，工具结果已经保存后才准备下一轮。
 	private _installAgentNextTurnRefresh(): void {
 		const previousPrepareNextTurnWithContext =
 			this.agent.prepareNextTurnWithContext ??
 			(this.agent.prepareNextTurn
 				? async (_turn: PrepareNextTurnContext, signal?: AbortSignal) => await this.agent.prepareNextTurn?.(signal)
 				: undefined);
+		// 把带上一回合信息的回调挂到 Agent；低层 runLoop 在下一回合前触发它。
 		this.agent.prepareNextTurnWithContext = async (turn, signal) => {
+			// 先检查历史大小；必要时调用压缩，再得到新上下文。
 			const context = await this._compactBeforeNextAssistantResponse(turn.context);
+			// 把刷新后的上下文继续交给之前的钩子，保留已有调用者的行为。
 			const previousSnapshot = await previousPrepareNextTurnWithContext?.({ ...turn, context }, signal);
+			// 以之前钩子的替换结果为准；没有替换就用刚准备的上下文。
 			const nextContext = previousSnapshot?.context ?? context;
+			// 优先使用本次运行的提示词选项，否则用基础配置。
 			const runOptions = this._runSystemPromptOptions ?? this._baseSystemPromptOptions;
 			const options = normalizeBuildSystemPromptOptions({
 				...runOptions,
@@ -928,20 +971,25 @@ export class AgentSession {
 				toolSnippets: { ...this._baseSystemPromptOptions.toolSnippets, ...runOptions.toolSnippets },
 				toolGuidelines: { ...this._baseSystemPromptOptions.toolGuidelines, ...runOptions.toolGuidelines },
 			});
+			// 比较提示词与工具声明；有变化时生成 system 补丁，而不是每轮无条件重写全部历史。
 			const updateMessage = this._preparePromptAndToolLoadout(options, nextContext.messages);
 			// Keep session.systemPrompt and ctx.getSystemPrompt() in step with what the provider sees.
+			// 保存本轮最终提示词选项，让 session.systemPrompt 与模型看到的规则一致。
 			this._runSystemPromptOptions = options;
 
 			return {
 				...previousSnapshot,
 				context: {
 					...nextContext,
+					// 保留工具的本地实现；模型实际看到的声明则来自 system 消息。
 					tools: this.agent.state.tools.slice(),
 				},
 				messages: updateMessage
 					? [...(previousSnapshot?.messages ?? []), updateMessage]
 					: previousSnapshot?.messages,
+				// 基于 Agent 当前模型选择构建本次请求，避免用旧快照中的模型。
 				model: this.agent.state.model,
+				// 使用当前思考级别；工具执行期间设置也可能变化。
 				thinkingLevel: this.agent.state.thinkingLevel,
 			};
 		};
@@ -1116,6 +1164,7 @@ export class AgentSession {
 	}
 
 	/** Internal handler for agent events - shared by subscribe and reconnect */
+	// 中文返回链：Agent.processEvents → 此回调 → 扩展/公开订阅者 → SessionManager 保存。箭头函数保留 this。
 	private _handleAgentEvent = async (event: AgentEvent): Promise<void> => {
 		// An abort requested while the run was starting, e.g. during before_agent_start, stops it
 		// here. agent_start is awaited before the first request.
@@ -1144,6 +1193,7 @@ export class AgentSession {
 				if (steeringIndex !== -1) {
 					this._steeringMessages.splice(steeringIndex, 1);
 					this._emitQueueUpdate();
+					// 另一个分支；结合相邻 if 理解这里是在处理哪种输入/运行情况。
 				} else {
 					// Check follow-up queue
 					const followUpIndex = this._followUpMessages.indexOf(messageText);
@@ -1156,11 +1206,15 @@ export class AgentSession {
 		}
 
 		// Emit to extensions first, then notify public listeners.
+		// 先让扩展处理事件；message_end 扩展可以替换消息内容，替换结果随后会被保存。
 		await this._emitExtensionEvent(event);
+		// 再通知公开订阅者，agent_end 额外告诉 UI 是否预计重试。注意这里仍早于下方 appendMessage。
 		this._emit(event.type === "agent_end" ? { ...event, willRetry: this._willRetryAfterAgentEnd(event) } : event);
 
 		// Handle session persistence
+		// 只在完整消息结束时进入保存路径；message_update 的每个字符片段不会各存一条消息。
 		if (event.type === "message_end") {
+			// 保存后会得到条目 id；不是所有自定义角色都由这里负责保存，所以可能没有 id。
 			let entryId: string | undefined;
 			// Check if this is a custom message from extensions
 			if (event.message.role === "custom") {
@@ -1178,13 +1232,16 @@ export class AgentSession {
 				event.message.role === "toolResult"
 			) {
 				// Regular LLM message - persist as SessionMessageEntry
+				// 保存 system/user/assistant/toolResult。默认持久会话会写 JSONL；学习测试使用内存 SessionManager。
 				entryId = this.sessionManager.appendMessage(event.message);
 			}
+			// 记录消息对象与会话条目 id 的关系，后面上下文编辑/扩展边界可以准确定位。
 			if (entryId) this._entryIdsByMessage.set(event.message, entryId);
 			// Other message types (bashExecution, compactionSummary, branchSummary) are persisted elsewhere
 
 			if (event.message.role === "assistant") {
 				const assistantMsg = event.message as AssistantMessage;
+				// 留住最后一条 assistant 回复，低层结束后还要用它判断重试与自动压缩。
 				this._lastAssistantMessage = assistantMsg;
 				if (assistantMsg.stopReason !== "error" && assistantMsg.stopReason !== "length") {
 					this._overflowRecoveryAttempted = false;
@@ -1208,7 +1265,9 @@ export class AgentSession {
 		// inserted without landing between a tool call and its result. Flushing after the
 		// extension and listener dispatch above also picks up messages that turn_end
 		// handlers queued.
+		// 模型本回合要求的所有工具结果都已保存，此时插入额外上下文不会拆散调用/结果对。
 		if (event.type === "turn_end") {
+			// 把等待安全边界的自定义消息写进会话，避免夹在 toolCall 和对应 toolResult 中间。
 			this._flushPendingCustomMessages();
 		}
 	};
@@ -1891,49 +1950,81 @@ export class AgentSession {
 	 * starting another, and an abort requested meanwhile aborts the run as soon as it exists.
 	 * @param onStarted Called once the run's messages are prepared, before the first request.
 	 */
+	// 中文主线 2：会话运行入口。它比低层 Agent 循环更外层，还负责准备、重试、压缩和最终收尾。
 	private async _startRun(trigger: BeforeAgentStartTrigger, onStarted?: () => void): Promise<void> {
+		// 先标记会话忙碌；before_agent_start 运行期间收到新输入也应排队，不能同时开第二个运行。
 		this._isAgentRunActive = true;
+		// 清掉上次取消标记，开始新的用户请求。
 		this._agentRunAbortRequested = false;
+		// 声明稍后准备的新消息数组；这里只声明类型，不会自动创建消息。
 		let messages: AgentMessage[];
 		try {
+			// 准备用户消息、图片、扩展注入内容以及提示词补丁，必要时先做压缩。
 			messages = await this._prepareRun(trigger);
 		} catch (error) {
+			// 准备失败时恢复会话空闲状态，避免永远卡在“处理中”。
 			this._isAgentRunActive = false;
+			// 把暂存的手动 bash 结果记入会话，放在不会拆散工具调用配对的位置。
 			this._flushPendingBashMessages();
+			// 把等待安全边界的自定义消息写进会话，避免夹在 toolCall 和对应 toolResult 中间。
 			this._flushPendingCustomMessages();
+			// 如果会话确实已经空闲，通知 waitForIdle 的等待者。
 			this._resolveIdleWaitIfIdle();
+			// 把错误继续交给调用方；这一步不会默默把失败当成功。
 			throw error;
 		}
 		// Messages held while the run was starting go before its starting messages, as they would
 		// have while idle. No run exists yet, so they cannot split a tool call from its result.
+		// 把暂存的手动 bash 结果记入会话，放在不会拆散工具调用配对的位置。
 		this._flushPendingBashMessages();
+		// 把等待安全边界的自定义消息写进会话，避免夹在 toolCall 和对应 toolResult 中间。
 		this._flushPendingCustomMessages();
+		// 如果调用方提供了启动通知，现在回报“已开始”；?.() 表示函数存在才调用。
 		onStarted?.();
 
 		// Compaction before the prompt may have scheduled a retry; the new prompt replaces it.
+		// 新问题替代旧的失败恢复目标，避免沿用上一运行的重试上下文。
 		this._failedResponse = undefined;
+		// 必要时把当前模型选择记进当前分支，确保恢复会话时知道选了哪个模型。
 		this._recordSelection();
 		// The run records the loadout in the transcript; restored tools that did not register by now
 		// are dropped, so a tool that never registers does not stay pending.
+		// 丢弃截至新运行仍未注册的待恢复工具，防止永远保留不存在的工具。
 		this._pendingToolNames.clear();
 		try {
+			// 进入低层 Agent。它会完成“模型 → 工具 → 再问模型”的整个循环才返回。
 			await this.agent.prompt(messages);
+			// 低层运行结束后，会话还要检查重试、溢出恢复和扩展续跑；用户取消则停止。
 			while (!this._agentRunAbortRequested) {
+				// 检查最后回复：如果错误可重试、压缩后需恢复，或又有排队消息，则需要继续。
 				if (await this._handlePostAgentRun()) {
+					// 每个异步阶段后再看一次取消状态；break 退出当前 while。
 					if (this._agentRunAbortRequested) break;
+					// 根据现有上下文继续低层运行；不是把原用户问题再 append 一次。
 					await this.agent.continue();
+					// 这次继续运行结束后，重新检查是否还需要重试或处理新队列。
 					continue;
 				}
+				// 若已取消，或收尾扩展也没要求继续，就退出会话运行。
 				if (this._agentRunAbortRequested || !(await this._runBeforeSettleBoundary())) break;
+				// 每个异步阶段后再看一次取消状态；break 退出当前 while。
 				if (this._agentRunAbortRequested) break;
+				// 根据现有上下文继续低层运行；不是把原用户问题再 append 一次。
 				await this.agent.continue();
 			}
+			// 无论成功还是异常，都要做本次运行的清理并发布最终 settled 事件。
 		} finally {
+			// 如果取消发生在重试期间，补齐重试结束通知。
 			if (this._agentRunAbortRequested) this._finishCancelledRetry();
+			// 清空本次运行遗留的失败回复，下一次正常请求不再沿用它。
 			this._failedResponse = undefined;
+			// 释放本次运行的临时提示词覆盖，后面新 query 从基础配置重新准备。
 			this._runSystemPromptOptions = undefined;
+			// 把暂存的手动 bash 结果记入会话，放在不会拆散工具调用配对的位置。
 			this._flushPendingBashMessages();
+			// 把等待安全边界的自定义消息写进会话，避免夹在 toolCall 和对应 toolResult 中间。
 			this._flushPendingCustomMessages();
+			// 会话收尾完成的关键通知，比 agent_end 更适合判断整个 query 是否结束。
 			await this._emitAgentSettled();
 		}
 	}
@@ -1944,69 +2035,109 @@ export class AgentSession {
 	 * message followed by pending nextTurn messages (consumed here) and handler messages, with a
 	 * system patch first when the prompt changed.
 	 */
+	// 将一次用户 query 变成开始运行所需的消息批次；这里还未发出普通回答请求。
 	private async _prepareRun(trigger: BeforeAgentStartTrigger): Promise<AgentMessage[]> {
 		// Check if we need to compact before sending (catches aborted responses).
 		// The starting message is sent below, so do not call agent.continue() here.
+		// 找到上一条模型回复，检查其用量/错误是否提示需要压缩。
 		const lastAssistant = this._findLastAssistantMessage();
+		// 会话有上一条回复才需要做这个发送前检查。
 		if (lastAssistant) {
+			// 包括上次被取消的回复也检查；可能先压缩，但不能在这里继续旧问题。
 			await this._checkCompaction(lastAssistant, false);
 		}
 
+		// 保存扩展处理前的工具选择，后面判断扩展是否明确改了工具。
 		const selectedToolsBefore = this._baseSystemPromptOptions.selectedTools;
+		// 运行 before_agent_start 扩展，允许注入上下文、改 system 规则、切换模型等。
 		const result = await this._extensionRunner.emitBeforeAgentStart(trigger, this._baseSystemPromptOptions);
 		// Handlers may edit event.systemPromptOptions.selectedTools or call setActiveTools(),
 		// which updates the live loadout instead. An explicit edit wins; otherwise the live
 		// loadout is authoritative, so a setActiveTools() call is not undone here.
+		// 判断扩展有没有直接改 selectedTools；若没有，就尊重当前实时工具集合。
 		const handlerEditedTools =
+			// 工具数量不同，说明扩展改过列表。|| 表示任一条件为真就成立。
 			result.systemPromptOptions.selectedTools.length !== selectedToolsBefore.length ||
+			// 数量相同也可能换了工具或顺序，逐项比较确认。
 			result.systemPromptOptions.selectedTools.some((name, index) => name !== selectedToolsBefore[index]);
+		// 没明确改配置就以实时工具为准，避免撤销扩展通过 setActiveTools 做的变更。
 		if (!handlerEditedTools) result.systemPromptOptions.selectedTools = this.getActiveToolNames();
 
+		// 创建本次新消息列表；旧对话不在这里重建，由 Agent 上下文带入。
 		const messages: AgentMessage[] = [];
+		// 本次运行也可能由扩展自定义消息触发，不一定来自用户字符串。
 		if (trigger.messageType === "custom") {
+			// 自定义触发直接加入那条消息。
 			messages.push(trigger.message);
+			// 另一个分支；结合相邻 if 理解这里是在处理哪种输入/运行情况。
 		} else {
 			// Normalize images after before_agent_start so extension-driven model selection
 			// determines the resize profile used for the request and history.
+			// 按最终选定模型的图片限制处理附件；纯文本问题时返回空图片列表。
 			const normalized = await this._normalizePromptImages(trigger.images);
+			// 准备最终用户文字；图片缩放/格式处理产生的提示也可能附在文字后面。
 			const text =
 				normalized.hints.length > 0 ? `${trigger.prompt}\n\n${normalized.hints.join("\n")}` : trigger.prompt;
+			// 追加一条结构化消息；大括号是对象，不是要执行的代码块。
 			messages.push({
+				// 明确标记这句话来自用户，模型据此区分指令来源。
 				role: "user",
+				// 内容是“文字块 + 图片块”数组；text 是 text: text 的简写。
 				content: [{ type: "text", text }, ...normalized.images],
+				// 记录毫秒时间戳，方便会话回放和统计。
 				timestamp: Date.now(),
 			});
 		}
 		// Inject any pending "nextTurn" messages as context alongside the starting message
+		// 将之前排队的 nextTurn 上下文放到本次起始消息后面。
 		messages.push(...this._pendingNextTurnMessages);
+		// 这些消息已消费，清空队列，下一次 query 不再重复注入。
 		this._pendingNextTurnMessages = [];
+		// 再加入 before_agent_start 扩展提供的自定义上下文。
 		for (const msg of result.messages) {
+			// 追加一条结构化消息；大括号是对象，不是要执行的代码块。
 			messages.push({
+				// 先保留为 coding-agent 自定义消息，到了 convertToLlm 才转成模型可接受的消息。
 				role: "custom",
+				// 扩展自定义消息的分类名，供渲染和处理识别。
 				customType: msg.customType,
 				// Untyped extensions can pass null/missing content; normalize at ingestion.
+				// 扩展是外部输入边界：漏掉内容时归一化为空数组，避免 null 进入历史。
 				content: msg.content ?? [],
+				// 记录是否展示给用户；是否进入模型由消息转换规则决定。
 				display: msg.display,
+				// 保存扩展附带的程序化详情。
 				details: msg.details,
+				// 记录毫秒时间戳，方便会话回放和统计。
 				timestamp: Date.now(),
 			});
 		}
+		// 根据最终工具集合/规则生成必要的 system 增量消息。
 		const updateMessage = this._preparePromptAndToolLoadout(result.systemPromptOptions);
+		// 保存本次运行的提示词选项，供后续内部多轮模型请求使用。
 		this._runSystemPromptOptions = result.systemPromptOptions;
+		// 有 system 补丁时插在新消息批次最前面；unshift 与 push 的插入位置相反。
 		if (updateMessage) messages.unshift(updateMessage);
+		// 返回本次新消息批次，交给 Agent.prompt；不是返回模型最终回答。
 		return messages;
 	}
 
 	private async _handlePostAgentRun(): Promise<boolean> {
+		// 低层 agent_end 之后，消费最后那条 assistant 回复，检查是否还需重试或压缩。
 		const message = this._lastAssistantMessage;
+		// 只处理一次，避免下次没有新回复时重复检查旧回复。
 		this._lastAssistantMessage = undefined;
+		// 用户取消优先；false 表示外层不应再调用 agent.continue()。
 		if (this._agentRunAbortRequested) {
 			this._finishCancelledRetry();
 			return false;
 		}
+		// 没有回复时只检查队列，不凭空制造一次新的模型请求。
 		if (!message) return this.agent.hasQueuedMessages();
 
+		// 限流等暂时错误可以等待后重试；上下文溢出由后面的压缩恢复处理。
 		if (this._isRetryableError(message) && (await this._prepareRetry(message))) {
+			// 如果取消发生在重试期间，补齐重试结束通知。
 			if (this._agentRunAbortRequested) this._finishCancelledRetry();
 			this._failedResponse = message;
 			return !this._agentRunAbortRequested;
@@ -2016,6 +2147,7 @@ export class AgentSession {
 			return false;
 		}
 
+		// 多次重试最终失败时，补齐重试结束事件并清空计数。
 		if (message.stopReason === "error" && this._retryAttempt > 0) {
 			this._emit({
 				type: "auto_retry_end",
@@ -2026,12 +2158,14 @@ export class AgentSession {
 			this._retryAttempt = 0;
 		}
 
+		// 阈值或溢出可能触发压缩；返回 true 表示压缩后还要继续，例如恢复失败请求。
 		if (await this._checkCompaction(message)) {
 			return !this._agentRunAbortRequested;
 		}
 
 		// The low-level loop drains both queues before agent_end. Messages queued by
 		// agent_end handlers require a fresh run before pre-settlement handlers fire.
+		// agent_end 回调可能又排入新消息，仍需在最终 settled 前处理。
 		return !this._agentRunAbortRequested && this.agent.hasQueuedMessages();
 	}
 
@@ -2110,87 +2244,134 @@ export class AgentSession {
 	 * @throws Error if streaming and no streamingBehavior specified
 	 * @throws Error if no model selected or no API key available (when not streaming)
 	 */
+	// 中文学习起点：用户调用的会话提问入口。例 await session.prompt("读取 decision.txt")。
 	async prompt(text: string, options?: PromptOptions): Promise<void> {
+		// 如果在 settled 通知期间又提交问题，先延迟执行，避免收尾回调内重入当前流程。
 		if (this._isEmittingAgentSettled) {
+			// 把这次调用包装成稍后执行的函数，连同 text/options 一起保存。
 			this._deferredSettledActions.push(async () => await this.prompt(text, options));
+			// 结束当前函数；若位于提前退出分支，后面的模型请求不会执行。
 			return;
 		}
+		// 默认允许斜杠命令、技能与模板展开；?. 允许不传 options，?? 提供缺省值。
 		const expandPromptTemplates = options?.expandPromptTemplates ?? true;
+		// 可选的派发结果通知，RPC 等调用方据此知道请求是处理了、排队了还是启动了。
 		const preflightResult = options?.preflightResult;
 		// Handle extension commands first (execute immediately, even during streaming)
 		// Extension commands manage their own LLM interaction via pi.sendMessage()
+		// 以 / 开头时先检查扩展命令，例如 /my-command；命令可能自己处理，不必请求模型。
 		if (expandPromptTemplates && text.startsWith("/")) {
+			// 查找并执行注册的扩展命令，等待它处理完成。
 			const handled = await this._tryExecuteExtensionCommand(text);
+			// 找到命令并执行后，就不再把同一串文字当普通用户提问发送。
 			if (handled) {
 				// Extension command executed, no prompt to send
+				// 如果调用方订阅了派发结果，通知“已由命令/扩展处理”。
 				preflightResult?.("handled");
+				// 结束当前函数；若位于提前退出分支，后面的模型请求不会执行。
 				return;
 			}
 		}
 
+		// 手动压缩正在进行时拒绝新 prompt，避免同时修改同一份会话上下文。
 		if (this._compactionAbortController !== undefined) {
+			// 当前条件不允许继续时抛出明确错误，Promise 会以拒绝状态交给调用方。
 			throw new Error(
 				"Cannot submit a prompt while compaction is in progress. Wait for compaction to finish and retry.",
 			);
 		}
 
 		// Emit input event for extension interception (before skill/template expansion)
+		// 先让 input 扩展读取/改写输入；这个时点还没做技能和模板展开。
 		const processedInput = await this._runInputHandlers(
+			// 用户原始文字，例如“读取 decision.txt”。
 			text,
+			// 可选的用户图片附件。
 			options?.images,
+			// 标记输入来源，没指定时按 interactive；这不是切换到终端界面。
 			options?.source ?? "interactive",
+			// 只有会话正在工作时，才向扩展传插话/追问的排队方式。
 			this.isStreaming ? options?.streamingBehavior : undefined,
 		);
+		// 扩展已经完全处理了输入时，就不再继续发模型请求。
 		if (!processedInput) {
+			// 如果调用方订阅了派发结果，通知“已由命令/扩展处理”。
 			preflightResult?.("handled");
+			// 结束当前函数；若位于提前退出分支，后面的模型请求不会执行。
 			return;
 		}
+		// 对象解构并改名：取 text 放进 currentText，取 images 放进 currentImages。
 		const { text: currentText, images: currentImages } = processedInput;
 
 		// Expand skill commands (/skill:name args) and prompt templates (/template args)
+		// 先保留处理后的文字，下一步可能把 /skill:name 或模板替换为正文。
 		let expandedText = currentText;
+		// 仅在调用方允许展开时处理技能和提示词模板。
 		if (expandPromptTemplates) {
+			// 把 /skill:name 参数展开成技能内容块；普通文字保持原样。
 			expandedText = this._expandSkillCommand(expandedText);
+			// 再展开提示词模板，例如 /review file.ts 转成一段完整指令。
 			expandedText = expandPromptTemplate(expandedText, [...this.promptTemplates]);
 		}
 
 		// If streaming, queue via steer() or followUp() based on option
+		// 会话已经在处理问题时，不另起并发运行，改走排队逻辑。
 		if (this.isStreaming) {
+			// 忙碌时必须说明是插话还是等当前任务结束后的追问。
 			if (!options?.streamingBehavior) {
+				// 当前条件不允许继续时抛出明确错误，Promise 会以拒绝状态交给调用方。
 				throw new Error(
 					"Agent is already processing. Specify streamingBehavior ('steer' or 'followUp') to queue the message.",
 				);
 			}
+			// followUp：等模型没有工具/插话后再处理，而非立刻停止当前输出。
 			if (options.streamingBehavior === "followUp") {
+				// 加入 follow-up 队列，低层循环自然结束前读取。
 				await this._queueFollowUp(expandedText, currentImages);
+				// 另一个分支；结合相邻 if 理解这里是在处理哪种输入/运行情况。
 			} else {
+				// 加入插话队列，在当前模型及工具回合结束后、下一次请求前投递。
 				await this._queueSteer(expandedText, currentImages);
 			}
+			// 回报“已排队”；本次 prompt 返回不等于排队消息已经获得模型回答。
 			preflightResult?.("queued");
+			// 结束当前函数；若位于提前退出分支，后面的模型请求不会执行。
 			return;
 		}
 
 		// Validate model
+		// 普通空闲提问需要先选定模型，否则无法生成回答。
 		if (!this.model) {
+			// 缺模型时给调用方明确提示，在发送任何请求之前结束。
 			throw new Error(formatNoModelSelectedMessage());
 		}
 
+		// 检查模型供应商是否有可用认证；真正请求时 ModelRuntime 仍会处理凭证。
 		const hasConfiguredAuth =
+			// 已经有配置的认证时可以直接通过这一项。
 			this._modelRuntime.hasConfiguredAuth(this.model.provider) ||
+			// 否则异步查认证，例如供应商自己的环境凭证；存在结果就可以继续。
 			(await this._modelRuntime.checkAuth(this.model.provider)) !== undefined;
+		// 确实没有认证才报错；离线 harness 使用 faux-key，不需要你的真实 API Key。
 		if (!hasConfiguredAuth) {
+			// 区分 OAuth 登录与普通 API key，便于给出正确的修复提示。
 			const isOAuth = this._modelRuntime.isUsingOAuth(this.model.provider);
+			// OAuth 凭证可能过期，下面给出重新登录提示。
 			if (isOAuth) {
+				// 当前条件不允许继续时抛出明确错误，Promise 会以拒绝状态交给调用方。
 				throw new Error(
 					`Authentication failed for "${this.model.provider}". ` +
 						`Credentials may have expired or network is unavailable. ` +
 						`Run '/login ${this.model.provider}' to re-authenticate.`,
 				);
 			}
+			// 没有普通 key 时给出缺认证错误，不进入 Agent 工具循环。
 			throw new Error(formatNoApiKeyFoundMessage(this.model.provider));
 		}
 
+		// 所有前置处理通过：把用户文字/图片交给会话运行入口，随后进入 Agent.prompt。
 		await this._startRun({ messageType: "user", prompt: expandedText, images: currentImages }, () =>
+			// 启动回调：等起始消息准备好，再通知调用方运行已开始。
 			preflightResult?.("started"),
 		);
 	}
