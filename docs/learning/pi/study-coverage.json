@@ -67,6 +67,21 @@
 			"sha256": "b556247874587489810c8117b08f0f2c3f77839de870b8461b79db5aa5fd906e",
 			"note": "整文件：0ms定时器/Promise调度、非精确0耗时及非全部任务完成保证；原成稿/Node类型核对，3helper21条Node断言含单真实timer，无外部I/O。"
 		},
+		"packages/ai/scripts/check-model-data.ts": {
+			"status": "complete",
+			"sha256": "e2bfa14c092510e3ef569ecd5565ce27f9389dedda889989c871fd8d1250047a",
+			"note": "整文件：按脚本定位包根、立即校验与stdout/stderr/exitCode、unknown错误；原16/稿29及callee全文和独立审。无直接入口门禁，import也执行，不等于下载/修复。未运行此CLI或读真实生成数据。"
+		},
+		"packages/ai/scripts/hydrate-model-catalog.ts": {
+			"status": "complete",
+			"sha256": "5af0d25a7334f7693ac045e0d49cf0894d1bc8168321ad15a3c93512264bdd30",
+			"note": "整文件：本地typed目录到API分组JSON、固定时刻manifest、暂存验证与替换、CLI门禁；原86/稿151与callee全文及独立审。validateOnly仍写暂存，先rm旧data再rename失败无回滚。只静态核本文件，17验证用例导入不触发CLI，13水合用例未运行。"
+		},
+		"packages/ai/scripts/model-data.ts": {
+			"status": "complete",
+			"sha256": "99b6f655a086c54ce58f152d19452bd2ad6d1d499a6e2a3173b02e8b5ae6d096",
+			"note": "整文件：数据分组/结构提取/manifest与字段校验、两层Record/泛型/unknown收窄及指纹边界；原336/稿587与实际生成调用全文、独立审，结构预期来自当前JSON非独立上游allowlist，脚本源码不入hash。指定验证17通过、13水合用例未选中，未运行真实生成。"
+		},
 		"packages/ai/src/api/anthropic-messages.lazy.ts": {
 			"status": "complete",
 			"sha256": "f281e9a64b3adfa8f7038e84bc02cac8d2e4604d12b49a51f95d1bc3f026ab70",
@@ -866,6 +881,11 @@
 			"status": "complete",
 			"sha256": "31c99e6fa8ef0fc20c4721064bb812df32216fbfcfb598ebb31e09d8dfe855ff",
 			"note": "整文件：目录字面量类型/三例Copilot运行元数据，原/稿/成稿/实际目录及expect-type实现核；3例通过，expectTypeOf证明另由统一tsc，未调用模型。"
+		},
+		"packages/ai/test/model-data-validation.test.ts": {
+			"status": "complete",
+			"sha256": "6196caae6b880f2c13b928983f907ff7745d134e706093743bb19a66ed144627",
+			"note": "整文件：临时包夹具/TS文字非执行、manifest/结构hash、13水合与17验证参数化断言、清理与TS语法；原355/稿630及真实callee全文、自审和独立审。只执行generated validation精确17通过，其余13按名字未选中，无真实数据/认证/模型请求。"
 		},
 		"packages/ai/test/opencode-provider-headers.test.ts": {
 			"status": "complete",
@@ -2312,10 +2332,35 @@
 			"sha256": "f9d94f530fbb9595ac92e32092f77b8df75726711e1387711478ac6e975d2422",
 			"note": "整文件：11例路径/显示宽度/费用/缓存/订阅测试，双重as不造真实会话、mock条目引用不同实际浅拷贝；原/成稿/必要callee全文及独立审，11例通过。"
 		},
+		"packages/coding-agent/test/interactive-mode-anthropic-warning.test.ts": {
+			"status": "complete",
+			"sha256": "b99cba32c0e7bb05d9bc63cebaa39e0d55ea6519a6c1d7a5bddda594380fbad5",
+			"note": "整文件：4例订阅警告顺序去重、oauth直达、供应商与设置门禁，mockResolvedValue/可选字段/旧any边界；原89/稿148与真实callee全文、独立审，指定两文件6通过，全假认证。oauth标题虽提刷新失败，实际仅证明绕过getAuth，没有模拟reject。"
+		},
+		"packages/coding-agent/test/interactive-mode-assistant-diagnostics.test.ts": {
+			"status": "complete",
+			"sha256": "bc6edd1e248837b07751b8e4a7946270b9aa849d292a3ae06883319c54ad528a",
+			"note": "整文件：2例Anthropic思考丢弃记录计数/显示开关/与最近助手总数比较、手写诊断/浅展开共享及this/.call/类型擦除；原95/稿166及实际callee全文、独立审，指定两文件6通过，只内存提示渲染，不请求Anthropic或复原思考。"
+		},
 		"packages/coding-agent/test/interactive-mode-bug-report-hint.test.ts": {
 			"status": "complete",
 			"sha256": "f97c73f55884b85266e8a6df94dd473ac83ab01c633f290fe2bdbc89608fdc41",
 			"note": "整文件：5例报告提示资格/去重/命令文字与原型假对象、Reflect/this/.call语法及断言边界；原71/稿118全文、实际callee和独立只读审，删新增说明逐字还原，三指定文件12通过，不执行真实报告/安装探测。"
+		},
+		"packages/coding-agent/test/interactive-mode-compaction.test.ts": {
+			"status": "complete",
+			"sha256": "d338551503e9e3dd0c558818b58440146f5a646424079809385ca261fa085088",
+			"note": "整文件：6例压缩/分支摘要费用、转换顺序与身份Map、压缩结束/turn_start/abort/刷新steer，逐字段断言与TS语法；原283/稿510及所有相关callee全文、独立审，单文件6通过。费用深匹配非引用身份证明，void后台不等完成、active标题未造真实Agent，必有result可undefined与usage?区别已解释。"
+		},
+		"packages/coding-agent/test/interactive-mode-model-scope.test.ts": {
+			"status": "complete",
+			"sha256": "c5bf11d008dc604c2c1ee5e94595a45c4625ddac5f43423690a746beb38ce2ed",
+			"note": "整文件：2例模型范围页头、显示开关与console spy覆盖窗口、最小this/双重as/.call/实际组件渲染；原58/稿100及callee全文、独立审，PI_HYPERLINKS=0指定两文件5通过，不构造真实交互。"
+		},
+		"packages/coding-agent/test/interactive-mode-startup-input.test.ts": {
+			"status": "complete",
+			"sha256": "b2c5272c1e8021915dbb667a3677325e8118fa221c76d90d7db0a3f85d6c9834",
+			"note": "整文件：3例启动早期文字恢复、无等待者空闲暂存和先取FIFO、void接口实际async Promise/可选调用/this语法；原90/稿152和完整提交/getUserInput实际callee全文、独立审。指定两文件5通过，仅原型内存替身，不运行工具安装或模型。"
 		},
 		"packages/coding-agent/test/llama-extension.test.ts": {
 			"status": "complete",

@@ -2,6 +2,58 @@
 
 分支：`learning/full-chain-study-bay`。日志记录具体完成范围和验证，不把计划写成已经完成。
 
+## 2026-11-05：思考诊断、订阅警告与压缩事件测试
+
+第五十批新增3份完整文件，467原行补至824行，仅加357条中文。累计完整678、待处理2,184、来源或候选82，部分与需复核均0，总数2,944。
+
+- 诊断与警告两文件184补至314行。说明手构造三条thinking_dropped只验证提示计数，不证明真的丢过思考；相等计数抑制而非内容去重，浅展开仍共享diagnostics；顺序重复警告不是并发去重。OAuth用例没有设置reject，实际只检查已存oauth直接警告且getAuth未调用，不把标题当执行事实。旧any保留并解释其放宽类型检查作用，假key只测前缀，不访问凭据。作者/独立审及root全文核原稿、成稿和真实callee，两文件6通过。
+- 压缩测试283补至510行。逐语句说明费用四类token之和、cost.total展示、消息顺序与对象键Map、压缩结束和turn_start、无队列时abort及保留steer意图。费用使用深匹配不独立证明usage引用身份，已按独立审建议收准；原型事件没有真实压缩模型，active run标题没有真实Agent，void后台刷新/abort不等于完成。root完整读原/稿与全部相关callee，独立全文审通过，单文件6通过。另解释result字段必有但值可undefined与usage?可省之间的TS区别。
+
+验证结果：
+
+- 合计3个不同指定测试文件12通过，无跳过；只用原型和内存替身，首例真实组件文字渲染。PI_HYPERLINKS=0避免冷tmux，两个debug=0避免调试落盘；两警告测试的临时agentDir最终为空并已删除。没有真实模型、认证、TTY、剪贴板或压缩摘要调用。
+- `npm run check`全部通过，只给压缩稿六条函数类型尾部中文加一tab，差异逐块核对；另外两稿无格式变化。相对阶段HEAD的9份TS/JS完整AST、执行JS、指令及下一非空行一致；6原非中文保留，1,065中文无异常控制字符，`git diff --check`通过。三份最终源删新说明逐字恢复HEAD。
+- 旧706条显式指纹全部不变，新增3条后保存709份匹配快照；临时写入器/生成器删除，无依赖、锁、生成产物变化。接着归档第49–50批9份完成文件与3份维护文档；Editor和状态长稿仍TMP，后续树导航/克隆也不提前纳入。推送目标仍待答，官方origin 403未解决。
+
+实际命令（`packages/coding-agent`）：
+
+```sh
+PI_HYPERLINKS=0 PI_TUI_DEBUG=0 PI_TUI_DEBUG_REDRAW=0 PI_CODING_AGENT_DIR=/tmp/pi-interactive50-mcCdRk node ../../node_modules/vitest/dist/cli.js --run test/interactive-mode-assistant-diagnostics.test.ts test/interactive-mode-anthropic-warning.test.ts
+
+PI_HYPERLINKS=0 PI_TUI_DEBUG=0 PI_TUI_DEBUG_REDRAW=0 PI_CODING_AGENT_DIR=/tmp/pi-study-validation-bay/compaction50-agent node ../../node_modules/vitest/dist/cli.js --run test/interactive-mode-compaction.test.ts
+```
+
+## 2026-11-05：模型数据校验链与启动输入测试
+
+第四十九批新增6份完整文件，941原行补至1,649行，仅加708条中文。累计完整675、待处理2,187、来源或候选82，部分与需复核均0，总数2,944。此批在第三阶段提交`c5e3a28a3`之后继续。
+
+- AI四文件793补至1,397行：model-data、hydrate、check CLI与完整参数化测试。逐函数解释结构提取/分组、manifest、必要字段/错误汇总、本地暂存替换、CLI门禁与TS类型。当前JSON提供type:id/API结构，聚合TS只提取provider名单；一致性校验不是独立上游允许列表或签名验证。结构hash/正文hash不包含脚本源码，不需要修改生成数据或pin。validateOnly仍写/清暂存，先rm旧data再rename失败没有回滚；check CLI没有直接运行门禁，import也会执行，测试未导入它。
+- 两份交互测试148补至252行：模型范围页头和启动输入。说明真实Container/ThemedText内存渲染、console spy只覆盖同步show调用不含后续render、最小this与双重as、.call、声明void不擦掉实际async返回值、FIFO和Session插话队列的区别。只核单条队列样本，不冒称多等待者/取消/真实启动流程均已覆盖。
+- 作者完整读原/稿与实际callee，独立审再全文核对；root另全文读四AI原/稿和两测试原/稿，检查实际hash来源、主题/组件与完整提交逻辑。独立审建议把“不进入替换阶段”的测试说明收准为“调用后旧provider正文不变”，已修；主题颜色冷态可能探测tmux的边界也已补入。
+
+验证结果：
+
+- AI只选择generated model data validation组，单文件17通过，另外13个水合用例按名字未选中；夹具仅在自建随机临时包写TS文字、JSON和manifest，不执行临时TS、CLI或生成器，不改真实data目录。未将未运行的水合分组说成运行通过。
+- coding-agent两文件共5通过，只借原型和内存假上下文。固定PI_HYPERLINKS=0避免冷tmux查询，没有真实TUI、认证、工具安装或模型调用。合计3个不同文件22通过。
+- `npm run check`全部通过，formatter只给AI测试两条中文和model-scope一条finally中文调整缩进，完整差异已核。相对新HEAD的6份TS/JS完整AST、执行JS、指令及下一非空行一致；5条原非中文保留，708条中文无异常控制字符，`git diff --check`通过。最终6份删新说明后逐字恢复HEAD，不只比较执行结果。
+- 此前700条显式指纹全部不变，新增6条后保存706份匹配快照；临时源码写入器/生成器删除，没有改依赖、锁或生成产物。下一批继续压缩事件、诊断/费用警告测试；Editor和状态测试长稿仅TMP。推送仍待可写目标答复，官方origin的403未解决。
+
+实际命令：
+
+```sh
+# packages/ai：精确选择17项验证，13项水合未选中
+node ../../node_modules/vitest/dist/cli.js --run test/model-data-validation.test.ts -t '^generated model data validation '
+
+# packages/coding-agent：2文件5项
+PI_HYPERLINKS=0 PI_TUI_DEBUG=0 PI_TUI_DEBUG_REDRAW=0 PI_CODING_AGENT_DIR=/tmp/pi-study-validation-bay/interactive49-agent node ../../node_modules/vitest/dist/cli.js --run test/interactive-mode-model-scope.test.ts test/interactive-mode-startup-input.test.ts
+```
+
+## 2026-11-05：第三阶段已提交，继续模型数据与编辑器
+
+第三阶段已本地提交`c5e3a28a3037452f35b54ba869410385b450c431`，标题`docs: annotate full interactive flow and terminal tests in Chinese`。归档第46–48批13份完成文件与3份学习维护文档，共16个明确路径、7,497行增加/31行删除；删除部分来自原表达式格式整理和进度文档更新，AST及执行JS一致。正常提交钩子的全检查和额外browser smoke全部通过，无格式调整。提交后工作区干净，覆盖669完整/2,193待处理/0需复核，700份显式指纹和暂存内容核对一致。
+
+官方origin的403仍待可写目标答复，当前三次阶段提交均只保存在本地学习分支，没有推送成功。没有重复向已知无权限目标盲推、改origin、创建fork或强推。继续下一批模型数据校验、Editor和交互输入测试；未完成稿只留tmp。后续差异检查以新HEAD为起点，上一阶段13份TS/JS的报告仍对应`ad3adf32e`。
+
 ## 2026-11-05：完整交互主入口与备用屏测试
 
 第四十八批新增4份完整文件，9,590原行补至16,580行，新增6,980条中文说明，另外10行来自格式整理。累计完整669、待处理2,193、来源或候选82，部分与需复核均0，总数2,944。整个仓库仍未完成。
