@@ -1,54 +1,96 @@
 <!DOCTYPE html>
+<!-- 会话导出页的HTML骨架，由index.ts读取，再把主题CSS、会话Base64和本地脚本填入占位位置，生成一个HTML文件；此模板不读取JSONL或调用模型。 -->
+<!-- 例如导出含多个分支的会话，浏览器先解码全部历史，再在左侧画树、右侧显示选中分支；侧栏筛选只改展示，不删除内嵌数据。 -->
+<!-- 这里用HTML描述结构：标签创建元素，id供脚本定位，class供CSS选择，data属性给脚本读设置值；TypeScript的接口/类型注解并不在这些标签上起作用。 -->
+<!-- 首行DOCTYPE选择现代HTML文档模式；lang声明文档语言为英语，不会把会话文字翻译成英语，中文仍按UTF-8处理。 -->
 <html lang="en">
+<!-- head保存元数据、标题和内联样式，不是聊天正文区域。 -->
 <head>
+  <!-- charset指定UTF-8解码文件，和后面Base64还原中文JSON的TextDecoder步骤分开。 -->
   <meta charset="UTF-8">
+  <!-- 移动端按设备宽度设置初始视口和缩放，让CSS的900px断点按实际布局宽度工作，而不是判操作系统。 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 浏览器标签页的初始标题是Session Export；页面头部的会话标题由查看器另行渲染，二者不是同一节点。 -->
   <title>Session Export</title>
+  <!-- style内是CSS文本槽，导出器先给template.css填主题变量，再把所得样式放到下面；这里放完整CSS源码，不是外部样式表URL。 -->
   <style>
 {{CSS}}
   </style>
 </head>
+<!-- body包含页面元素，脚本放在底部，正常顺序执行时这些固定id已被解析；标签存在不自动绑定交互。 -->
 <body>
+  <!-- 小屏打开侧栏的按钮，id是脚本定位点，title是提示文字；SVG在同一原行画三个节点和连线，不依赖外部图标下载。 -->
+  <!-- SVG使用14×14显示尺寸和24×24坐标框，fill=currentColor继承文字色，stroke=none不描边；CSS默认隐藏按钮，900px及以下才显示，点击由查看器加open类。 -->
   <button id="hamburger" title="Open sidebar"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="12" r="2.5"/><rect x="5" y="6" width="2" height="12"/><path d="M6 12h10c1 0 2 0 2-2V8"/></svg></button>
+  <!-- 小屏侧栏后方遮罩节点，CSS决定显示和层级；查看器给它绑定点击关闭，不通过这个空div存储会话。 -->
   <div id="sidebar-overlay"></div>
+  <!-- app是侧栏、拖拽条和正文等区域的外层容器，CSS用flex排主布局，不在这个元素里序列化历史。 -->
   <div id="app">
+    <!-- aside表示辅助导航区，id=sidebar供脚本开关；桌面样式是粘住顶部的侧栏，小屏改为固定滑入层。 -->
     <aside id="sidebar">
+      <!-- 侧栏头部包住搜索与筛选区，和下面滚动树列表分开布局。 -->
       <div class="sidebar-header">
+        <!-- 搜索输入的外层间距容器，class只选择样式，不在此实现搜索函数。 -->
         <div class="sidebar-controls">
+          <!-- 文本框的placeholder只是空输入提示，id=tree-search供input监听读value；无form提交，不向模型发查询。 -->
+          <!-- 查看器按空白分词并忽略大小写，要求词都命中同一节点搜索文字；当前叶有保留例外，搜索只影响侧栏树。 -->
           <input type="text" class="sidebar-search" id="tree-search" placeholder="Search...">
         </div>
+        <!-- 筛选按钮行，实际模式取各按钮的data-filter值；active类控制选中外观，逻辑还需要查看器更新filterMode。 -->
         <div class="sidebar-filters">
+          <!-- 默认按钮初带active；default隐藏label/custom/context_edit/model_change/thinking_level_change等设置条目，当前叶保留规则优先。 -->
           <button class="filter-btn active" data-filter="default" title="Hide settings entries">Default</button>
+          <!-- no-tools在默认排除项上再排工具结果，不等于从内嵌历史删工具，也不保证右侧正文不显示工具。 -->
           <button class="filter-btn" data-filter="no-tools" title="Default minus tool results">No-tools</button>
+          <!-- user-only选择用户消息作为侧栏节点；当前叶可被例外保留，所以不能承诺每个可见节点一定都是user。 -->
           <button class="filter-btn" data-filter="user-only" title="Only user messages">User</button>
+          <!-- labeled-only筛有label记录的节点，查看器按label是否undefined判定，不在点击时新建标签。 -->
           <button class="filter-btn" data-filter="labeled-only" title="Only labeled entries">Labeled</button>
+          <!-- all放行模式筛选，但此前无正文的普通助手工具调用节点仍可能隐藏，搜索和当前叶规则仍适用；不是绝对显示每条原始记录。 -->
           <button class="filter-btn" data-filter="all" title="Show everything">All</button>
+          <!-- 小屏关闭按钮保留原交叉符号和title，id供closeSidebar监听；CSS桌面默认隐藏，按钮本身不结束会话或关闭浏览器。 -->
           <button class="sidebar-close" id="sidebar-close" title="Close">✕</button>
         </div>
       </div>
+      <!-- 树的空挂载点，查看器依据全部历史/当前路径生成节点并写innerHTML；原模板不预写某一条会话树。 -->
       <div class="tree-container" id="tree-container"></div>
+      <!-- 树状态空挂载点，查看器写可见数量与展平总数，例如5 / 12 entries，不等于模型上下文token统计。 -->
       <div class="tree-status" id="tree-status"></div>
     </aside>
+    <!-- 侧栏拖拽分隔条，role/aria说明竖直分隔用途给辅助技术，但这些属性本身不增加拖拽或键盘逻辑。 -->
+    <!-- 实际查看器用pointer事件改根CSS宽度变量、双击重置并尝试localStorage持久化；小屏隐藏此条，不把宽度写回会话数据。 -->
     <div id="sidebar-resizer" role="separator" aria-orientation="vertical" aria-label="Resize session tree sidebar"></div>
+    <!-- main是主要阅读区，id=content还供深链接滚动定位，不是保存整个聊天数据的容器。 -->
     <main id="content">
+      <!-- 页头空挂载点，查看器renderHeader生成会话信息/展示开关等HTML，再写入这里。 -->
       <div id="header-container"></div>
+      <!-- 消息空挂载点，查看器按当前叶到根的路径生成右侧正文；左侧树的filter/search不会删减这条消息路径。 -->
       <div id="messages"></div>
     </main>
+    <!-- 下面保留名为image-modal的容器结构；当前template.js和template.css未引用这个id/类，不能仅凭名字认为已有可工作的图片弹层。 -->
     <div id="image-modal" class="image-modal">
+      <!-- 图片节点初始src/alt均为空，id本身不会把图片URL填入；当前查看器没有为它绑定弹层打开/关闭的JS逻辑，单个img标签也不自动提供这套交互。 -->
       <img id="modal-image" src="" alt="">
     </div>
   </div>
 
+  <!-- 这个script是内嵌数据槽：type=application/json让浏览器不当普通JS执行，但导出器实际填的是JSON的UTF-8字节经Base64编码的文字，并非可直接JSON.parse的JSON正文。 -->
+  <!-- 查看器读textContent后依次atob、Uint8Array、TextDecoder、JSON.parse；Base64不加密、不脱敏，所有分支和隐藏内容仍随文件可读取。 -->
   <script id="session-data" type="application/json">{{SESSION_DATA}}</script>
 
   <!-- Vendored libraries -->
+  <!-- 先以内联普通script装入本地marked库，提供Markdown解析全局对象；导出器读现有vendor资产，不在浏览器从CDN下载这段库。 -->
   <script>{{MARKED_JS}}</script>
+  <!-- 再装CJK友好tokenizer工厂，后面的查看器把它的emStrong接到marked解析器；这段库先定义全局工厂，单纯装载它还不等于已经启用插件。 -->
   <script>{{MARKED_CJK_FRIENDLY_JS}}</script>
 
   <!-- highlight.js -->
+  <!-- 装入本地highlight.js全局对象，后面的查看器用它高亮代码块，不在这行执行会话工具或模型。 -->
   <script>{{HIGHLIGHT_JS}}</script>
 
   <!-- Main application code -->
+  <!-- 最后放手写查看器脚本，依赖前面元素/库/数据已存在；没有defer或async属性，正常解析按这里的顺序执行。 -->
+  <!-- script内容会作为JS源码解析，与标签外HTML注释是不同语言；这些资源内联不等于任意Markdown外链图片也会离线可用。 -->
   <script>
 {{JS}}
   </script>

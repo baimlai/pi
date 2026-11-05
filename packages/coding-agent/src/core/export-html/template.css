@@ -1,1085 +1,1784 @@
+    /* 导出会话页的样式模板：index.ts先替换主题/三种背景占位，再内联进HTML，浏览器按选择器把规则应用到查看器生成的元素。 */
+    /* 阅读顺序是主题变量→整体与侧栏布局→消息/工具/思考等状态→Markdown/高亮→小屏/打印；CSS只控制展示，点击如何改class由template.js实现。 */
+    /* 例如工具结果加expanded类后，后面的规则切换预览/全文的display；样式开关不会重跑历史工具，也不改会话数据。 */
+    /* 选择器后大括号里是属性和值；分号结束声明。井号选id、点号选class，冒号选状态，var读取CSS自定义属性；这与TypeScript对象/函数语法分开。 */
+    /* :root匹配文档根元素，统一存可继承的主题变量；下面的花括号占位由Node导出器替换，原模板本身还不是最终CSS。 */
     :root {
+      /* 导出器在此插入一组主题变量声明，例如文字/边框/工具状态色；只替换首次占位，注释中不另复制该占位串。 */
       {{THEME_VARS}}
+      /* 页面底色变量来自导出主题解析后的页面背景，实际值在生成HTML时填入。 */
       --body-bg: {{BODY_BG}};
+      /* 卡片/侧栏容器背景单独保存，和页面底色可以不同。 */
       --container-bg: {{CONTAINER_BG}};
+      /* 信息区域背景也单独注入，不由浏览器实时探测终端背景。 */
       --info-bg: {{INFO_BG}};
     }
 
+    /* 通配符选元素，统一清默认外边距/内边距，并让width/height包含padding和border；没有在此选中所有伪元素。 */
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    /* 第二组根变量补布局尺寸，不会清空前一组主题变量；同名属性才按层叠规则覆盖。 */
     :root {
+      /* 基础行距18px，与下面12px字体的1.5倍相配；这是CSS变量名，不是TypeScript变量，其他间距也复用它。 */
       --line-height: 18px; /* 12px font * 1.5 */
+      /* 桌面侧栏初始宽400px；查看器可用根元素style.setProperty覆盖，并尝试从localStorage恢复。 */
       --sidebar-width: 400px;
+      /* 拖拽宽度的最小值240px供JS读取；变量本身不会自动把每个元素限制到240。 */
       --sidebar-min-width: 240px;
+      /* 拖拽最大值840px，JS还会结合视口给正文留空间，不能只看此值就认定可拖到840。 */
       --sidebar-max-width: 840px;
+      /* 可拖拽分隔条宽6px，与侧栏正文宽分开计算。 */
       --sidebar-resizer-width: 6px;
     }
 
+    /* body定义导出页默认文字和底色，后代可继承文字属性；消息卡片等区域还会另覆盖颜色/背景。 */
     body {
+      /* 字体按从左到右选择可用等宽字体，最后monospace兜底；列的是本机字体族，不会在这行下载这些字体。 */
       font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+      /* 全页默认字形大小12px，后面标题和树节点可有自己的字号。 */
       font-size: 12px;
+      /* 用根变量作为默认行高18px，给文本和竖向间距统一节奏。 */
       line-height: var(--line-height);
+      /* 文字采用主题text色；变量替换的是颜色声明，不会修改原会话内容。 */
       color: var(--text);
+      /* body填页面背景色，和卡片container背景区分。 */
       background: var(--body-bg);
     }
 
+    /* 仅当body带sidebar-resizing类时启用拖拽状态，类由查看器pointer处理添加/移除。 */
     body.sidebar-resizing {
+      /* 拖拽时用左右调整大小的光标提示，不会由这个值自己绑定拖拽事件。 */
       cursor: col-resize;
+      /* 拖拽过程中禁止通常的文字选择，减少拉宽度时顺便选中聊天文字；不改变底层内容。 */
       user-select: none;
     }
 
+    /* app外框把侧栏、分隔条、正文等直接子元素放进弹性布局。 */
     #app {
+      /* flex默认按行排列，下面各子项再决定自己的宽度与伸缩。 */
       display: flex;
+      /* 最小高度为视口高度的100%，长正文仍可让容器继续增高，并非固定只有一屏。 */
       min-height: 100vh;
     }
 
     /* Sidebar */
+    /* 按id选择侧栏，桌面把它作为独立固定宽度的竖向导航栏；小屏媒体规则稍后覆盖定位/宽度。 */
     #sidebar {
+      /* 目标宽度取sidebar-width，JS拖拽修改根变量后这里随之更新。 */
       width: var(--sidebar-width);
+      /* 最小宽也等于同一变量，阻止普通flex收缩把侧栏挤窄。 */
       min-width: var(--sidebar-width);
+      /* 最大宽同样固定到该变量，三条一起约束当前侧栏宽度。 */
       max-width: var(--sidebar-width);
+      /* 侧栏用容器底色，而非整页body背景。 */
       background: var(--container-bg);
+      /* 不分摊负剩余空间的收缩；正文的可缩性另设。 */
       flex-shrink: 0;
+      /* 侧栏内部也建立flex布局，和外层app是两级布局。 */
       display: flex;
+      /* 内部子元素沿纵向排列，使标题、树、状态行依次堆叠。 */
       flex-direction: column;
+      /* sticky让侧栏仍占正常布局位置，再在滚动条件满足时粘住；不是脱离文档流的fixed。 */
       position: sticky;
+      /* 粘住时离可用滚动容器顶部0，不给侧栏额外顶边空隙。 */
       top: 0;
+      /* 侧栏高度取一视口，使里面可伸缩树区域有受限高度可滚动。 */
       height: 100vh;
+      /* 右侧1px实线用dim主题色，分隔树和正文。 */
       border-right: 1px solid var(--dim);
     }
 
+    /* 按id选择桌面的拖拽条，JS只给这条绑定pointer/dblclick等宽度交互。 */
     #sidebar-resizer {
+      /* 宽度取单独的6px变量，不占用侧栏自身的400px。 */
       width: var(--sidebar-resizer-width);
+      /* 不让外层flex负剩余空间把拖拽命中区域再压窄。 */
       flex-shrink: 0;
+      /* 拖拽条也sticky，与侧栏一同保持在视口范围。 */
       position: sticky;
+      /* 顶部粘住0，与侧栏对齐。 */
       top: 0;
+      /* 高度跟一视口，形成竖直的操作带。 */
       height: 100vh;
+      /* 悬停显示左右调整光标，只提供视觉提示，实际处理在查看器。 */
       cursor: col-resize;
+      /* 关闭此区域通常的触摸手势处理，便于pointer拖拽；小屏规则后面会直接隐藏该条。 */
       touch-action: none;
+      /* 默认透明背景，让窄条融入页面，不等于这个元素不占空间或不能接事件。 */
       background: transparent;
+      /* 预留1px透明右边框，后面变色时不突然新增边框宽度。 */
       border-right: 1px solid transparent;
     }
 
+    /* 逗号把两个选择器并成同组：条被hover，或body正在拖拽时选该条；下面两条声明同时适用，连续选择器是一整个规则。 */
     #sidebar-resizer:hover,
     body.sidebar-resizing #sidebar-resizer {
+      /* 悬停/拖拽时给条selectedBg背景，显示当前操作目标。 */
       background: var(--selectedBg);
+      /* 把已存在的右边框改为dim色，不重新设边框厚度或样式。 */
       border-right-color: var(--dim);
     }
 
+    /* 侧栏头部容器留固定上下/左右间距，和可滚动树区分开。 */
     .sidebar-header {
+      /* 两值padding按上下8px、左右12px解释，不是横纵颠倒。 */
       padding: 8px 12px;
+      /* 头部不参与flex压缩，优先保持搜索/按钮区的尺寸。 */
       flex-shrink: 0;
     }
 
+    /* 搜索控制区再加局部内边距；这些padding会与外层头部内边距叠加。 */
     .sidebar-controls {
+      /* 四值padding依次上8、右8、下4、左8px，按顺时针顺序。 */
       padding: 8px 8px 4px 8px;
     }
 
+    /* 搜索输入框的类选择器，负责外观和宽度；input事件搜索逻辑在JS，不由这些声明执行。 */
     .sidebar-search {
+      /* 输入框占父容器内容区全宽，不是整个浏览器视口宽。 */
       width: 100%;
+      /* 明确采用border-box，让100%宽里包含自己的边框/padding，与通配符设置一致。 */
       box-sizing: border-box;
+      /* 框内上下4px、左右8px，文字不贴边。 */
       padding: 4px 8px;
+      /* 搜索文字11px，比全页默认12px稍小。 */
       font-size: 11px;
+      /* inherit让原生输入控件使用父级等宽字体，避免浏览器控件默认字体不一致。 */
       font-family: inherit;
+      /* 输入框用页面底色，在容器背景上形成内凹区域的视觉区分。 */
       background: var(--body-bg);
+      /* 输入文字继承主题text的颜色值。 */
       color: var(--text);
+      /* 1px dim实线边框，默认状态比聚焦时的accent弱。 */
       border: 1px solid var(--dim);
+      /* 输入框四角半径3px。 */
       border-radius: 3px;
     }
 
+    /* 筛选按钮的flex行，空间不足允许换行，而不是裁掉后面的选项。 */
     .sidebar-filters {
+      /* 把按钮子项放进flex排列。 */
       display: flex;
+      /* 上4、右8、下8、左8px内边距，与搜索区分出上下节奏。 */
       padding: 4px 8px 8px 8px;
+      /* 按钮之间留4px gap，属于容器间隙，不是每个按钮自己的margin。 */
       gap: 4px;
+      /* 同一flex行内交叉方向居中，不决定整条按钮行在页面的左右位置。 */
       align-items: center;
+      /* 允许按钮组折到下一行，配合不同窗口宽度。 */
       flex-wrap: wrap;
     }
 
+    /* 输入框获得焦点时匹配:focus，包含键盘聚焦或点击等情况，不是只有鼠标悬停。 */
     .sidebar-search:focus {
+      /* 移除默认outline，下一条自定义边框承担这里的聚焦提示；本行不会自动提供另一种焦点样式。 */
       outline: none;
+      /* 边框颜色改主题accent，厚度沿用原来的1px。 */
       border-color: var(--accent);
     }
 
+    /* 双冒号placeholder选择输入提示文字这一伪元素，不是输入框真正的value。 */
     .sidebar-search::placeholder {
+      /* 空输入提示用muted色，用户实际输入仍由上面的text色显示。 */
       color: var(--muted);
     }
 
+    /* 所有筛选按钮共用的基础外观，之后:hover与.active分别补悬停/选中状态。 */
     .filter-btn {
+      /* 按钮内上下3px、左右8px，使短文案可点击而不挤在边框上。 */
       padding: 3px 8px;
+      /* 按钮字号10px，和搜索框11px分开。 */
       font-size: 10px;
+      /* 沿用父级字体，避免系统button默认字体差异。 */
       font-family: inherit;
+      /* 默认透明背景，让未选按钮显得轻。 */
       background: transparent;
+      /* 未选中文字用muted色。 */
       color: var(--muted);
+      /* dim色1px实线提供按钮边界。 */
       border: 1px solid var(--dim);
+      /* 按钮3px圆角，和搜索框相近。 */
       border-radius: 3px;
+      /* 指针光标提示可点，真正筛选仍由click监听绑定。 */
       cursor: pointer;
     }
 
+    /* 鼠标悬停筛选按钮时匹配，未在这里改变active类或当前筛选模式。 */
     .filter-btn:hover {
+      /* 悬停文字提亮为text色。 */
       color: var(--text);
+      /* 悬停边框也用text色，厚度/样式保持。 */
       border-color: var(--text);
     }
 
+    /* 复合类选择器要求同一元素同时有filter-btn和active；选中类由初始HTML/点击脚本维护。 */
     .filter-btn.active {
+      /* 选中按钮用accent填背景，以强调模式。 */
       background: var(--accent);
+      /* 选中文字用页面底色形成反差，是否足够清晰仍取决于具体主题。 */
       color: var(--body-bg);
+      /* 边框也用accent，让选中块外缘统一。 */
       border-color: var(--accent);
     }
 
+    /* 侧栏关闭按钮的基础样式，桌面默认隐藏，后面小屏媒体规则再显示。 */
     .sidebar-close {
+      /* display:none让它不占普通布局空间，但DOM元素和JS监听仍存在。 */
       display: none;
+      /* 显示后用上下3px、左右8px内边距。 */
       padding: 3px 8px;
+      /* 关闭符号字号12px，与较小筛选文案区分。 */
       font-size: 12px;
+      /* 同样沿用等宽字体。 */
       font-family: inherit;
+      /* 关闭按钮默认透明底。 */
       background: transparent;
+      /* 符号默认muted色。 */
       color: var(--muted);
+      /* dim色细实线边框。 */
       border: 1px solid var(--dim);
+      /* 3px圆角沿用按钮造型。 */
       border-radius: 3px;
+      /* 显示时用手形提示可点，不直接关闭浏览器。 */
       cursor: pointer;
+      /* 在flex按钮行内用自动左外边距占掉可用余量，将关闭按钮推向行的右端。 */
       margin-left: auto;
     }
 
+    /* 关闭按钮hover时仅变样式，点击关闭逻辑另外去掉侧栏/遮罩open类。 */
     .sidebar-close:hover {
+      /* 悬停符号用text色。 */
       color: var(--text);
+      /* 悬停边框也提为text色。 */
       border-color: var(--text);
     }
 
+    /* 树滚动容器占侧栏头/状态之外的可用空间，节点由查看器动态生成。 */
     .tree-container {
+      /* flex:1让树区按可用剩余空间伸缩，不把每棵树固定成某个像素高度。 */
       flex: 1;
+      /* 溢出时允许滚动，长树/不换行节点也可能产生横滚；未写只限制纵轴。 */
       overflow: auto;
+      /* 树容器上下4px、左右0，节点自己另有左右缩进。 */
       padding: 4px 0;
     }
 
+    /* 单个树节点的基础行，通常由条目类型、当前路径/选中状态再加其它类。 */
     .tree-node {
+      /* 节点左右留8px，上下不加padding。 */
       padding: 0 8px;
+      /* 光标提示节点可导航；实际click还需要查看器路由。 */
       cursor: pointer;
+      /* 前缀、标记、正文作为flex子项排在同一行。 */
       display: flex;
+      /* 按文字基线对齐，不用盒子的几何中心强行对齐不同字形。 */
       align-items: baseline;
+      /* 树字号11px，和正文12px分开。 */
       font-size: 11px;
+      /* 树行高13px，树的行距比正文默认18px更紧凑。 */
       line-height: 13px;
+      /* 整行不自动换行，超长节点交树容器overflow处理。 */
       white-space: nowrap;
     }
 
+    /* hover给树行声明悬停背景，不改变当前叶或路径；最终背景还需结合后面的in-path同优先级规则。 */
     .tree-node:hover {
+      /* 这条声明选择selectedBg主题变量；同时匹配in-path时，支持color-mix的浏览器会由后置路径声明覆盖。 */
       background: var(--selectedBg);
     }
 
+    /* active类标当前滚动目标节点currentTargetId，和in-path表示当前根到叶路径不是同一状态；目标可以是路径中间条目。 */
     .tree-node.active {
+      /* 本选中规则声明selectedBg背景；若节点同时在当前路径，后面的in-path同优先级声明会覆盖它，不能只凭此行推断最终颜色。 */
       background: var(--selectedBg);
     }
 
+    /* 空格是后代选择器：选active树节点内部的tree-content，而非要求这三个类在同一元素。 */
     .tree-node.active .tree-content {
+      /* 选中行的正文加粗；前缀/标记未在此一起设粗体。 */
       font-weight: bold;
     }
 
+    /* in-path表示位于当前根到叶路径的树节点，JS维护这个类，不靠CSS推导父子链。 */
     .tree-node.in-path {
+      /* 按sRGB把10%accent与透明色混成淡底，不是直接把整个节点opacity设10%；不支持color-mix的浏览器不会应用这一声明。 */
+      /* in-path、active和hover三组背景规则的选择器优先级相同，这条写在后面，兼具这些状态时路径底色覆盖selectedBg；active正文加粗仍生效，color-mix不支持时则沿用前面适用的背景声明。 */
       background: color-mix(in srgb, var(--accent) 10%, transparent);
     }
 
+    /* :not(.in-path)挑出不在当前路径的节点，仍保留它们参与布局/可点击。 */
     .tree-node:not(.in-path) {
+      /* 整节点连同子内容以0.5不透明度合成，和只改文字颜色不同。 */
       opacity: 0.5;
     }
 
+    /* 非路径节点被hover时匹配更具体规则，临时覆盖上面的淡化。 */
     .tree-node:not(.in-path):hover {
+      /* 不透明度恢复1，使悬停分支易读；并没有因此把它加入当前路径。 */
       opacity: 1;
     }
 
+    /* 树前缀用于缩进/连线的文字区域，保留其空格和等宽排列。 */
     .tree-prefix {
+      /* 连线/缩进前缀用muted色，视觉弱于角色标记。 */
       color: var(--muted);
+      /* 前缀不参与flex压缩，避免连线列宽被挤坏。 */
       flex-shrink: 0;
+      /* 明确使用通用等宽字体族，让字符连线对齐；具体可用字体由浏览器/系统选。 */
       font-family: monospace;
+      /* pre保留前缀空格和换行，不自动折行，避免缩进空格被HTML折叠。 */
       white-space: pre;
     }
 
+    /* 树中的路径标记区域：JS给在当前分支路径的节点放圆点，其他放空格；和active滚动目标高亮分开。 */
     .tree-marker {
+      /* 标记用accent强调。 */
       color: var(--accent);
+      /* 标记不被flex挤缩，留给正文/滚动处理余量。 */
       flex-shrink: 0;
     }
 
+    /* 树正文文字的默认类，角色/错误等更具体类可再覆盖。 */
     .tree-content {
+      /* 默认正文用主题text色。 */
       color: var(--text);
     }
 
+    /* 用户角色类给对应树文字上色，不表示这个DOM元素就是原始用户消息对象。 */
     .tree-role-user {
+      /* 用户角色取accent。 */
       color: var(--accent);
     }
 
+    /* 技能条目的树角色颜色，与实际执行技能/读取文件分开。 */
     .tree-role-skill {
+      /* 技能文字取customMessageLabel颜色。 */
       color: var(--customMessageLabel);
     }
 
+    /* 助手角色的树标记颜色类，不在这里判断回复是否成功。 */
     .tree-role-assistant {
+      /* 助手角色统一用success色作为视觉区分，不是一次模型成功校验。 */
       color: var(--success);
     }
 
+    /* 工具角色的树颜色类，不能据此推断工具运行状态。 */
     .tree-role-tool {
+      /* 工具文字取muted。 */
       color: var(--muted);
     }
 
+    /* 通用弱化文字类，用于树里需要降低视觉权重的片段。 */
     .tree-muted {
+      /* 直接取muted颜色，和opacity淡化整节点的效果不同。 */
       color: var(--muted);
     }
 
+    /* 错误条目的树颜色类，只决定外观。 */
     .tree-error {
+      /* 错误文字取error主题色。 */
       color: var(--error);
     }
 
+    /* 压缩记录在树中的颜色类，标识会话里的压缩事件，不在CSS发起压缩。 */
     .tree-compaction {
+      /* 压缩树文字用borderAccent。 */
       color: var(--borderAccent);
     }
 
+    /* 分支摘要条目的树颜色类，与正文branch-summary样式分开。 */
     .tree-branch-summary {
+      /* 分支摘要树文字用warning。 */
       color: var(--warning);
     }
 
+    /* 定义名为tree-custom-message的树文字配色入口；当前查看器给custom_message生成的是tree-custom类，HTML骨架也没有此类，因此当前手写输出不会自动命中这条规则。 */
     .tree-custom-message {
+      /* 只有实际元素带tree-custom-message时，这条才把文字设为customMessageLabel；不在CSS里自动改JS生成的类名。 */
       color: var(--customMessageLabel);
     }
 
+    /* 树底部数量/状态行，由查看器写可见数量等文字，不随树区一起伸缩。 */
     .tree-status {
+      /* 上下4px、左右12px，与侧栏头的左右留白呼应。 */
       padding: 4px 12px;
+      /* 状态文字10px，比树节点略小。 */
       font-size: 10px;
+      /* 状态文字取muted。 */
       color: var(--muted);
+      /* 避免状态行在侧栏空间紧时被flex压瘪。 */
       flex-shrink: 0;
     }
 
     /* Main content */
+    /* 主阅读区在app里占侧栏/拖拽条之外的宽度，内部再纵向排列页头和消息等。 */
     #content {
+      /* flex:1让正文按剩余空间伸缩；没有在这里固定正文宽度800px。 */
       flex: 1;
+      /* min-width:0允许flex正文比其内容最小宽度更窄，避免长代码/路径把整页硬撑宽。 */
       min-width: 0;
+      /* 纵向溢出允许滚动，是否形成内部滚动区仍受实际高度约束；这行没有给正文固定高度。 */
       overflow-y: auto;
+      /* 上下用18px行距，左右calc算两倍行距36px；calc是在浏览器算CSS长度，不是JS表达式。 */
       padding: var(--line-height) calc(var(--line-height) * 2);
+      /* 正文内部建立第二层flex布局。 */
       display: flex;
+      /* 直接子区域按列从上到下排。 */
       flex-direction: column;
+      /* 横向居中这些子区域，配合下面的最大宽度让宽屏阅读行不太长。 */
       align-items: center;
     }
 
+    /* 大于号只选content的直接子元素，星号表示任意标签；不把所有深层代码节点都强制800px。 */
     #content > * {
+      /* 每个直接子块先占正文可用全宽。 */
       width: 100%;
+      /* 再把这些块上限设800px；外层content本身仍可更宽，空余由居中布局分到两侧。 */
       max-width: 800px;
     }
 
     /* Help bar */
+    /* 页头帮助条放提示文字和展示/下载操作，支持窄宽度折行。 */
     .help-bar {
+      /* 帮助条文字11px。 */
       font-size: 11px;
+      /* 提示默认warning色，子按钮可以另设text色。 */
       color: var(--warning);
+      /* 帮助条底部外边距留一行距，不是往内部挤空白。 */
       margin-bottom: var(--line-height);
+      /* 提示与操作作为flex子项布局。 */
       display: flex;
+      /* 同一行交叉方向居中，对齐按钮与提示。 */
       align-items: center;
+      /* 主轴上把余量放在首尾子项之间，使提示靠前、操作靠后；子项换行时按各行计算。 */
       justify-content: space-between;
+      /* 帮助条窄时允许项目换到下一行。 */
       flex-wrap: wrap;
+      /* 行/列项目之间至少有12px gap。 */
       gap: 12px;
     }
 
+    /* 帮助提示文字区域可在空间充足时扩展，也可在紧张时缩小。 */
     .help-hint {
+      /* 三值flex分别是grow1、shrink1、basis240px；basis是分配可用空间的起点，不是绝对最小宽。 */
       flex: 1 1 240px;
     }
 
+    /* 帮助条操作按钮容器，把多个按钮作为一组管理间距与换行。 */
     .help-actions {
+      /* 建立组内flex行。 */
       display: flex;
+      /* 组内按钮交叉方向居中。 */
       align-items: center;
+      /* 组内也允许换行，和帮助条外层换行是两级。 */
       flex-wrap: wrap;
+      /* 按钮间8px gap，不把两边容器额外加同样空白。 */
       gap: 8px;
     }
 
+    /* 逗号把页头开关按钮和JSONL下载按钮并为同一基础规则；两类可在不同元素上，下面声明都应用。 */
     .header-toggle-btn,
     .download-json-btn {
+      /* 两类操作按钮字号10px。 */
       font-size: 10px;
+      /* 上下2px、左右8px内边距，操作条比正文卡片紧凑。 */
       padding: 2px 8px;
+      /* 按钮背景取容器底色。 */
       background: var(--container-bg);
+      /* 按钮边框用border主题变量，和树里的dim细边框分开。 */
       border: 1px solid var(--border);
+      /* 操作按钮3px圆角。 */
       border-radius: 3px;
+      /* 按钮文字用text色。 */
       color: var(--text);
+      /* 手形光标提示可点，实际下载/切换函数由JS绑定。 */
       cursor: pointer;
+      /* 沿用父级字体，控制原生button默认样式差异。 */
       font-family: inherit;
     }
 
+    /* 两类按钮的:hover组合规则只改变外观，不等于触发下载或切开关。 */
     .header-toggle-btn:hover,
     .download-json-btn:hover {
+      /* 悬停背景取hover变量；若主题未提供且无兜底，var声明在计算值阶段失效，不自动改用另一个主题变量。 */
       background: var(--hover);
+      /* 悬停边框用borderAccent，厚度沿用基础规则。 */
       border-color: var(--borderAccent);
     }
 
+    /* 属性选择器要求页头开关同时带aria-pressed的字符串true；JS更新该属性，CSS据此显示选中态。 */
     .header-toggle-btn[aria-pressed="true"] {
+      /* 按下状态文字用accent。 */
       color: var(--accent);
+      /* 边框也用accent。 */
       border-color: var(--accent);
+      /* 按下状态加粗文字，不改变按钮实际业务值。 */
       font-weight: bold;
     }
 
     /* Header */
+    /* 会话信息头卡片的容器，renderHeader会在它内部同时放标题、帮助操作条和信息行。 */
     .header {
+      /* 页头卡片用容器底色。 */
       background: var(--container-bg);
+      /* 页头4px圆角。 */
       border-radius: 4px;
+      /* 四边内边距均一行距18px。 */
       padding: var(--line-height);
+      /* 卡片后留一行距外边距，与下面消息分开。 */
       margin-bottom: var(--line-height);
     }
 
+    /* 空格选择header内部h1标题，不是所有页面h1；Markdown内容标题另有规则。 */
     .header h1 {
+      /* 会话标题保持12px，不套用浏览器默认大h1字号。 */
       font-size: 12px;
+      /* 标题用粗体强调。 */
       font-weight: bold;
+      /* 标题取borderAccent。 */
       color: var(--borderAccent);
+      /* 标题下方留一行距，和信息行分隔。 */
       margin-bottom: var(--line-height);
     }
 
+    /* 页头信息行的外层容器，日期/模型/消息和费用统计等内容由renderHeader生成。 */
     .header-info {
+      /* 信息区域建立flex布局。 */
       display: flex;
+      /* 信息行从上到下排列。 */
       flex-direction: column;
+      /* 行之间不额外加gap，具体行高/子元素margin仍可影响距离。 */
       gap: 0;
+      /* 信息区域默认11px，区别于标题。 */
       font-size: 11px;
     }
 
+    /* 单条信息把左标签和右值放在一行，默认颜色弱一些。 */
     .info-item {
+      /* 信息行默认dim色，子信息值会显式改为text。 */
       color: var(--dim);
+      /* 标签/值作为flex子项布局。 */
       display: flex;
+      /* 按文字基线对齐两列，不要求各自盒子高度相同。 */
       align-items: baseline;
     }
 
+    /* 信息标签列的样式，例如Date:、Cost:这些字段名；CSS不对标签文字做国际化翻译。 */
     .info-label {
+      /* 字重600，属于半粗的数值请求，实际字形取决于字体提供的字重。 */
       font-weight: 600;
+      /* 标签右侧留8px外边距，不把这8px加进值的正文。 */
       margin-right: 8px;
+      /* 标签最小宽100px帮助信息值对齐；未设最大宽，所以长标签仍能更宽。 */
       min-width: 100px;
     }
 
+    /* 信息值列占标签后的余量，颜色比字段名更明显。 */
     .info-value {
+      /* 值文字用主题text色。 */
       color: var(--text);
+      /* flex:1允许值区域分到剩余宽度；文本是否换行/溢出还受内容与其它规则影响。 */
       flex: 1;
     }
 
     /* Messages */
+    /* 消息挂载容器由查看器写入当前分支的消息块，下面按纵向flex布局和行距统一分隔。 */
     #messages {
+      /* 建立消息列表的flex布局；下一条方向规则让它从上到下排，而非横排聊天卡片。 */
       display: flex;
+      /* 前面已把消息容器设为flex，这里让直属消息卡片沿竖直主轴依次排列，而非默认横排。 */
       flex-direction: column;
+      /* 卡片之间留一个行高变量的间距；gap只在项目之间留空，不给容器外边缘加空白。 */
       gap: var(--line-height);
     }
 
+    /* 时间戳类用于用户、助手、工具或系统等历史条目的时间文字；同一类不决定时间如何解析，那由查看器JS完成。 */
     .message-timestamp {
+      /* 时间文字用10px字号，小于页面默认12px。 */
       font-size: 10px;
+      /* var读取导出主题生成的dim自定义属性；这是颜色引用，不是让浏览器执行终端ANSI码。 */
       color: var(--dim);
+      /* 整个时间戳元素按0.8透明度合成，包含其子内容；不会减少文字内容或改变时间值。 */
       opacity: 0.8;
     }
 
+    /* 普通用户正文使用此卡片；技能调用后附加的用户正文也可复用这类，不据样式区分消息来源。 */
     .user-message {
+      /* 用主题userMessageBg填用户卡片背景，不改变页面其他区域的背景变量。 */
       background: var(--userMessageBg);
+      /* 用户卡片默认文字色取userMessageText，内部更具体的Markdown或时间戳规则仍可覆盖。 */
       color: var(--userMessageText);
+      /* 单值padding同时设置上下左右内边距，宽度取统一行高变量。 */
       padding: var(--line-height);
+      /* 四角圆弧半径为4px，只影响盒子外观，不自动裁剪所有溢出的子元素。 */
       border-radius: 4px;
+      /* relative保留正常文档位置，同时让内部绝对定位的复制按钮以此卡片为定位参考。 */
       position: relative;
     }
 
+    /* 助手消息外框包住时间、正文、思考和工具卡片；各内部块随后自行决定留白。 */
     .assistant-message {
+      /* 外框不留内边距，避免再叠加正文块和工具块已有的padding。 */
       padding: 0;
+      /* 为助手复制按钮建立定位包含块；没有top等偏移时外框仍留在正常位置。 */
       position: relative;
     }
 
     /* Copy link button - appears on hover */
+    /* 复制消息链接的按钮共用这些尺寸和状态样式；按钮HTML与点击复制逻辑由查看器生成和绑定。 */
     .copy-link-btn {
+      /* 绝对定位使按钮脱离普通内容排版；定位参照通常是外层relative消息卡片。 */
       position: absolute;
+      /* 按钮上边距定位参考块顶部8px，不是给正文设置margin。 */
       top: 8px;
+      /* 按钮右边距定位参考块右侧8px。 */
       right: 8px;
+      /* 按钮盒宽28px；前面全局border-box规则使此宽度包含padding和边框。 */
       width: 28px;
+      /* 按钮盒高同为28px，形成固定正方形外框。 */
       height: 28px;
+      /* 四边各留6px内部空间，图标放在这层空间以内。 */
       padding: 6px;
+      /* 默认按钮背景使用卡片容器背景色。 */
       background: var(--container-bg);
+      /* 简写依次给出1px宽、实线和dim颜色的四边边框。 */
       border: 1px solid var(--dim);
+      /* 按钮四角设4px圆弧，与消息卡片相近。 */
       border-radius: 4px;
+      /* 默认文字色设为muted；SVG的currentColor描边会跟随此值。 */
       color: var(--muted);
+      /* 悬停时显示指针形状，真正复制仍依赖click监听，CSS不访问剪贴板。 */
       cursor: pointer;
+      /* 默认视觉上全透明，但opacity不会移除布局、指针命中或键盘焦点能力，不等于display隐藏。 */
       opacity: 0;
+      /* 透明度、背景和文字色变化各过渡0.15秒；列表未包含边框色，所以边框色变化不由此动画平滑处理。 */
       transition: opacity 0.15s, background 0.15s, color 0.15s;
+      /* 按钮内部使用flex，便于把图标放在中心，不改变按钮在父卡片中的绝对定位。 */
       display: flex;
+      /* 默认横向flex的交叉轴居中，即把图标竖直居中。 */
       align-items: center;
+      /* 主轴也居中，把图标水平放在按钮中心。 */
       justify-content: center;
+      /* 把有定位的按钮放到当前层叠上下文的10层；不是保证它能盖过页面所有独立层叠上下文。 */
       z-index: 10;
     }
 
+    /* 逗号连接三种后代选择器：悬停用户卡片、助手卡片或技能用户外框时，选中它们内部的复制按钮。 */
+    /* 空格表示任意深度后代，:hover是浏览器悬停状态，不是JS添加的类。 */
     .user-message:hover .copy-link-btn,
     .assistant-message:hover .copy-link-btn,
     .skill-user-entry:hover .copy-link-btn {
+      /* 把这些按钮透明度改为1，配合前面的transition淡入；不在这里创建或绑定按钮。 */
       opacity: 1;
     }
 
+    /* 复制按钮自身被悬停时改配色，和上一组悬停整个消息外框的选择器作用范围不同。 */
     .copy-link-btn:hover {
+      /* 按钮背景改用强调色。 */
       background: var(--accent);
+      /* 图标和文字改用页面背景色，与强调背景搭配；没有在此计算实际对比度。 */
       color: var(--body-bg);
+      /* 边框也改为强调色，与悬停背景一致。 */
       border-color: var(--accent);
     }
 
+    /* 同一按钮同时带copied类时应用成功反馈；JS复制成功后加类，约1.5秒后移除，不由CSS判定复制是否成功。 */
     .copy-link-btn.copied {
+      /* 成功背景优先取success变量，变量缺失等情况下才使用绿色回退值；这不是远端操作结果校验。 */
       background: var(--success, #22c55e);
+      /* 成功状态文字直接使用白色，不引用主题文字变量。 */
       color: white;
+      /* 边框和成功背景采用相同的变量与绿色回退值。 */
       border-color: var(--success, #22c55e);
     }
 
     /* Highlight effect for deep-linked messages */
+    /* 逗号把带highlight类的用户、助手两类卡片合为一组；工具或其他卡片即便加同名类，也不由这组规则获得动画。 */
     .user-message.highlight,
     .assistant-message.highlight {
+      /* 运行名为highlight-pulse的动画，时长2秒、ease-out逐渐减速；未写循环次数时只播放一次，JS另安排移除highlight类。 */
       animation: highlight-pulse 2s ease-out;
     }
 
+    /* @keyframes定义供animation引用的阶段样式，本身不启动动画，也不重新加载目标消息。 */
     @keyframes highlight-pulse {
+      /* 0%是动画起点，以下声明只定义起点的盒阴影。 */
       0% {
+        /* 阴影水平与竖直偏移及模糊半径都是0，向外扩3px，使用强调色形成一圈轮廓；它不占布局空间。 */
         box-shadow: 0 0 0 3px var(--accent);
       }
+      /* 100%是动画终点，浏览器在起终值之间插值。 */
       100% {
+        /* 把扩张半径减到0并变透明，使高亮圈消失；不把卡片文字或背景永久改色。 */
         box-shadow: 0 0 0 0 transparent;
       }
     }
 
+    /* >是直属子选择器，只给直接放在助手外框里的时间戳加左内边距，不匹配任意更深层时间戳。 */
     .assistant-message > .message-timestamp {
+      /* 左侧缩进一个行高，与助手正文横向留白对齐，其他方向不由这一条修改。 */
       padding-left: var(--line-height);
     }
 
+    /* 助手的文本内容块使用此类，通常还同时带markdown-content以应用Markdown内部样式。 */
     .assistant-text {
+      /* 先把正文四边内边距都设成一个行高。 */
       padding: var(--line-height);
+      /* 随后仅把下内边距覆盖为0，保留上、左、右内边距，减少相邻块之间的重复留白。 */
       padding-bottom: 0;
     }
 
+    /* 两种紧邻关系共用规则：时间戳后紧接的助手正文，或时间戳后紧接的思考块；+只看相邻元素兄弟，不要求是整个页面的下一个节点。 */
     .message-timestamp + .assistant-text,
     .message-timestamp + .thinking-block {
+      /* 去掉被选中块的上内边距，避免时间戳与其正文之间重复增加顶部空白。 */
       padding-top: 0;
     }
 
+    /* 思考块紧邻后面的助手文本块时选中后者；+前后是兄弟，不是父子关系。 */
     .thinking-block + .assistant-text {
+      /* 把这段助手正文的上内边距清零，让思考后接正文更紧凑。 */
       padding-top: 0;
     }
 
+    /* 完整思考文字由查看器转义后放入此类，按纯文字排版，不在这里解析Markdown。 */
     .thinking-text {
+      /* 思考正文四边保留一个行高的内边距。 */
       padding: var(--line-height);
+      /* 思考文字使用主题thinkingText颜色，与最终回答文字可区分。 */
       color: var(--thinkingText);
+      /* 使用斜体显示思考正文；不保证字体本身具有独立斜体字形。 */
       font-style: italic;
+      /* pre-wrap保留文字中的空格与换行，并允许浏览器按可换行位置折行；它不把文字当HTML或代码执行。 */
       white-space: pre-wrap;
     }
 
+    /* 两条后代选择器一起匹配时间戳紧邻的思考块内部的正文或折叠占位；+先找思考兄弟块，后面的空格再找其后代。 */
     .message-timestamp + .thinking-block .thinking-text,
     .message-timestamp + .thinking-block .thinking-collapsed {
+      /* 把该首个思考块内部两种文字区域的上内边距去掉，与首段助手文本的处理一致。 */
       padding-top: 0;
     }
 
+    /* 折叠思考时显示的Thinking占位文字用此类；查看器全局思考开关会直接改正文和占位的行内display。 */
     .thinking-collapsed {
+      /* 默认不生成占位的布局盒；思考开关关闭时JS可用行内display把它改为block，原思考数据仍在HTML中。 */
       display: none;
+      /* 占位在显示时仍保留四边一个行高的内边距，首个思考块的上边距还受前面的更具体规则影响。 */
       padding: var(--line-height);
+      /* 占位文字沿用thinkingText主题色。 */
       color: var(--thinkingText);
+      /* 占位同样用斜体，和完整思考的视觉类型保持接近。 */
       font-style: italic;
     }
 
     /* Tool execution */
+    /* 工具执行外框的共同样式，JS用它展示历史工具调用或用户手动Bash执行，并不会再次执行这些工具。 */
     .tool-execution {
+      /* 工具卡片四周留一个行高的内边距。 */
       padding: var(--line-height);
+      /* 工具卡片设4px圆角，具体状态背景由后面组合类规则提供。 */
       border-radius: 4px;
     }
 
+    /* 只选紧跟另一个工具卡片的工具卡片，让连续工具之间增加间距；不会影响第一个工具。 */
     .tool-execution + .tool-execution {
+      /* 第二个工具卡片上外边距取一个行高，和卡片自身内部padding分开。 */
       margin-top: var(--line-height);
     }
 
+    /* 当工具卡片紧邻助手文本后面时选中该工具卡片，补正文与工具的分隔。 */
     .assistant-text + .tool-execution {
+      /* 在该工具上方留一个行高外边距，不给前面的助手正文额外加padding。 */
       margin-top: var(--line-height);
     }
 
+    /* 同一外框同时有pending类时用待结果背景；查看器找不到关联历史结果时会采用这个类，不是实时轮询状态。 */
     .tool-execution.pending { background: var(--toolPendingBg); }
+    /* 同一外框同时有success类时用成功背景，状态来自历史结果标记，不在CSS中重新核验执行成败。 */
     .tool-execution.success { background: var(--toolSuccessBg); }
+    /* 同一外框同时有error类时用错误背景；只是视觉区分，不会抛JavaScript异常。 */
     .tool-execution.error { background: var(--toolErrorBg); }
 
+    /* 逗号把工具头部和工具名称两个类并列选择，不要求同一个元素同时具有两类。 */
     .tool-header, .tool-name {
+      /* 两种工具标题文字都设粗体，具体路径颜色仍可由自己的span类提供。 */
       font-weight: bold;
     }
 
+    /* 读取、写入、编辑或目录工具的路径文字可使用此类；这里展示路径，不读取或打开本机文件。 */
     .tool-path {
+      /* 路径使用强调色，区别于工具名称。 */
       color: var(--accent);
+      /* break-all允许在长路径的字符间断开，帮助窄区显示；它不修改底层路径字符串。 */
       word-break: break-all;
     }
 
+    /* 读取工具的行范围提示使用此类，范围数值先由查看器格式化，不由CSS计算偏移。 */
     .line-numbers {
+      /* 行范围用warning颜色提示，不表示读取本身失败。 */
       color: var(--warning);
     }
 
+    /* 写入行数或目录limit等附加计数提示复用此类，不只专用于某一种统计。 */
     .line-count {
+      /* 计数文字取dim颜色，弱化相对主工具标题的视觉权重。 */
       color: var(--dim);
     }
 
+    /* 命令文字区用于展示历史命令，命令前缀和内容由JS插入，CSS不启动shell。 */
     .tool-command {
+      /* 命令文本加粗，突出相对输出的标题地位。 */
       font-weight: bold;
+      /* 保留命令中的空格与换行，同时允许折行；源文本并未被重新拼成一条命令。 */
       white-space: pre-wrap;
+      /* word-wrap是overflow-wrap的旧名称，此处要求长的不可断词在溢出时允许断开。 */
       word-wrap: break-word;
+      /* 再次用标准属性名声明同一个break-word行为，为长命令提供溢出换行设置。 */
       overflow-wrap: break-word;
+      /* 再给word-break旧兼容关键字break-word；浏览器如何组合这些换行属性按其CSS实现，不是按字符插入真实换行。 */
       word-break: break-word;
     }
 
+    /* 工具输出共同外框，可含普通文字、代码高亮或TUI预渲染HTML，折叠只是改变已嵌入内容的显示。 */
     .tool-output {
+      /* 输出上方留一个行高外边距，与工具标题分隔。 */
       margin-top: var(--line-height);
+      /* 输出默认文字色取toolOutput，子元素中的更具体颜色或ANSI行内颜色仍可覆盖。 */
       color: var(--toolOutput);
+      /* 旧别名word-wrap为长的不可断输出单词启用溢出换行。 */
       word-wrap: break-word;
+      /* 用标准名overflow-wrap重复指定break-word，和上一行作用于同一类换行行为。 */
       overflow-wrap: break-word;
+      /* word-break的旧兼容值再补一条断词设置，不会改变导出会话保存的文本字节。 */
       word-break: break-word;
+      /* 字体继承父元素的字体设置，而不是在工具输出区另换浏览器默认等宽字体。 */
       font-family: inherit;
+      /* 若布局最终仍有横向溢出，按需提供水平滚动；auto并不保证每个输出都有滚动条。 */
       overflow-x: auto;
     }
 
+    /* 三个直属子组合选择器共用以下声明：工具输出、预览区或完整区直接包含的div行，不匹配任意更深层的div。 */
     .tool-output > div,
     .output-preview > div,
     .output-full > div {
+      /* 把所选行四边外边距归零，避免每个输出行再额外拉开间隙。 */
       margin: 0;
+      /* 把所选行四边内边距归零，行本身不额外缩进。 */
       padding: 0;
+      /* 把每行行高统一为行高变量；保留空行还依赖具体HTML内容，并非此属性自动补行。 */
       line-height: var(--line-height);
     }
 
+    /* 三个选择器共同给实际文字行设空白规则：第一条排除工具输出直属的预览/全文包装，后两条排除各区域中的展开提示行。 */
+    /* 连续:not表示都不能具有对应类，>只取直属div；这样不把模板源码在包装层之间的排版空白整体当正文保留。 */
     .tool-output > div:not(.output-preview):not(.output-full),
     .output-preview > div:not(.expand-hint),
     .output-full > div:not(.expand-hint) {
+      /* 实际输出行使用pre-wrap保留空格和换行并可折行；此规则优先级较高，某些同时匹配ansi-line的行也会受它影响。 */
       white-space: pre-wrap;
     }
 
+    /* 匹配工具输出内部任意深度的pre，覆盖浏览器pre默认留白和字体；高亮输出会包含此标签。 */
     .tool-output pre {
+      /* pre四边外边距清零，避免代码块默认上下空白再叠加输出间隔。 */
       margin: 0;
+      /* pre四边内边距清零，留白交给外围卡片。 */
       padding: 0;
+      /* pre使用父级字体，维持导出页面的等宽字体设置。 */
       font-family: inherit;
+      /* pre文字继承父级当前颜色，内部代码和高亮span仍可有独立颜色。 */
       color: inherit;
+      /* 覆盖pre通常不折行的默认排版，改成保留空白且可折行。 */
       white-space: pre-wrap;
+      /* 通过旧别名允许长代码单词在溢出时断开。 */
       word-wrap: break-word;
+      /* 再用标准overflow-wrap声明break-word，和上一行是兼容写法而非两次文本转换。 */
       overflow-wrap: break-word;
     }
 
+    /* 匹配工具输出里的code标签，为代码内容清除普通行内代码装饰；不把它当可执行脚本。 */
     .tool-output code {
+      /* 代码四边内边距归零，避免给工具输出每段代码另加缩进。 */
       padding: 0;
+      /* 取消代码自己的背景，使外层工具卡片背景可见。 */
       background: none;
+      /* 代码默认文字色设为text；具体高亮token的span规则仍可单独上色。 */
       color: var(--text);
     }
 
+    /* 同一输出框同时带expandable时表明有点击展开逻辑，组合类没有空格，因此不是选择子元素。 */
     .tool-output.expandable {
+      /* 用指针外观提示可以点击；真正切换expanded类的是HTML中的onclick处理。 */
       cursor: pointer;
     }
 
+    /* 仅在可展开输出被悬停时应用此反馈，不影响不可展开输出。 */
     .tool-output.expandable:hover {
+      /* 悬停把整个输出框透明度设为0.9，正文和图片等子内容一起合成变淡。 */
       opacity: 0.9;
     }
 
+    /* 可展开输出中的完整区默认隐藏，空格表示任意层后代；预览数据和完整数据仍同时在DOM里。 */
     .tool-output.expandable .output-full {
+      /* 完整区display为none，不占可见布局，也没有删除原内容或按需读取文件。 */
       display: none;
     }
 
+    /* 当同一输出外框还具有expanded类时选中内部预览区；比默认预览显示更具体。 */
     .tool-output.expandable.expanded .output-preview {
+      /* 展开时隐藏预览，避免前缀内容与全文重复显示。 */
       display: none;
     }
 
+    /* 同一展开状态选中完整区，用更具体的组合类规则覆盖前面默认隐藏完整区的规则。 */
     .tool-output.expandable.expanded .output-full {
+      /* 把完整区作为块显示，实际高度由其完整内容决定，并没有固定展开高度。 */
       display: block;
     }
 
+    /* Node端ansiLinesToHtml为每条TUI行生成此类；这里只描述单独规则，最终样式还要看更具体的输出行选择器。 */
     .ansi-line {
+      /* pre保留空白且不因普通软换行机会折行；若同时命中前面更具体的pre-wrap规则，会由后者赢得层叠。 */
       white-space: pre;
     }
 
+    /* 工具图片容器的空规则，没有任何声明；JS仍用这个类包图片，不能凭这个名字推断已有额外网格或间距布局。 */
     .tool-images {
     }
 
+    /* 工具结果中的image块生成此类图片，和用户消息图片的400px高度上限分开。 */
     .tool-image {
+      /* 图片宽度最多为包含块可用宽度的100%，这里只设上限，并非强行把小图放大到整行。 */
       max-width: 100%;
+      /* 图片高度最多500px；这是CSS显示尺寸限制，不是对原始图片字节或解码内存的限制。 */
       max-height: 500px;
+      /* 图片边角设4px圆弧，不为图片添加边框。 */
       border-radius: 4px;
+      /* 两值margin表示上下各一个行高、左右为0，仍按图片正常的行内元素布局规则参与排版。 */
       margin: var(--line-height) 0;
     }
 
+    /* 可展开输出的剩余行数提示使用此类；具体more lines文字和数目由JS计算。 */
     .expand-hint {
+      /* 提示沿用工具输出色，没有因为这个类就设为按钮或自动绑定点击事件。 */
       color: var(--toolOutput);
     }
 
     /* Diff */
+    /* 编辑工具的已存diff展示区，JS按行首符号生成着色子div；CSS不读取文件或重新计算差异。 */
     .tool-diff {
+      /* diff文字字号设11px，略小于页面默认正文。 */
       font-size: 11px;
+      /* 差异文本横向溢出时允许滚动，配合下一行保留不折行的排版。 */
       overflow-x: auto;
+      /* 保留空格和换行，不在普通断点软折行，便于对齐差异行；没有修改diff内容。 */
       white-space: pre;
     }
 
+    /* 新增差异行使用toolDiffAdded色，JS根据该行开头的加号决定此类。 */
     .diff-added { color: var(--toolDiffAdded); }
+    /* 删除差异行使用toolDiffRemoved色，JS根据开头的减号决定此类。 */
     .diff-removed { color: var(--toolDiffRemoved); }
+    /* 其余差异行使用toolDiffContext色，不代表CSS又做了一遍内容比较。 */
     .diff-context { color: var(--toolDiffContext); }
 
     /* Model change */
+    /* 模型切换历史记录的正文行使用此类，和真正配置模型的运行逻辑分开。 */
     .model-change {
+      /* 上下内边距0、左右各一个行高，只横向缩进这条状态文字。 */
       padding: 0 var(--line-height);
+      /* 状态文字默认使用dim弱化色。 */
       color: var(--dim);
+      /* 状态文字字号设11px，不因此限制文本长度或行数。 */
       font-size: 11px;
     }
 
+    /* 切换记录内部的provider和模型ID用这个span类强调，显示名称并不会触发模型调用。 */
     .model-name {
+      /* 模型标识用borderAccent主题色。 */
       color: var(--borderAccent);
+      /* 模型标识同时加粗，外层其余说明文字不受这条规则影响。 */
       font-weight: bold;
     }
 
     /* Compaction / Branch Summary - matches customMessage colors from TUI */
+    /* 压缩历史卡片使用customMessage这一组主题色；正文只展示已保存摘要，CSS不压缩上下文或调用模型。 */
     .compaction {
+      /* 卡片背景取customMessageBg，和普通用户消息背景分开。 */
       background: var(--customMessageBg);
+      /* 压缩卡片设4px圆角。 */
       border-radius: 4px;
+      /* 四周保留一个行高内边距。 */
       padding: var(--line-height);
+      /* 光标提示此卡片可点击；JS内联处理在没有文本选区时切换expanded，全局工具展开开关也会切该类。 */
       cursor: pointer;
     }
 
+    /* 压缩卡片的固定compaction标签使用此类，与摘要正文有独立配色。 */
     .compaction-label {
+      /* 标签颜色取customMessageLabel。 */
       color: var(--customMessageLabel);
+      /* 标签加粗，帮助辨识这是压缩历史记录。 */
       font-weight: bold;
     }
 
+    /* 压缩卡片收起时显示的tokensBefore简述区域，不包含完整摘要的可见排版。 */
     .compaction-collapsed {
+      /* 收起提示使用customMessageText文字色，数字来自历史记录，不在CSS计算token。 */
       color: var(--customMessageText);
     }
 
+    /* 完整压缩摘要区域已随HTML嵌入，初始隐藏；JS把summary转义成文字而非Markdown。 */
     .compaction-content {
+      /* 默认display为none，全文暂不占布局，数据仍在文件中。 */
       display: none;
+      /* 摘要文字用customMessageText色。 */
       color: var(--customMessageText);
+      /* 保留摘要的空格和换行，并允许折行；不会解释摘要中的Markdown标记。 */
       white-space: pre-wrap;
+      /* 全文区顶部留一个行高外边距，与固定标签分隔。 */
       margin-top: var(--line-height);
     }
 
+    /* 同一压缩卡片带expanded类时选中其收起提示后代，不是选两个相邻卡片。 */
     .compaction.expanded .compaction-collapsed {
+      /* 展开后隐藏tokensBefore的短提示，完整区自己包含同类信息和摘要。 */
       display: none;
     }
 
+    /* 展开状态下选中完整摘要区，用组合类规则覆盖默认隐藏。 */
     .compaction.expanded .compaction-content {
+      /* 以块级显示完整摘要，展开不重新生成摘要内容。 */
       display: block;
     }
 
     /* System prompt */
+    /* 系统提示词展示卡片，既可用于历史system条目，也可用于无system历史时页头的导出运行态回退内容。 */
     .system-prompt {
+      /* 使用customMessageBg作为系统说明区域背景。 */
       background: var(--customMessageBg);
+      /* 卡片四边留一个行高内边距。 */
       padding: var(--line-height);
+      /* 卡片四角设4px圆弧。 */
       border-radius: 4px;
+      /* 卡片底部留一个行高外边距，给其后的工具列表或消息块留分隔。 */
       margin-bottom: var(--line-height);
     }
 
+    /* 系统提示卡片同时具有expandable类时显示可点击外观；JS只对超过10个LF逻辑行的内容生成这种可展开卡片。 */
     .system-prompt.expandable {
+      /* 指针提示可以切换卡片，CSS本身不修改expanded类。 */
       cursor: pointer;
     }
 
+    /* 系统提示卡片标题类，可显示初始System Prompt或后续更新标题，标题文字由查看器转义。 */
     .system-prompt-header {
+      /* 标题加粗，与正文区分。 */
       font-weight: bold;
+      /* 标题文字色取customMessageLabel。 */
       color: var(--customMessageLabel);
     }
 
+    /* 长系统提示的前10个逻辑行作为预览区，完整文本另存同一卡片的全文区；不是模型对提示词的总结。 */
     .system-prompt-preview {
+      /* 预览文字用customMessageText色。 */
       color: var(--customMessageText);
+      /* 保留提示词的空格和换行，同时允许浏览器折行。 */
       white-space: pre-wrap;
+      /* 旧别名word-wrap允许长的不可断文字在溢出时换行。 */
       word-wrap: break-word;
+      /* 预览字号设为11px，不决定预览行数；行数由JS的split与slice确定。 */
       font-size: 11px;
+      /* 标题与预览之间留一个行高外边距。 */
       margin-top: var(--line-height);
     }
 
+    /* 提示还有多少逻辑行以及点击展开的说明文字使用此类，不是独立的网络加载按钮。 */
     .system-prompt-expand-hint {
+      /* 展开提示用muted主题色弱化显示。 */
       color: var(--muted);
+      /* 提示文字设斜体，与实际提示词正文区分。 */
       font-style: italic;
+      /* 提示上方留4px外边距，比正文段间的一行距离更紧凑。 */
       margin-top: 4px;
     }
 
+    /* 系统提示全文区的默认规则；短提示的JS输出会额外写行内display为block，所以不能说所有全文初始都不可见。 */
     .system-prompt-full {
+      /* 默认隐藏全文，长提示依靠expanded覆盖；短提示的行内显示声明优先于这条普通声明。 */
       display: none;
+      /* 完整提示词文字使用customMessageText色。 */
       color: var(--customMessageText);
+      /* 保留全文原有空格和换行并可折行，不把系统提示词当Markdown解析。 */
       white-space: pre-wrap;
+      /* 允许长的不可断词溢出时换行，仍不改变底层提示词文本。 */
       word-wrap: break-word;
+      /* 全文字号和预览同为11px，展开不自动增大字体。 */
       font-size: 11px;
+      /* 全文顶部留一个行高外边距，与标题分隔。 */
       margin-top: var(--line-height);
     }
 
+    /* 两条后代选择器合为一组：系统卡片处于expanded时，同时选中其预览和展开提示，连续选择器不代表先后执行步骤。 */
     .system-prompt.expanded .system-prompt-preview,
     .system-prompt.expanded .system-prompt-expand-hint {
+      /* 展开后同时隐藏预览与展开提示，避免和全文重复显示。 */
       display: none;
     }
 
+    /* 展开的系统卡片内部全文匹配此规则，覆盖默认display隐藏。 */
     .system-prompt.expanded .system-prompt-full {
+      /* 全文以块级显示；系统卡片的展开独立于全局工具输出展开开关。 */
       display: block;
     }
 
+    /* 只给system-entry外框的直属时间戳加布局，嵌套卡片内的其他时间戳不由此匹配。 */
     .system-entry > .message-timestamp {
+      /* 时间戳向左内缩一个行高，与系统卡片内容的横向留白对齐。 */
       padding-left: var(--line-height);
+      /* 时间戳下面留4px外边距，与第一张系统说明卡片稍作分隔。 */
       margin-bottom: 4px;
     }
 
+    /* 选中system-entry里最后一个元素子节点；:last-child按元素计，不会把源码排版的空白文本节点当作最后元素。 */
     .system-entry > :last-child {
+      /* 清掉最后一块的底部外边距，避免其自身间距再与消息容器gap叠加。 */
       margin-bottom: 0;
     }
 
+    /* 同一个系统提示卡片同时有provider-prompt类时应用左侧标记；当前手写查看器未生成这个附加类，不能据此声称已有对应分类流程。 */
     .system-prompt.provider-prompt {
+      /* 左边框宽3px、实线、warning颜色，其余边框不由此声明改变；只有实际元素匹配该组合类才生效。 */
       border-left: 3px solid var(--warning);
     }
 
+    /* 系统提示卡片补充说明的样式入口；当前template.js与HTML骨架没有生成这个类，不能把本规则当成已显示提供商说明的证据。 */
     .system-prompt-note {
+      /* 说明文字使用10px字号，比普通正文12px更小。 */
       font-size: 10px;
+      /* font-style: italic请求斜体外观；实际字体是否有专用斜体字形由字体决定。 */
       font-style: italic;
+      /* var读取主题的muted颜色，使这类补充说明在视觉上弱于正文。 */
       color: var(--muted);
+      /* 说明上方留4px外边距，和前面的内容分开。 */
       margin-top: 4px;
     }
 
     /* Tools list */
+    /* 工具元数据列表的卡片容器，renderToolsList生成；初始系统消息、工具更新或旧会话的页头回退都可能使用，列表只是说明，不执行工具。 */
+    /* 例如有bash工具时，卡片中列出名称、描述和可展开的第一层参数；下面的样式不验证这些参数是否合法。 */
     .tools-list {
+      /* 卡片背景使用主题customMessageBg，和系统说明、压缩摘要等辅助信息保持相同色系。 */
       background: var(--customMessageBg);
+      /* 四边内边距都取line-height变量，当前模板默认18px；var不是把这一行当成JavaScript表达式计算。 */
       padding: var(--line-height);
+      /* 卡片外框圆角为4px，不改变内部数据或点击行为。 */
       border-radius: 4px;
+      /* 卡片底部留一个line-height的外边距；系统条目中最后一块还可能受前面的:last-child规则去掉底部外边距。 */
       margin-bottom: var(--line-height);
     }
 
+    /* 工具列表标题，如Available Tools、Tools Added或Tools Removed；选择器按class匹配，不按标题文字匹配。 */
     .tools-header {
+      /* 标题用粗体，和后面的工具条目区分。 */
       font-weight: bold;
+      /* 标题颜色取customMessageLabel主题变量，而非工具实际执行结果的成功或失败色。 */
       color: var(--customMessageLabel);
+      /* 标题下方留一个line-height的外边距，再开始列工具。 */
       margin-bottom: var(--line-height);
     }
 
+    /* 单个工具说明条目；renderToolsList按工具生成，有参数时外层还带点击切换params-expanded的处理。 */
     .tool-item {
+      /* 工具条目默认字号11px，内部未另设字号的文字继承它。 */
       font-size: 11px;
     }
 
+    /* 工具名称文字，如bash；这里只赋予外观，不据名称加载或注册工具。 */
     .tool-item-name {
+      /* 工具名加粗，使同一行的名称和描述容易区分。 */
       font-weight: bold;
+      /* 工具名称使用普通text主题色。 */
       color: var(--text);
     }
 
+    /* 工具描述文字的颜色规则，内容来自导出时的元数据并由JS转义。 */
     .tool-item-desc {
+      /* 描述用dim颜色，相对名称更淡；不因为变淡而从文件中删去描述。 */
       color: var(--dim);
     }
 
+    /* 工具参数开关的提示span；JS创建的span本身为空，下面的::after负责生成可见提示文字。 */
     .tool-params-hint {
+      /* 提示用muted主题色。 */
       color: var(--muted);
+      /* 用斜体区分可展开提示和工具本身的描述。 */
       font-style: italic;
     }
 
+    /* :has是关系伪类：仅当工具条目里面存在参数提示元素时匹配本规则；不含参数的条目不会仅因本规则出现手形光标。实际展开仍由JS点击处理完成。 */
     .tool-item:has(.tool-params-hint) {
+      /* 匹配的条目显示pointer光标，提示可点击；光标本身不会绑定事件或保证键盘可操作。 */
       cursor: pointer;
     }
 
+    /* ::after在参数提示元素末尾生成视觉内容，不需要在原span中写入这些英文；这不是新增一个由JS读取的真实文本子节点。 */
     .tool-params-hint::after {
+      /* content的引号包住实际显示文字，默认提示点击查看参数；字符串内容是页面文案，不是CSS命令。 */
       content: '[click to show parameters]';
     }
 
+    /* 同一个工具条目同时带params-expanded类时，后代提示的::after改用展开态文案；JS点击条目切这个类，有文字选区时忽略点击。 */
     .tool-item.params-expanded .tool-params-hint::after {
+      /* 展开态提示改为隐藏参数；只换提示文字，参数详情是否显示由后面的display规则控制。 */
       content: '[hide parameters]';
     }
 
+    /* 参数详情容器，JS把parameters.properties的第一层字段拼入这里；内容已经嵌入页面，展开不会向服务器重新获取schema。 */
     .tool-params-content {
+      /* 默认display:none，参数详情不占布局位置；这只是隐藏DOM展示，不从HTML或内嵌会话数据删去内容。 */
       display: none;
+      /* 详情与工具名称行之间留4px外边距。 */
       margin-top: 4px;
+      /* 详情整体向右缩进12px，形成名称行的下级层次。 */
       margin-left: 12px;
+      /* 详情左边框和内部参数文字再留8px内边距。 */
       padding-left: 8px;
+      /* 用1px实线与dim主题色画详情左边界，border-left简写依次指定宽度、样式和颜色。 */
       border-left: 1px solid var(--dim);
     }
 
+    /* 工具外层有params-expanded类时，选中其内部详情容器；空格表示后代，不要求必须是直接孩子。 */
     .tool-item.params-expanded .tool-params-content {
+      /* 用display:block覆盖默认none，让已经存在的参数详情参与布局；点击收起去掉外层类后恢复默认隐藏。 */
       display: block;
     }
 
+    /* 一个参数字段的说明块，通常包含名字、类型、必填标签和可选描述；不是一个可输入或提交的表单字段。 */
     .tool-param {
+      /* 每个参数块底部留4px间隔，包括最后一个参数，除非另有更具体规则覆盖。 */
       margin-bottom: 4px;
+      /* 参数块使用11px字号，与工具条目保持一致。 */
       font-size: 11px;
     }
 
+    /* 单个参数名的外观，例如command；名字来自schema属性键，不由CSS推断。 */
     .tool-param-name {
+      /* 参数名用粗体，便于在说明中快速找到字段。 */
       font-weight: bold;
+      /* 参数名使用普通text主题色。 */
       color: var(--text);
     }
 
+    /* 参数类型提示的外观；JS按prop.type或后备any产生文字，CSS不负责解析TypeScript类型或完整JSON Schema。 */
     .tool-param-type {
+      /* 类型提示用dim颜色。 */
       color: var(--dim);
+      /* 类型提示使用斜体，与旁边加粗的参数名区分。 */
       font-style: italic;
     }
 
+    /* 必填标签，JS只按schema.required中是否包含该属性名选择；这是历史元数据的展示，不会在网页中执行必填校验。 */
     .tool-param-required {
+      /* 颜色优先取warning自定义属性；属性未定义或处于CSS保证无效值时，var才使用十六进制后备色。已经存在但不符合颜色语法的普通文字，不会仅因颜色无效而自动改用这个后备色。 */
       color: var(--warning, #e8a838);
+      /* 必填标签字号10px，比参数名稍小。 */
       font-size: 10px;
     }
 
+    /* 可选标签的外观；同一字段没有命中required列表时，JS生成这个标签。 */
     .tool-param-optional {
+      /* 可选标签使用dim颜色，不代表参数值为空或参数被禁止。 */
       color: var(--dim);
+      /* 可选标签同样使用10px字号，使必填与可选标签尺寸接近。 */
       font-size: 10px;
     }
 
+    /* 参数描述单独放在参数块内部的div，有description时才由JS生成；缺描述不由CSS补文案。 */
     .tool-param-desc {
+      /* 参数描述使用dim颜色。 */
       color: var(--dim);
+      /* 描述比参数主行向右多缩进8px。 */
       margin-left: 8px;
     }
 
     /* Hook/custom messages */
+    /* custom_message历史条目的正文卡片，沿用hook-message这个类名；名字不表示浏览器会再次运行扩展钩子。 */
     .hook-message {
+      /* 卡片用customMessageBg作为背景。 */
       background: var(--customMessageBg);
+      /* 卡片默认文字色取customMessageText；内部Markdown等更具体规则仍可以指定自己的颜色。 */
       color: var(--customMessageText);
+      /* 四边留一个line-height的内边距。 */
       padding: var(--line-height);
+      /* 卡片边角圆润4px。 */
       border-radius: 4px;
     }
 
+    /* body没有show-hidden-messages类时，隐藏其中标记hook-message-hidden的元素；:not表示否定条件，空格表示后代。JS仅在entry.display严格为false时给自定义消息加隐藏类。 */
+    /* 页头按钮、H键或指向隐藏消息的目标导航可调用setHiddenMessagesVisible改变body类；隐藏内容仍在DOM、HTML和可下载的会话数据里，不是脱敏。 */
     body:not(.show-hidden-messages) .hook-message-hidden {
+      /* display:none移除这条卡片的布局占位；body有显示隐藏消息的类时本规则不再匹配，并由其他适用样式决定实际显示。 */
       display: none;
     }
 
+    /* 自定义消息标题中的类型标签，如扩展提供的customType；其文字由JS生成并转义。 */
     .hook-type {
+      /* 类型标签使用customMessageLabel主题色。 */
       color: var(--customMessageLabel);
+      /* 标签加粗，与下面的正文区分。 */
       font-weight: bold;
     }
 
     /* Skill invocation - matches compaction style (clickable, collapsed by default) */
+    /* 用户消息符合固定skill包装格式时，JS把技能正文渲染为这张默认折叠卡片；这只是展示已记录内容，不读取location文件或重新执行技能。 */
+    /* 单击且没有选中文字时切expanded类；全局工具展开开关也处理这些卡片，例如按O可同时展开技能内容、压缩摘要及可展开工具结果。 */
     .skill-invocation {
+      /* 技能卡片背景与辅助消息同为customMessageBg。 */
       background: var(--customMessageBg);
+      /* 卡片使用4px圆角。 */
       border-radius: 4px;
+      /* 四边内边距取一个line-height。 */
       padding: var(--line-height);
+      /* 显示手形光标提示点击展开；实际事件位于JS生成的onclick中。 */
       cursor: pointer;
     }
 
+    /* 技能卡片顶部的标签，JS显示技能类别和名字；折叠或展开都保留这个标题。 */
     .skill-invocation-label {
+      /* 标签颜色取customMessageLabel。 */
       color: var(--customMessageLabel);
+      /* 技能标签用粗体。 */
       font-weight: bold;
     }
 
+    /* 折叠态摘要的外观，JS填技能名字及点击展开提示；默认是否显示由正常div布局和下面展开态规则共同决定。 */
     .skill-invocation-collapsed {
+      /* 折叠摘要使用customMessageText颜色。 */
       color: var(--customMessageText);
     }
 
+    /* 技能全文容器，JS通过safeMarkedParse生成Markdown内容并同时加markdown-content类，所以后面Markdown规则也会匹配。 */
     .skill-invocation-content {
+      /* 默认隐藏全文且不占位置；正文已嵌入HTML，并不是等展开才加载。 */
       display: none;
+      /* 全文默认使用customMessageText颜色，内部标题、链接、代码等可以覆盖。 */
       color: var(--customMessageText);
+      /* 全文和上方标签之间留一个line-height的外边距。 */
       margin-top: var(--line-height);
     }
 
+    /* 技能卡片有expanded类时选中其折叠摘要，卡片标题本身不受这个选择器影响。 */
     .skill-invocation.expanded .skill-invocation-collapsed {
+      /* 展开时隐藏折叠摘要，避免同时显示摘要和全文。 */
       display: none;
     }
 
+    /* 同一展开态下选中技能全文；与前一条隐藏摘要规则配合切换两种视图。 */
     .skill-invocation.expanded .skill-invocation-content {
+      /* 将全文改为块级显示，恢复布局占位。 */
       display: block;
     }
 
+    /* 加号是相邻兄弟组合符：只有技能卡片后面紧接user-message元素时才匹配。当前JS把追加用户文字或图片渲染成同一skill-user-entry内的下一块。 */
     .skill-invocation + .user-message {
+      /* 给这块追加用户消息上方留一个line-height间距；没有追加用户内容就不会生成该块。 */
       margin-top: var(--line-height);
     }
 
+    /* 技能与可选追加用户消息的共同包装，JS把条目id、时间戳和复制链接按钮放在这层。 */
     .skill-user-entry {
+      /* relative保留正常文档流位置，并为绝对定位的复制按钮提供定位参照；没有top等偏移时包装自身不移动。 */
       position: relative;
     }
 
     /* Branch summary */
+    /* branch_summary条目的卡片；JS直接展示已存摘要的Markdown，不调用模型重新生成，也不在浏览器切换会话分支。 */
     .branch-summary {
+      /* 背景取customMessageBg，与压缩、系统说明等辅助信息统一。 */
       background: var(--customMessageBg);
+      /* 四边留一个line-height内边距。 */
       padding: var(--line-height);
+      /* 卡片使用4px圆角。 */
       border-radius: 4px;
     }
 
+    /* 分支摘要的固定标题Branch Summary，与内部Markdown正文分开设置外观。 */
     .branch-summary-header {
+      /* 标题使用粗体。 */
       font-weight: bold;
+      /* 标题使用borderAccent主题色，和边框使用同一变量不代表这里实际画了边框。 */
       color: var(--borderAccent);
     }
 
     /* Error */
+    /* 正文错误提示区，助手aborted或error分支由JS生成；class只控制展示，不中止浏览器脚本。 */
     .error-text {
+      /* 错误提示文字使用error主题色。 */
       color: var(--error);
+      /* 上下内边距为0、左右为line-height；两值简写依次代表纵向和横向。 */
       padding: 0 var(--line-height);
     }
+    /* 工具参数无效等工具内错误提示的颜色入口，和整张tool-execution.error的背景状态规则不同。 */
     .tool-error {
+      /* 仅设置文字为error主题色，不在这里增加内边距或改变工具执行状态。 */
       color: var(--error);
     }
 
     /* Images */
+    /* 用户消息图片的包装区；JS从image内容块生成，可位于普通用户消息或技能后的追加用户区。 */
     .message-images {
+      /* 图片区与后续文字之间留12px底部外边距，不限制图片实际字节数。 */
       margin-bottom: 12px;
     }
 
+    /* 历史用户image块生成的img外观；JS用内嵌data URL，不是这里把文件路径读取成图片。工具结果图片使用另一组tool-image规则。 */
     .message-image {
+      /* 最大宽度不超过包含块宽度；max-width只设上限，小图片不会单靠本声明被放大到铺满整行。 */
       max-width: 100%;
+      /* 最大高度400px，与工具图片的500px上限不同；这是浏览器显示尺寸限制，不压缩原图数据。 */
       max-height: 400px;
+      /* 图片四角使用4px圆角。 */
       border-radius: 4px;
+      /* 上下各留一个line-height外边距，左右为0；与包装区底部间距不是同一个属性。 */
       margin: var(--line-height) 0;
     }
 
     /* Markdown content */
+    /* 逗号把Markdown容器内的h1至h6合并为一组选择器，各级标题共用颜色、间距和粗体；仅匹配markdown-content内部，普通会话页头h1不因此命中。 */
     .markdown-content h1,
     .markdown-content h2,
     .markdown-content h3,
     .markdown-content h4,
     .markdown-content h5,
     .markdown-content h6 {
+      /* 标题颜色取mdHeading主题变量。 */
       color: var(--mdHeading);
+      /* 四值margin按上、右、下、左排列：只在标题上方留一个line-height，下方和左右为0。相邻块的垂直外边距还可能发生折叠，不保证简单相加。 */
       margin: var(--line-height) 0 0 0;
+      /* 所有这六级Markdown标题加粗；标题语义等级仍由HTML标签保留。 */
       font-weight: bold;
     }
 
+    /* 一级Markdown标题字号设为1em，即继承父元素字号的一倍，不采用浏览器默认的超大h1；例如父字号12px则为12px。 */
     .markdown-content h1 { font-size: 1em; }
+    /* 二级Markdown标题同样使用父字号的一倍；等级差异不靠这一条放大字号。 */
     .markdown-content h2 { font-size: 1em; }
+    /* 三级Markdown标题也保持1em，承接上面的统一颜色和粗体。 */
     .markdown-content h3 { font-size: 1em; }
+    /* 四级Markdown标题也设为1em，不修改标记本身的h4语义。 */
     .markdown-content h4 { font-size: 1em; }
+    /* 五级Markdown标题保持1em，覆盖浏览器通常更小的默认标题字号。 */
     .markdown-content h5 { font-size: 1em; }
+    /* 六级Markdown标题同样保持1em，让各级标题在这份紧凑导出页里字号一致。 */
     .markdown-content h6 { font-size: 1em; }
+    /* Markdown段落去掉默认四边外边距；段落间隔在下一条相邻段落规则中单独恢复。 */
     .markdown-content p { margin: 0; }
+    /* 只有p后面紧接另一个p时，后一个段落上方留一个line-height；加号不匹配中间夹着其他元素的段落。 */
     .markdown-content p + p { margin-top: var(--line-height); }
 
+    /* Markdown链接元素的外观；URL允许哪些协议由JS sanitizeMarkdownUrl决定，颜色与下划线不构成可信站点认证。 */
     .markdown-content a {
+      /* 链接文字用mdLink主题色。 */
       color: var(--mdLink);
+      /* 给链接加下划线，提供颜色之外的视觉识别；不在这里修改链接目标或打开方式。 */
       text-decoration: underline;
     }
 
+    /* Markdown中所有code元素先套这组基础规则，既包括行内代码，也包括pre里面的代码；代码块稍后再覆盖部分属性。 */
     .markdown-content code {
+      /* 用半透明灰色作代码背景；rgba四个分量是红、绿、蓝和不透明度，0.2意味着背景颜色有20%的不透明度。 */
       background: rgba(128, 128, 128, 0.2);
+      /* 代码默认文字使用mdCode主题色；语法高亮内部span还可能用自己的主题色。 */
       color: var(--mdCode);
+      /* 上下内边距0、左右4px，为代码文字两侧留空；后面的pre code规则没有清除此内边距。 */
       padding: 0 4px;
+      /* 代码背景使用3px圆角。 */
       border-radius: 3px;
+      /* font-family:inherit明确使用父元素字体，此页通常是body的等宽字体族，不在这里额外加载字体文件。 */
       font-family: inherit;
     }
 
+    /* Markdown代码块外层pre的布局；JS代码渲染器生成pre与code，并把高亮span放在内部。 */
     .markdown-content pre {
+      /* pre背景设透明，本身不画灰底；内部code的灰底还要由下面规则单独取消。 */
       background: transparent;
+      /* 代码块上下留一个line-height外边距，左右为0。 */
       margin: var(--line-height) 0;
+      /* 横向内容超出可用宽度时允许水平滚动；这条没有指定强制折行或最大高度。 */
       overflow-x: auto;
     }
 
+    /* 匹配Markdown容器中位于pre内的code；比普通code规则更具体，用来把行内代码样式调整为代码块样式。 */
     .markdown-content pre code {
+      /* 代码改为块级元素；代码正文仍由pre的空白处理和适用的其他规则共同决定展示。 */
       display: block;
+      /* 取消基础code规则的灰色背景，保留外层透明背景效果。 */
       background: none;
+      /* 代码块默认文字回到text主题色；高亮span使用的更具体颜色仍能区分语法，不会被这条统一抹平。 */
       color: var(--text);
     }
 
+    /* Markdown引用块的外观，例如以大于号开头的引用经marked解析后生成blockquote；CSS不重新解析原始Markdown。 */
     .markdown-content blockquote {
+      /* 引用左侧画3px实线，颜色取mdQuoteBorder。 */
       border-left: 3px solid var(--mdQuoteBorder);
+      /* 引用文字与左边框之间留一个line-height内边距。 */
       padding-left: var(--line-height);
+      /* 引用块上下各留一个line-height外边距，左右外边距清零。 */
       margin: var(--line-height) 0;
+      /* 引用块默认文字颜色取mdQuote，内部链接等仍可能覆盖自己的文字颜色。 */
       color: var(--mdQuote);
+      /* 引用文字默认用斜体；这是外观，不是把引用内容转成强调标签。 */
       font-style: italic;
     }
 
+    /* Markdown无序列表ul和有序列表ol共享间距与缩进；逗号表示分别匹配两类列表，列表编号或圆点仍由实际HTML类型和浏览器列表规则决定。 */
     .markdown-content ul,
     .markdown-content ol {
+      /* 列表上下各留一个line-height外边距，左右外边距为0。 */
       margin: var(--line-height) 0;
+      /* 列表左内边距为line-height的两倍，默认36px；calc组合CSS数值，var先取自定义属性值，不是JS函数调用。 */
       padding-left: calc(var(--line-height) * 2);
     }
 
+    /* 列表项li自身外边距设为0；项内若有段落或嵌套列表，它们仍按各自适用规则布局。 */
     .markdown-content li { margin: 0; }
+    /* ::marker选择列表项的项目符号或编号，并用mdListBullet主题色；不改变列表正文颜色或实际编号顺序。 */
     .markdown-content li::marker { color: var(--mdListBullet); }
 
+    /* Markdown水平分隔线hr的外观，用一条上边框代替浏览器默认立体边框。 */
     .markdown-content hr {
+      /* 先移除所有方向的默认边框，再由下一条只恢复上边框。 */
       border: none;
+      /* 上边框为1px实线，颜色取mdHr主题变量。 */
       border-top: 1px solid var(--mdHr);
+      /* 分隔线上下各留一个line-height外边距，左右为0。 */
       margin: var(--line-height) 0;
     }
 
+    /* Markdown表格的布局入口；GFM表格由marked生成HTML，CSS只负责显示，不检查每行列数。 */
     .markdown-content table {
+      /* border-collapse:collapse让相邻单元格边框按表格边框合并规则处理，避免默认独立边框之间的间隙。 */
       border-collapse: collapse;
+      /* 表格上下外边距为自身字号的0.5倍，左右为0；em不是固定像素，随表格计算字号变化。 */
       margin: 0.5em 0;
+      /* 请求表格宽度为包含块宽度的100%；表格内容的最小尺寸等约束仍可能让长内容溢出，不能保证任意表格都不超宽。 */
       width: 100%;
     }
 
+    /* Markdown表头单元格th和普通单元格td共用边框、留白及对齐；只在组首解释，逗号之后仍属于同一条选择器列表。 */
     .markdown-content th,
     .markdown-content td {
+      /* 单元格四边画1px实线，颜色复用mdCodeBlockBorder变量；变量名称不限制它只能用于代码。 */
       border: 1px solid var(--mdCodeBlockBorder);
+      /* 单元格上下内边距6px、左右10px，让文字不紧贴边框。 */
       padding: 6px 10px;
+      /* 文字按物理左侧对齐；这不是start逻辑方向值，也不在这里解析Markdown的列对齐冒号。 */
       text-align: left;
     }
 
+    /* 仅表头单元格再叠加背景和粗体，使表头与普通单元格区分。 */
     .markdown-content th {
+      /* 表头背景用不透明度0.1的灰色，让底下主题背景参与最终混色。 */
       background: rgba(128, 128, 128, 0.1);
+      /* 表头文字加粗，普通单元格不因本规则加粗。 */
       font-weight: bold;
     }
 
+    /* Markdown文本中的图片元素；JS的Markdown图片renderer负责URL过滤和img生成，和历史image块的message-image类入口不同。 */
     .markdown-content img {
+      /* 图片显示宽度最多为包含块的100%，只限制显示上限，不缩小HTML中原始图片数据或阻止远端URL加载。 */
       max-width: 100%;
+      /* Markdown图片四角圆角4px；这组规则没有像message-image那样设置400px最大高度。 */
       border-radius: 4px;
     }
 
     /* Syntax highlighting */
+    /* hljs是highlight.js代码容器类，工具代码预览和Markdown代码块都会使用；容器背景透明、默认文字为text色，高亮只给文字加标记，不执行所展示的代码。 */
     .hljs { background: transparent; color: var(--text); }
+    /* 高亮器标出的注释和引用类使用syntaxComment颜色；逗号是两个独立匹配条件，不要求同一元素同时具有两类。 */
     .hljs-comment, .hljs-quote { color: var(--syntaxComment); }
+    /* 关键字及选择器标签类使用syntaxKeyword，例如具体语言语法器标出的关键字；CSS不自己进行词法识别。 */
     .hljs-keyword, .hljs-selector-tag { color: var(--syntaxKeyword); }
+    /* 数字和字面量类使用syntaxNumber；实际true、null等是否归这一类由highlight.js语言定义决定。 */
     .hljs-number, .hljs-literal { color: var(--syntaxNumber); }
+    /* 字符串和文档标签类使用syntaxString主题色；只调整已存在高亮元素的外观。 */
     .hljs-string, .hljs-doctag { color: var(--syntaxString); }
     /* Function names: hljs v11 uses .hljs-title.function_ compound class */
+    /* 函数、普通标题、同时带hljs-title与function_两类的元素、章节和名称类共享syntaxFunction颜色；两个点紧挨表示同一元素兼具两类，不是function_子元素。 */
     .hljs-function, .hljs-title, .hljs-title.function_, .hljs-section, .hljs-name { color: var(--syntaxFunction); }
     /* Types: hljs v11 uses .hljs-title.class_ for class names */
+    /* 类型、类、同时带hljs-title与class_两类的元素及内建项使用syntaxType；复合类选择器比单独hljs-title更具体，可使类名采用类型色。 */
     .hljs-type, .hljs-class, .hljs-title.class_, .hljs-built_in { color: var(--syntaxType); }
+    /* 属性、变量、语言内置变量、参数和属性名类使用syntaxVariable；hljs-variable.language_也是同一元素具有两个类，具体语法类别取决于高亮器。 */
     .hljs-attr, .hljs-variable, .hljs-variable.language_, .hljs-params, .hljs-property { color: var(--syntaxVariable); }
+    /* 元信息类本身，以及它内部的关键字和字符串，都取syntaxKeyword；后两项用后代选择器提高针对性，使元信息字符串可覆盖普通字符串颜色。 */
     .hljs-meta, .hljs-meta .hljs-keyword, .hljs-meta .hljs-string { color: var(--syntaxKeyword); }
+    /* 运算符类使用syntaxOperator主题色，是否为运算符由语法高亮器识别。 */
     .hljs-operator { color: var(--syntaxOperator); }
+    /* 标点类使用syntaxPunctuation主题色。 */
     .hljs-punctuation { color: var(--syntaxPunctuation); }
+    /* 字符串插值等替换部分的subst类默认回到text色；其内部若另有更具体的高亮元素，仍按各自匹配规则着色。 */
     .hljs-subst { color: var(--text); }
 
     /* Footer */
+    /* 页脚的预留外观入口；当前HTML骨架与template.js未生成footer类元素，不应把规则存在理解为页面一定有页脚内容。 */
     .footer {
+      /* 页脚上方留48px外边距，与最后一段正文拉开距离。 */
       margin-top: 48px;
+      /* 页脚四边内边距20px。 */
       padding: 20px;
+      /* 页脚内部行内内容居中，不等于把页脚元素本身改成固定宽度居中。 */
       text-align: center;
+      /* 页脚默认文字使用dim主题色。 */
       color: var(--dim);
+      /* 页脚字号10px，比正文更小。 */
       font-size: 10px;
     }
 
     /* Mobile */
+    /* 通过id匹配HTML骨架的侧栏打开按钮；名字hamburger只是标识，图标实际由内嵌SVG画分支节点，下面媒体查询才在窄屏显示。 */
     #hamburger {
+      /* 默认不显示按钮且不占布局位置，通常用于桌面布局；窄屏规则会改为block，但JS写入的内联display:none在打开侧栏时仍优先。 */
       display: none;
+      /* 固定定位使按钮脱离正常流并相对其固定定位包含块定位，当前页面布局中通常是视口；页面正文滚动时仍停在指定角落。 */
       position: fixed;
+      /* 按钮顶部距固定定位参照上边缘10px。 */
       top: 10px;
+      /* 按钮左侧距参照左边缘10px。 */
       left: 10px;
+      /* 层叠序号为100，高于同一相关层叠环境中的侧栏99与遮罩98；z-index不是不受祖先层叠上下文限制的全局绝对排名。 */
       z-index: 100;
+      /* 按钮上下内边距3px、左右8px，增大图标周围可点击区域。 */
       padding: 3px 8px;
+      /* 按钮文字基准字号为12px；内嵌SVG显示尺寸由它自身的宽高属性决定，不由字号直接设定。 */
       font-size: 12px;
+      /* 按钮继承父字体，避免使用浏览器对button的另一套默认字体。 */
       font-family: inherit;
+      /* 按钮背景透明，透出其下方页面内容。 */
       background: transparent;
+      /* 按钮前景使用muted主题色；SVG的fill=currentColor随这个颜色变化。 */
       color: var(--muted);
+      /* 四边画1px的dim色实线边框。 */
       border: 1px solid var(--dim);
+      /* 按钮边角圆角3px。 */
       border-radius: 3px;
+      /* 鼠标悬于按钮时显示手形光标；实际打开逻辑还需JS监听click。 */
       cursor: pointer;
     }
 
+    /* :hover匹配指针悬停状态，给侧栏打开按钮增加视觉反馈；触摸设备是否呈现悬停态由浏览器交互决定。 */
     #hamburger:hover {
+      /* 悬停时按钮文字及继承currentColor的SVG变为text色。 */
       color: var(--text);
+      /* 悬停时边框也变为text色，背景在此规则中没有改动。 */
       border-color: var(--text);
     }
 
 
 
+    /* 侧栏背后的整屏遮罩元素，用于窄屏打开导航后点击空白处关闭；点击监听调用closeSidebar去掉侧栏和遮罩的open类。 */
+    /* 遮罩是可见度与点击层，不是对话数据的安全隔离；这里只定义样式，没有给背景内容增加inert或实现完整焦点圈定。 */
     #sidebar-overlay {
+      /* 默认display:none，桌面或未打开时不遮挡内容；窄屏open组合规则才使它显示。 */
       display: none;
+      /* 遮罩固定定位，脱离正常文档流。 */
       position: fixed;
+      /* 顶部贴固定定位包含块上边缘。 */
       top: 0;
+      /* 左侧贴对应左边缘。 */
       left: 0;
+      /* 右侧也贴边，与left共同约束横向范围，不另写固定宽度。 */
       right: 0;
+      /* 底部也贴边，与top共同覆盖纵向范围；当前正常页面中覆盖整个视口。 */
       bottom: 0;
+      /* 背景为50%不透明度的黑色，令下方内容变暗；这是背景透明度，不是把遮罩元素整体设置opacity。 */
       background: rgba(0, 0, 0, 0.5);
+      /* 层叠序号98，正常布局中位于侧栏99下面；侧栏覆盖区可操作，其他区域由遮罩接收点击。 */
       z-index: 98;
     }
 
+    /* 媒体查询在视口宽度不超过900px时应用内部覆盖；900px本身也命中，与JS isMobileLayout使用同一阈值，不是按手机操作系统判断。 */
+    /* 例如宽800px时侧栏变为固定滑入层、隐藏拖拽条并出现打开与关闭按钮；CSS只响应视口，open类仍需JS维护，宽度跨阈值不会自动清除类或内联按钮状态。 */
     @media (max-width: 900px) {
+      /* 窄屏下覆盖前面的侧栏桌面布局；id相同，媒体条件命中且声明在后时参与同一层叠选择。 */
       #sidebar {
+        /* 侧栏由sticky改为fixed，脱离原来的横向flex占位，形成叠在正文上的侧边层。 */
         position: fixed;
+        /* 侧栏固定在左边缘；实际开关使用transform位移，不改变left值。 */
         left: 0;
+        /* 宽度取侧栏偏好宽度与100vw视口宽度中的较小值，例如偏好400px、视口320px则取320px；min是CSS比较函数。 */
         width: min(var(--sidebar-width), 100vw);
+        /* 最小宽度使用同一较小值，覆盖桌面固定侧栏宽度的min-width约束。 */
         min-width: min(var(--sidebar-width), 100vw);
+        /* 最大宽度也使用同一较小值，与width和min-width一起将侧栏约束到该宽度；不保证处理所有浏览器滚动条与动态视口差异。 */
         max-width: min(var(--sidebar-width), 100vw);
+        /* 侧栏顶部固定在0。 */
         top: 0;
+        /* 同时声明底部为0；下面仍显式设置height，不能简单把top与bottom两项说成所有情况下都自行拉伸高度。 */
         bottom: 0;
+        /* 侧栏高度取100vh，即一个CSS视口高度；这里没有采用动态视口单位dvh，移动浏览器工具栏变化仍按浏览器vh规则处理。 */
         height: 100vh;
+        /* 侧栏层叠序号99，位于遮罩98之上；打开按钮的100则更高，但JS打开侧栏时通常会把该按钮内联隐藏。 */
         z-index: 99;
+        /* 默认向左平移自身参考盒宽度的100%，将侧栏移到左侧屏外；百分比以被变换元素的参考盒为基准，不是直接取视口宽度。 */
         transform: translateX(-100%);
+        /* transform变化用0.3秒过渡，默认采用ease时间曲线；不为display变化添加动画，也不保证浏览器一定逐帧流畅绘制。 */
         transition: transform 0.3s;
       }
 
+      /* 侧栏元素同时具有open类时覆盖默认移出屏幕状态；JS点打开按钮添加类，点遮罩或关闭按钮删除。 */
       #sidebar.open {
+        /* 水平位移归零，将固定在左侧的侧栏带回原位，配合上面的transform过渡形成滑动。 */
         transform: translateX(0);
       }
 
+      /* 窄屏下选择桌面用于调整宽度的分隔条；不删除此前保存在localStorage里的宽度偏好。 */
       #sidebar-resizer {
+        /* display:none使分隔条不占位置也不可直接点击拖动；JS自身还在pointerdown入口检查同一窄屏条件。 */
         display: none;
       }
 
+      /* 只在这个媒体查询内，让带open类的遮罩进入显示态；同一open类在宽屏不靠本规则显示遮罩。 */
       #sidebar-overlay.open {
+        /* display:block覆盖默认隐藏，使固定定位的全屏半透明层可见并接收点击。 */
         display: block;
       }
 
+      /* 窄屏布局为打开侧栏的按钮提供显示覆盖；是否已被JS写内联display:none仍要按层叠规则判断。 */
       #hamburger {
+        /* 将默认none改为block；关闭侧栏时JS清空内联display，便重新由这条窄屏样式决定显示。 */
         display: block;
       }
 
+      /* 窄屏时显示侧栏内部的关闭按钮，HTML骨架已经提供该元素，JS将它的click接到closeSidebar。 */
       .sidebar-close {
+        /* display:block覆盖前面桌面默认none；不在此CSS中实际删除open类。 */
         display: block;
       }
 
+      /* 窄屏下调整正文阅读区留白，覆盖桌面左右两倍line-height的设置。 */
       #content {
+        /* 上下仍留一个line-height，左右改为16px，让较窄视口中正文获得更多可用宽度。 */
         padding: var(--line-height) 16px;
       }
 
+      /* 大于号匹配content的直接孩子，例如header-container与messages；不会直接匹配任意层级的每条消息。 */
       #content > * {
+        /* 直接孩子最大宽度改为父内容宽度的100%，覆盖桌面的800px上限；不是给所有后代图片或表格设置统一宽度。 */
         max-width: 100%;
       }
     }
 
+    /* 打印媒体条件下应用这三条覆盖，不需要JS触发；只定义打印外观，不实现下载PDF、分页控制或重新裁剪会话数据。 */
+    /* 普通窄屏媒体查询也可能依打印环境条件参与层叠；这组覆盖没有整体移除所有卡片背景、语法色、隐藏状态或移动按钮。 */
     @media print {
+      /* 打印时将侧栏、拖拽条和名为sidebar-toggle的节点强制设为display:none；!important提高声明优先级但不是不受所有层叠规则限制。当前HTML没有sidebar-toggle节点，这项不等于隐藏实际hamburger按钮或sidebar-overlay遮罩。 */
       #sidebar, #sidebar-resizer, #sidebar-toggle { display: none !important; }
+      /* 打印时body背景改白、默认文字改黑；子元素显式设置的主题颜色和背景不会仅因这一条全部变成黑白。 */
       body { background: white; color: black; }
+      /* 打印时取消content本身的max-width上限；不是取消它所有直接孩子或后代的max-width约束，例如前面的子元素规则仍会参与层叠。 */
       #content { max-width: none; }
     }

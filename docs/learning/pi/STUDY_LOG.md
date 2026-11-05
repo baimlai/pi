@@ -2,6 +2,106 @@
 
 分支：`learning/full-chain-study-bay`。日志记录具体完成范围和验证，不把计划写成已经完成。
 
+## 2026-11-05：兼容聊天入口与导出统计/系统状态
+
+第四十五批新增7个完整文件，210原行补至382行，仅加172条中文；累计完整656、待处理2,206、来源或候选82，部分/需复核均0，总数2,944。
+
+- 五wrapper75补至151行，解释DeepSeek明确无/v1的地址、ZAI国际/CN的coding路径和独立key、Cerebras/Groq兼容端点、静态模型对象共享与lazy。未把Provider级baseUrl误写成对生成模型的强制覆盖，也不凭构造宣称认证或套餐有效。作者原/稿/源/实际callee全文，root151稿全文，ZAI目录单文件3静态例通过，不冒称其它wrapper运行覆盖。
+- 两测试135补至231行，讲源码锚点/VM上下文、JSON序列化插值、可选字段/接口/unknown数组/非空断言/as never。费用保留已有total=0.9、缺total才用0.5分项和，最终1.4；系统比较pi-ai文字规则、沿父链找初始/更新状态、压缩system快照仍计较早状态。最后一例只是源码文本匹配，不是真实DOM或网络payload验证。原/稿/源、实际computeStats/system helper与pi-ai text全文，独立审无具体问题；两文件5例通过。
+
+验证结果：
+
+- `npm run check`全部通过，无格式调整。HEAD后的21份TS/JS完整AST、执行JS、指令与下一非空行相同，11原非中文注释保留，739中文无异常控制字符，`git diff --check`通过。
+- 两测试额外比对含模板quasis的完整AST与执行JS，待VM执行的代码字符串没有加入注释或变化。仅给cost模板插值里的JS数组加说明，不混进模板字面量正文。七份删除172新增中文行后逐字恢复HEAD。
+- 三个不同指定文件8通过，无skip/过滤；全部为本地目录/VM helper，无真实模型、认证、浏览器、账单或工具调用。未为重复计数重新运行上一批测试。
+- 旧680条显式指纹全部不变，新增7条后保存687份匹配快照；无依赖/锁/生成产物变化。接着冻结源码并归档第二阶段25个已验收文件和3份维护文档，临时交互/备用屏长稿不纳入。
+
+指定命令：
+
+```sh
+# packages/ai
+node ../../node_modules/vitest/dist/cli.js --run test/zai-coding-plan-models.test.ts
+
+# packages/coding-agent
+PI_HYPERLINKS=0 PI_TUI_DEBUG=0 PI_TUI_DEBUG_REDRAW=0 PI_CODING_AGENT_DIR=/tmp/pi-study-validation-bay/export-tests45-agent node ../../node_modules/vitest/dist/cli.js --run test/export-html-cost.test.ts test/export-html-system-messages.test.ts --maxWorkers 1
+```
+
+## 2026-11-05：Xiaomi装配、导出测试与TUI性能参考
+
+第四十四批新增8个完整文件，539原行补至958行、仅新增419条中文。累计完整649、待处理2,213、来源或候选82，部分与需复核均0，总数2,944。第一阶段本地提交与官方origin推送403状态未变，独立注释继续。
+
+- Xiaomi四入口60补至120行，解释普通/三个Token Plan的独立ID、环境key与端点，认证先存储key再env、对象/泛型/type导入、静态聊天目录和lazy。思考映射由目录/适配器处理，不谎称wrapper在构造时改请求、核套餐或鉴权。作者原/稿/源与callee全文，root120稿全文；8静态目录例通过，4流例因名字筛选未运行。
+- CJK/工具空白两测试108补至192行。逐条说明临时JSONL、真实HTML导出、VM依赖/最小DOM、声明提升提早返回、satisfies/函数类型/可选链/as unknown as、SGR与组件替身。独立审指出正则的跨行查找可能跨CSS块，已收准说明，不把文本匹配冒称声明块归属或最终级联证明。两源与实际callee、root全稿、独立只读审已完成；两文件5例通过。
+- 两benchmark371补至646行：长会话2500个Markdown与四场景，EditorSim缓存、150个Text和两轮300帧、进程内inspector采样/递归估值/GC参数支持边界。write的length实际计UTF16码元，不是UTF8字节；采样、循环计时、写入计数的窗口不同；默认stop还会重渲全文，缺finally不能宣称所有失败都清完。作者原/稿/源与本地Node真实类型/渲染callee全文，root646稿全文；没有执行这些benchmark、HeapProfiler或实际终端。
+
+验证结果：
+
+- 最终`npm run check`全部通过。首轮只调整两新bench的新增说明缩进和三元布局；说明前移到声明之前后再检查，formatter只恢复一份新bench的原三元排版。全部差异逐块读过，不为通过检查改功能。
+- HEAD之后14份TS/JS的完整AST、执行JS、指令及下一非空行一致，9原非中文注释保留，567中文无异常控制字符，`git diff --check`通过；8份新文件删除419新增中文行后都逐字恢复HEAD，不只比较无注释AST。
+- 3个不同指定测试文件共13通过；Xiaomi另外4项为名字未选中，不记平台跳过。两bench只静态检查，未把它们计入测试数；没有真实模型/认证/剪贴板/浏览器/HeapProfiler调用。
+- 此前672条显式指纹全部不变，新增8条后保存680份匹配快照。无依赖、锁或生成产物改动；临时写入器/生成器删除，检查证据保留。长交互与备用屏长测试仍TMP，不提前计完成，继续第四十五批。
+
+指定命令：
+
+```sh
+# packages/ai：只选择8项静态目录断言
+node ../../node_modules/vitest/dist/cli.js --run test/xiaomi-models.test.ts -t '^Xiaomi MiMo models (omits deprecated models from |keeps replacement models on )'
+
+# packages/coding-agent：两文件5例
+PI_HYPERLINKS=0 PI_TUI_DEBUG=0 PI_TUI_DEBUG_REDRAW=0 PI_CODING_AGENT_DIR=/tmp/pi-study-validation-bay/export-tests44-agent node ../../node_modules/vitest/dist/cli.js --run test/export-html-cjk.test.ts test/export-html-whitespace.test.ts --maxWorkers 1
+```
+
+## 2026-11-05：HTML导出页完整样式
+
+第四十三批新增1个完整文件：`export-html/template.css`由1,085原行补至1,784行，新增699条中文。累计完整641、待处理2,221、来源或候选82，部分和需复核均为0，总数2,944。主代理唯一写源码，三人分别分析不重叠原段并交叉复核；原文、整合稿、实际JS状态切换、生成器与ANSI输出均核对。
+
+注释说明CSS变量、flex/固定/粘性布局、盒模型/响应式、树节点状态、工具展开、空白保留、图片与打印。透明按钮仍可能响应点击；行内display可能覆盖样式表；O键不控制system展开；更具体的pre-wrap选择器可覆盖ansi-line的pre。独立审发现路径/选中/悬停的选择器优先级相同，后置路径背景会覆盖前两者，以及tree-custom-message没有被当前JS生成，均已修正说明，没有改行为。
+
+验证结果：
+
+- 删除699条新增完整注释行后逐字恢复原文；保留25条原注释及4占位顺序。用相同固定颜色替换占位后，PostCSS的非注释AST、声明、选择器和at-rule值一致；忽略的lastEach/indexes是读取本地实现确认的遍历簿记，不是样式数据。此为静态检查，不冒称浏览器DOM、视觉或布局已实测。
+- `npm run check`全部通过，无格式调整；当前HEAD后的6份TS/JS严格比较仍通过，4原非中文注释保留，148中文无异常控制字符，`git diff --check`通过。本批没有新增TS文件，不把此报告累计成前阶段622份重新运行。
+- `packages/coding-agent`指定`export-html-whitespace.test.ts`单文件3通过，只有样式文本正则、ANSI字符串和内存工具渲染替身。未启动真实浏览器、模型、剪贴板或终端；未重复计算上一批CJK测试。
+- 旧671条显式指纹全部不变，新增1条后保存672份匹配快照；无依赖/锁/生成产物变化。本批暂未提交，后续大阶段统一归档。第一阶段推送403仍待可写仓库答复，不影响继续注释。
+
+指定命令（`packages/coding-agent`）：
+
+```sh
+PI_HYPERLINKS=0 PI_TUI_DEBUG=0 PI_TUI_DEBUG_REDRAW=0 PI_CODING_AGENT_DIR=/tmp/pi-study-validation-bay/css43-agent node ../../node_modules/vitest/dist/cli.js --run test/export-html-whitespace.test.ts --maxWorkers 1
+```
+
+## 2026-11-05：HTML骨架、区域供应商与原生测试夹具
+
+第四十二批新增9个完整文件：AI四区域入口、TUI四fixture、HTML模板。454原行补至847行，累计完整640、待处理2,222、来源文件或候选82、部分与需复核0，总数2,944。本批工作在第一阶段提交`57d4b549d`之后继续。
+
+- MiniMax/Moonshot四入口60补至121行。说明MiniMax使用Anthropic协议且国际/CN环境变量独立、CN域名为minimaxi.com；Moonshot使用Completions，两个区域共享MOONSHOT_API_KEY/认证展示名但ID/目录和可存凭据独立。只构造静态Provider/lazy能力，不重写模型URL、读取真实key、鉴权或现场刷新目录。作者原/稿/源/真实callee全文，root121成稿全文。
+- HTML骨架56补至98行，解释DOCTYPE、UTF8、SVG与id/class/data/ARIA、侧栏与正文空挂载点、搜索/过滤当前叶例外。数据槽虽标application/json，实际是UTF8 JSON经Base64后的文字，要解码后再JSON.parse；编码不脱敏。CJK脚本只定义工厂，查看器取emStrong接marked才启用；image-modal结构目前无对应JS/CSS实现，不凭名字虚构功能。原/稿/源码、生成器397行全文和必要查看器/样式段核对，独立只读审通过。
+- 四fixture338补至628行。两C逐行解释原子计数、宏包分配/释放、NDEBUG会删调用、受控reader与Node环境退出、64槽字节账本、INCR坏结束块/不响应等故障。两CJS讲require/真实Worker/Promise/void/try-finally、计时阈值与心跳、短值/hash和Linux任务children检查；passed或ok:true输出不等之后进程/收尾一定成功。作者原/稿/源、真实生产桥/外层测试与本机声明全文，root628行成稿全文。未编译或执行这些fixture。
+
+验证结果：
+
+- `npm run check`全部通过，无格式调整；本批6份已有TS/JS与当前阶段提交`57d4b549d`的完整AST、执行JS、指令及下一非空行一致，4原非中文注释保留，148中文注释无异常控制字符，`git diff --check`通过。此前662条显式指纹全部不变，未把提交后的6文件报告误写成旧622文件全部重跑。
+- HTML删42条新增完整注释行后逐字恢复原56行；6唯一占位各保留1次，避免注释抢走首个replace目标；script/style原始内容完全一致，标记/属性/非空白文字/3原英语注释和顺序核对。比较明确忽略新增评论节点与纯空白文本，不冒称浏览器DOM或视觉布局逐字相同。
+- 两C删203中文行逐字还原HEAD，8英语/字符串/预处理与400+1,256=1,656辅助词法token保留；两CJS另有CommonJS AST/JS/原文恢复/4原注释与两次`node --check`。这些不是C AST/编译/X11/原生运行证明，不把语法检查混算成测试。
+- 供应商1文件2例通过、28过滤；HTML生成/本地VM的CJK1文件2例通过，合2个不同文件4通过。前者只Moonshot目录价格与假env解析，非MiniMax区域直测；后者执行本地vendor与提前返回的解析helper，不启动真实浏览器/全查看器。没有真实模型/认证/端口/剪贴板或X11调用。
+- 新增9条后保存671份匹配快照。没有改依赖、锁或产物，当前批次暂未提交；继续第四十三批及长交互临时稿。
+
+指定测试命令：
+
+```sh
+# packages/ai
+node ../../node_modules/vitest/dist/cli.js --run test/providers.test.ts -t '^(builtin providers uses official Kimi K3 pricing for Moonshot providers|envApiKeyAuth prefers the stored credential key and falls back through env vars in order)$'
+
+# packages/coding-agent：只导出自建tmp会话和运行本地VM解析helper
+PI_HYPERLINKS=0 PI_TUI_DEBUG=0 PI_TUI_DEBUG_REDRAW=0 PI_CODING_AGENT_DIR=/tmp/pi-study-validation-bay/html42-agent node ../../node_modules/vitest/dist/cli.js --run test/export-html-cjk.test.ts --maxWorkers 1
+```
+
+## 2026-11-05：第一阶段提交完成，推送目标待确认
+
+第一阶段已本地提交为`57d4b549dbc0a8c6087ef947da0b3cdb2415ba86`，标题`docs: add Chinese repository learning annotations`：639个明确路径，含631个完整文件与8份学习文档。正常提交钩子的全检查和额外browser smoke全部通过，提交后工作区干净、631完整/0需复核。
+
+随后向origin的`learning/full-chain-study-bay`非强推时，官方仓库`earendil-works/pi`拒绝账号`baimlai`的写入，HTTP 403；没有推送成功或改动远程main。当前已请求可写fork地址或在该账号下新建fork的选择，保留官方origin。推送目标待答不阻止独立的注释工作，后续日志再记录实际推送结果。
+
 ## 2026-11-05：第一阶段归档范围与提交规则
 
 用户明确要求每完成一个大阶段就提交并推送一次；此授权记录在根`AGENTS.md`的学习分支例外中。第一阶段范围为前四十一批已验收的631个完整文件、架构/调用链修订、前导脚本外置逐句讲解、覆盖工具/清单及本日志。仍对照上游`be37fb285`，没有自动合并main。

@@ -472,6 +472,11 @@
 			"sha256": "b3b70615abc3757161134859dba48979baed9fdc3c4063ac9d461e3c71b327a0",
 			"note": "整文件：Baseten静态目录/key认证/Completions lazy装配，逐行与函数例子/泛型/object values；外层新建共享模型，Provider baseUrl不强制覆盖模型URL，构造不登录/发请求。原/稿/源/实际callee全文及严格等价验证，本文件仅静态，不将Together测试算本Provider运行覆盖。"
 		},
+		"packages/ai/src/providers/cerebras.ts": {
+			"status": "complete",
+			"sha256": "a0cb16648f78e2826383385b2e731e3f12eba90a58b7beed960c84895c43251d",
+			"note": "整文件：静态Completions/环境key/区域端点/目录共享/lazy与TS泛型对象语法；作者原稿源/callee全文、root151稿全文，精确删中文还原/AST/执行JS及统一check通过。ZAI静态目录3例通过，不冒称其它入口认证/端点或套餐已实测。"
+		},
 		"packages/ai/src/providers/cloudflare-ai-gateway.ts": {
 			"status": "complete",
 			"sha256": "75c6b19eddd28a0e3391b1956843d28604808a03a287383b33a15564c3e9e133",
@@ -491,6 +496,11 @@
 			"status": "complete",
 			"sha256": "bcb64e3ab9366624493f56958718bf660467da3b8781af654fb0602a5e6ba954",
 			"note": "整文件：Cloudflare凭证来源/空值优先级、流与网关包装、env绑定fetch的this和URL/headers边界；全文/callee/交叉核对，4指定mock测试文件19通过28过滤，无真实Cloudflare调用。"
+		},
+		"packages/ai/src/providers/deepseek.ts": {
+			"status": "complete",
+			"sha256": "ffb830fdfb88fbff84a325049c8816b56cf0a5e8af636f736a4e1c063fd3731b",
+			"note": "整文件：静态Completions/环境key/区域端点/目录共享/lazy与TS泛型对象语法；作者原稿源/callee全文、root151稿全文，精确删中文还原/AST/执行JS及统一check通过。ZAI静态目录3例通过，不冒称其它入口认证/端点或套餐已实测。"
 		},
 		"packages/ai/src/providers/fireworks.ts": {
 			"status": "complete",
@@ -512,6 +522,11 @@
 			"sha256": "391dda9493593647b9290b2bf5ec28cea9ac6c0e9376b96d5b04d48f2a0c3476",
 			"note": "整文件：实际Provider装配/认证入口、OAuth分类可用性过滤、Vertex/AWS环境来源探测、Azure Completions部署onPayload包装；全文/callee/类型复读，4纯mock文件70通过，空串/??/取消检查位置与认证配置不等于远端成功的边界明确。"
 		},
+		"packages/ai/src/providers/groq.ts": {
+			"status": "complete",
+			"sha256": "61344b307c03c5d97b1be98fa1b7511c87641f4a0a1574f6e3f6d44fbd4d2976",
+			"note": "整文件：静态Completions/环境key/区域端点/目录共享/lazy与TS泛型对象语法；作者原稿源/callee全文、root151稿全文，精确删中文还原/AST/执行JS及统一check通过。ZAI静态目录3例通过，不冒称其它入口认证/端点或套餐已实测。"
+		},
 		"packages/ai/src/providers/images/register-builtins.ts": {
 			"status": "complete",
 			"sha256": "28a6844c0da3ae70e386c55c9e4c552d200bfbd0cdfd5a4828d8e9b6f5caf6a2",
@@ -527,10 +542,30 @@
 			"sha256": "7fe336ab34e67e58a91647c76da01721667e603f23bc7e93119eeab39f5f10ad",
 			"note": "整文件：订阅OAuth/静态Provider装配、Anthropic存储与env/WIF来源、Copilot聊天可用名单与分类路径；全文/callee/SDK类型复读，6纯mock文件59通过。配置真值不等于认证成功，字符串数组空槽/空名单、分类保留与字面URL拼接边界明确。"
 		},
+		"packages/ai/src/providers/minimax-cn.ts": {
+			"status": "complete",
+			"sha256": "78a8bb8e72686202d07d170036540faa8ea07ec9ec76c025b94eec5d7216178a",
+			"note": "整文件：MiniMax CN独立ID/目录/minimaxi.com端点/CN变量与Anthropic lazy装配，逐行及类型例子，不按位置自动切换或重写模型URL。原/稿/源/生成入口/auth/createProvider/lazy全文，严格等价，无区域网络或真实模型验证。"
+		},
+		"packages/ai/src/providers/minimax.ts": {
+			"status": "complete",
+			"sha256": "00d3d8793b816a74ad3a1106af0c694d78f3f8298b5b8091c7917e473c5329bc",
+			"note": "整文件：MiniMax国际静态目录/Anthropic协议/key认证/lazy装配，函数/逐行与泛型例子；MINIMAX_API_KEY独立于CN，Provider URL仅元数据，新数组共享模型，构造不鉴权/联网。原/稿/源/真实callee全文与严格等价；本批2例仅目录/通用假env，不冒称直接MiniMax测试。"
+		},
 		"packages/ai/src/providers/model-schema.ts": {
 			"status": "complete",
 			"sha256": "d3bad1f310f62740afc07504d01984bfb49d91503a4e50d237ee9608481a0b50",
 			"note": "整文件：思考/缓存/费率阶梯/图像与请求限制schema及静态类型；原/稿/成稿/实际计价与TTL等callee核对，schema声明不执行默认填充/缩图/计费，严格等价与统一类型通过。"
+		},
+		"packages/ai/src/providers/moonshotai-cn.ts": {
+			"status": "complete",
+			"sha256": "7a68e776f62530db9f19794e3fcee90a873debd348658deb74c66c82c949d78f",
+			"note": "整文件：Moonshot CN独立ID/目录/.cn端点但共享国际变量与认证展示名，逐行函数/泛型例子；工厂不发请求/读秘密/动态刷新。原/稿/源及实际callee全文与严格等价，关联2静态/假env用例通过、28过滤。"
+		},
+		"packages/ai/src/providers/moonshotai.ts": {
+			"status": "complete",
+			"sha256": "f50e3928b03055ed9fe94cbac6f1bdda2d4f5be571853b2c2a84d5ed2b0ec9a6",
+			"note": "整文件：Moonshot国际静态目录/Completions/key认证/lazy装配，逐行/泛型例子；国际和CN共用MOONSHOT_API_KEY但ID/目录/存储key可独立，baseUrl仅元数据。原/稿/源及实际callee全文，1文件2静态/假env例通过28过滤，不证明服务价格实时或真实授权。"
 		},
 		"packages/ai/src/providers/openai-codex.ts": {
 			"status": "complete",
@@ -601,6 +636,36 @@
 			"status": "complete",
 			"sha256": "979ed45ca3a61537dbd3ab533da6360eb7d0271a8ebde5120cd1dcb07113bcfb",
 			"note": "整文件：订阅OAuth/静态Provider装配、Anthropic存储与env/WIF来源、Copilot聊天可用名单与分类路径；全文/callee/SDK类型复读，6纯mock文件59通过。配置真值不等于认证成功，字符串数组空槽/空名单、分类保留与字面URL拼接边界明确。"
+		},
+		"packages/ai/src/providers/xiaomi-token-plan-ams.ts": {
+			"status": "complete",
+			"sha256": "b0e91fb618d8fa82bc820f69d77e34a3445c23fc40e8075bb8d8c17f651e6666",
+			"note": "整文件：MiMo普通/区域Token Plan的静态聊天目录、独立ID/环境key、lazy装配与泛型/对象语法；作者原稿源和callee全文、root120成稿全文，精确删新注释/AST/JS一致。8静态目录例通过，4流例按名字未运行；未鉴权/联网/修改生成表。"
+		},
+		"packages/ai/src/providers/xiaomi-token-plan-cn.ts": {
+			"status": "complete",
+			"sha256": "d22ec3ccff28c7534929d35ff78f1c52e67b665bac18613b74e3ab52ac3885c4",
+			"note": "整文件：MiMo普通/区域Token Plan的静态聊天目录、独立ID/环境key、lazy装配与泛型/对象语法；作者原稿源和callee全文、root120成稿全文，精确删新注释/AST/JS一致。8静态目录例通过，4流例按名字未运行；未鉴权/联网/修改生成表。"
+		},
+		"packages/ai/src/providers/xiaomi-token-plan-sgp.ts": {
+			"status": "complete",
+			"sha256": "25a44ab9bbae877c8f12a9a4daf49c68761db9aaff7f5e791c397c0def69573a",
+			"note": "整文件：MiMo普通/区域Token Plan的静态聊天目录、独立ID/环境key、lazy装配与泛型/对象语法；作者原稿源和callee全文、root120成稿全文，精确删新注释/AST/JS一致。8静态目录例通过，4流例按名字未运行；未鉴权/联网/修改生成表。"
+		},
+		"packages/ai/src/providers/xiaomi.ts": {
+			"status": "complete",
+			"sha256": "ef0285abe3fa4082f10e25d45f4c0557e4108836bc8da82f59ea736da7acf4fb",
+			"note": "整文件：MiMo普通/区域Token Plan的静态聊天目录、独立ID/环境key、lazy装配与泛型/对象语法；作者原稿源和callee全文、root120成稿全文，精确删新注释/AST/JS一致。8静态目录例通过，4流例按名字未运行；未鉴权/联网/修改生成表。"
+		},
+		"packages/ai/src/providers/zai-coding-cn.ts": {
+			"status": "complete",
+			"sha256": "3271bc984f04cbb431570872f5ca971f34c731fbd962f09806ac91308a06607f",
+			"note": "整文件：静态Completions/环境key/区域端点/目录共享/lazy与TS泛型对象语法；作者原稿源/callee全文、root151稿全文，精确删中文还原/AST/执行JS及统一check通过。ZAI静态目录3例通过，不冒称其它入口认证/端点或套餐已实测。"
+		},
+		"packages/ai/src/providers/zai.ts": {
+			"status": "complete",
+			"sha256": "f3c95e9783774caa9abbe7e0dac18cc0ba4b7265d1a8d51716f33d1709d7ee37",
+			"note": "整文件：静态Completions/环境key/区域端点/目录共享/lazy与TS泛型对象语法；作者原稿源/callee全文、root151稿全文，精确删中文还原/AST/执行JS及统一check通过。ZAI静态目录3例通过，不冒称其它入口认证/端点或套餐已实测。"
 		},
 		"packages/ai/src/session-resources.ts": {
 			"status": "complete",
@@ -1086,6 +1151,16 @@
 			"status": "complete",
 			"sha256": "d9a0fc7f04fd0a8a51bad1cf2305c9092697b68f091f68b1218529cdfd9457c4",
 			"note": "整文件：HTML/JSONL导出、ANSI/工具渲染、应用键位与包清单；全文及调用方复核，区分原始历史/当前分支、渲染回调副作用与声明/校验。"
+		},
+		"packages/coding-agent/src/core/export-html/template.css": {
+			"status": "complete",
+			"sha256": "a6bde2a33cf21f9ba503efbcf2488445c5ec27ba3ace9110429b0123877935db",
+			"note": "整文件：1085原行至1784行，布局/树状态/响应式/工具输出/ANSI空白/打印和CSS语法逐条解释；三人原文/实际JS与生成器核对，root全文稿及交叉审修正同优先级覆盖与未生成类。删699新增注释精确还原，25原注释/4占位顺序与PostCSS非注释AST一致；指定空白3例通过，统一check无格式调整。未运行真实浏览器渲染。"
+		},
+		"packages/coding-agent/src/core/export-html/template.html": {
+			"status": "complete",
+			"sha256": "f6185220199833e64129c3cc643ef742b9faa1490cf2afeb40d06171c324e371",
+			"note": "整文件：56原行补至98，42完整HTML注释，解释DOM挂载/搜索筛选/当前叶例外、SVG/小屏侧栏/拖拽ARIA、Base64数据槽及本地脚本顺序。CJK工厂装载不等启用，image-modal当前无JS/CSS引用。原/稿/源/生成器397全文与实际查看器/样式callee核对、独立审；删新增注释精确恢复，6唯一占位/raw script-style/元素属性非空白文字与3原注释顺序一致。生成HTML/本地VM的CJK2例通过，不冒称真实浏览器布局验证。"
 		},
 		"packages/coding-agent/src/core/export-html/template.js": {
 			"status": "complete",
@@ -2162,6 +2237,26 @@
 			"sha256": "7044e78d20ab18229a8cdc305a1d59477c74b6cba543a65a8e483bfeb429cb7e",
 			"note": "整文件：3例真实高亮缓存/语法注册与工具进度/增量显示，root原成稿/高亮与renderer实际callee核对，3通过；工具名/code/path仅展示，不执行工具，spy安装前调用不计数、数组readonly不运行冻结。"
 		},
+		"packages/coding-agent/test/export-html-cjk.test.ts": {
+			"status": "complete",
+			"sha256": "de8fce3d006bdd8b5008de787078d849965af99017666ffb30679aec24b60003",
+			"note": "整文件：临时JSONL与真实HTML导出、VM最小DOM/取解析helper、声明提升与satisfies/函数类型/可选链、两例CJK与CommonMark断言逐条讲解；原稿源/callee全文及独立审，单文件2通过。仅本地vendor与早退helper，不启动完整浏览器。"
+		},
+		"packages/coding-agent/test/export-html-cost.test.ts": {
+			"status": "complete",
+			"sha256": "e214785a8c4379cb0fd31f741033a9919ba23ddbe64aa4c6b5f1aafddb23491a",
+			"note": "整文件：源码锚点/VM函数切片/JSON插值与费用新旧记录fallback、可选类型/浮点断言逐条解释；原稿源/computeStats全文及独立审，单例通过。AST含模板quasis/执行JS与精确原文保留，无模型/真实账单/浏览器。"
+		},
+		"packages/coding-agent/test/export-html-system-messages.test.ts": {
+			"status": "complete",
+			"sha256": "f55783ab0ea8321033f291283c718bca967ae9879457b274c97f1289c08e6357",
+			"note": "整文件：VM helper/共享entries与局部Map/unknown数组/非空断言/as never、初始系统与补丁/压缩快照父链、四例范围逐条解释；原稿源/实际viewer与pi-ai helper全文及独立审，4例通过。末例仅文本匹配，不冒称真实DOM/模型payload。"
+		},
+		"packages/coding-agent/test/export-html-whitespace.test.ts": {
+			"status": "complete",
+			"sha256": "20997e0c8e6158c48ee141c2962e8af40500b699a56e18cd0f7d1b2430890473",
+			"note": "整文件：CSS文本正则/ANSI拼接/同步Component替身/工具渲染与as unknown as逐条讲解；明确正则可跨CSS块，不冒称最终级联或同块归属证明。原稿源/callee全文及独立审，单文件3通过，无真实TUI。"
+		},
 		"packages/coding-agent/test/footer-width.test.ts": {
 			"status": "complete",
 			"sha256": "f9d94f530fbb9595ac92e32092f77b8df75726711e1387711478ac6e975d2422",
@@ -3047,6 +3142,11 @@
 			"sha256": "2ec5b5c978d1ad2fc19fbf6567e10e577b1f4305c6974e24e1632983b475497f",
 			"note": "整文件：滚轮/键位/输入缓冲/词导航/剪切环/撤销/模糊匹配；核对UTF-16、模块状态、终端回复与实际调用方，全文复读。"
 		},
+		"packages/tui/test/alt-screen-large-transcript-bench.ts": {
+			"status": "complete",
+			"sha256": "addb07385b9a0ce9dfc9f3812425874e5e73362f1e2a139fdd1de589a584fc36",
+			"note": "整文件：2500 Markdown/NullTerminal/ScrollView与VStack/暖机/静态滚动流式变宽四场景、计时窗口与TS语法逐条解释；作者原稿源/callee全文、root297稿全文，统一check及AST/JS/精确删130中文恢复。未运行benchmark/TTY，性能样本不等正确性测试。"
+		},
 		"packages/tui/test/autocomplete-skill-slash.test.ts": {
 			"status": "complete",
 			"sha256": "a669f4742e350d979bf0cdd9f20c39bb36bb82933629ca94b683a8396b45b717",
@@ -3071,6 +3171,26 @@
 			"status": "complete",
 			"sha256": "5d91e9d69c9a0de71036203a130eb4ca2d1f2ded4abbb7c9e93eced45639787d",
 			"note": "整文件：历史键位/缩小/技能补全/SIGWINCH回归/主题helper或ANSI换行；逐句断言/语法和实际callee全文核对，5指定离线文件37通过，信号/复制均mock，无真实终端或剪贴板。"
+		},
+		"packages/tui/test/fixtures/clipboard-reader.cjs": {
+			"status": "complete",
+			"sha256": "4b51c9a8ae5a9e02e4eaf708b2d1cf7446601aa7bb1b16d4e5eab1ba348fc855",
+			"note": "整文件：31补至59，真实addon读取/心跳/JSON短值与hash/try-catch-finally及Linux任务children检查逐行；ok:true后finally仍可失败，不泛称无阻塞/无泄漏。原/稿/源/实际驱动全文，删28中文精确恢复、AST/执行JS/指令/1原注释/node --check通过；未执行fixture/剪贴板或proc读取。"
+		},
+		"packages/tui/test/fixtures/clipboard-worker-test.c": {
+			"status": "complete",
+			"sha256": "79e48c41ffb698fcba5a835bd86824f7ac58e8c0488b8b38f1aabb67df5c24cc",
+			"note": "整文件：64补至116，受控私有reader/原子计数/release/state/N-API注册，宏包装calloc/free与NDEBUG断言副作用逐行C例子。原/稿/源/生产worker/本机types全文，删52中文精确恢复、英语/strings/预处理及400辅助tokens保留；未编译或运行fixture。"
+		},
+		"packages/tui/test/fixtures/clipboard-worker-test.cjs": {
+			"status": "complete",
+			"sha256": "28b64bd174bf22cc5f5999fb2ad609e3e14e25c44f8b2125431152a9cdffea60",
+			"note": "整文件：66补至125，CommonJS require、Promise轮询、真实Worker环境退出/进程自然退出/忙时并发与迟到清理，每分支断言和计时边界逐行。原/稿/源/真实C与外层驱动全文，删59中文逐字恢复、CommonJS AST/执行JS/指令/3原注释及node --check通过；未执行原生驱动，不把passed打印等同最终退出成功。"
+		},
+		"packages/tui/test/fixtures/clipboard-x11-test.c": {
+			"status": "complete",
+			"sha256": "2ffec0263524ad1e49f4d8746e9ba7118e126e7a7a9f42eeff9a4dd638ce92cf",
+			"note": "整文件：177补至328，生产源码包含/64槽内存账本、metadata内存断言、text/image失败清理与真实X11 owner受控故障逐行C语法例子。原/稿/源/本机XCB及生产实现全文，删151中文精确恢复、原英语/字面量/预处理/1256辅助tokens保留；metadata也未编译执行，不把静态证明当X11运行覆盖。"
 		},
 		"packages/tui/test/fuzzy.test.ts": {
 			"status": "complete",
@@ -3161,6 +3281,11 @@
 			"status": "complete",
 			"sha256": "d44c40e7265bc6bf1f961d55393e2d9b95baffda3ad6f1ba91195a3716d77b14",
 			"note": "整文件：宽度/ANSI裁剪/制表符/旗帜字素/CJK覆盖或图像前缀回归；逐例断言与语法、实际callee/已装xterm全文核对，8文件55离线测试通过，不冒充真实终端集成或性能验证。"
+		},
+		"packages/tui/test/render-churn-bench.ts": {
+			"status": "complete",
+			"sha256": "808dfe3146cadb98bc2a0cdf74165e9e13ad9aff7119b67d8979194c1428cead",
+			"note": "整文件：EditorSim缓存/150文本/300帧场景、进程内inspector采样/GC请求/树估值/计时与UTF16计数、异步清理边界逐条解释；作者原稿源/真实本机类型全文、root349稿全文，统一check及AST/JS/精确删145中文恢复。未运行benchmark/HeapProfiler。"
 		},
 		"packages/tui/test/select-list.test.ts": {
 			"status": "complete",
