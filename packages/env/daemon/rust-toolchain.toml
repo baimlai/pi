@@ -1,3 +1,6 @@
+# rustup 在本目录（或子目录）寻找工具链时读取这个文件；内容本身不会安装编译器。
 [toolchain]
+# 固定 Rust 工具链版本；Cargo.toml 的 edition 只规定语言规则，两者用途不同。
 channel = "1.96.0"
+# rustfmt 检查/整理 Rust 排版，clippy 做额外静态诊断；二者都不是单元测试。
 components = ["rustfmt", "clippy"]

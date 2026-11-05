@@ -1,26 +1,44 @@
+# 规定Git存储/检出时怎样处理匹配文件；这是路径属性，不是运行时程序或忽略清单。
 # Default to LF for text files across the repo
+# *匹配所有路径；自动识别文本并在工作区使用LF，二进制识别和后面的更具体规则仍可覆盖。
 * text=auto eol=lf
 
 # Windows scripts should keep CRLF
+# 批处理脚本被明确视作文本，检出时使用Windows的CRLF；Git索引中的文本仍规范化为LF。
 *.bat text eol=crlf
+# .cmd与.bat采用相同的检出换行约定。
 *.cmd text eol=crlf
+# PowerShell脚本也保留CRLF工作区换行，不改变其UTF-8正文。
 *.ps1 text eol=crlf
 
 # Shell scripts should keep LF
+# Bash等shell脚本使用LF，避免解释器把回车误当命令文字的一部分。
 *.sh text eol=lf
 
 # Archived patch artifacts preserve whitespace exactly
+# 对这类已归档diff关闭whitespace属性的检查；不是禁止其他命令写文件或替它们关闭text规范化。
 packages/agent/docs/**/*.diff -whitespace
 
 # Common binary assets
+# binary是Git内置属性宏，关闭文本规范化、文本diff与文本merge；PNG按二进制处理。
 *.png binary
+# JPEG的.jpg后缀使用相同二进制属性。
 *.jpg binary
+# JPEG的.jpeg后缀也单独列出，规则不依赖文件内容的图片识别。
 *.jpeg binary
+# GIF图像不参与文本行尾转换。
 *.gif binary
+# WebP图像不参与文本行尾转换。
 *.webp binary
+# 图标文件按二进制保存。
 *.ico binary
+# PDF文档按二进制保存，不使用普通文本合并。
 *.pdf binary
+# ZIP压缩包按二进制保存。
 *.zip binary
+# gzip压缩数据按二进制保存。
 *.gz binary
+# WOFF字体按二进制保存。
 *.woff binary
+# WOFF2字体同样按二进制保存。
 *.woff2 binary

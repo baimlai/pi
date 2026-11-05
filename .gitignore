@@ -1,48 +1,91 @@
+# Git忽略未跟踪的本地依赖、产物和个人状态；已有跟踪文件不会因为匹配规则就自动移出索引。
+# 不带斜杠的node_modules模式可匹配各层同名项，避免提交包管理器安装结果。
 node_modules
+# 忽略各层dist目录；结尾/限定匹配目录，不是同名普通文件。
 dist/
+# 根目录.artifacts保存模型目录等构建中间产物。
 .artifacts/
+# 任意层级.log文件属于运行记录，不默认纳入源码提交。
 *.log
+# macOS Finder的目录元数据文件。
 .DS_Store
+# TypeScript增量构建的缓存文件。
 *.tsbuildinfo
+# 下面这一行原本就被#注释，不会产生额外的忽略规则。
 # packages/*/node_modules/
+# 明确排除每个直接workspace包的编译输出。
 packages/*/dist/
+# Chrome扩展构建输出目录。
 packages/*/dist-chrome/
+# Firefox扩展构建输出目录。
 packages/*/dist-firefox/
+# AI模型JSON由目录生成/水合流程提供，手写源码和目录定义不在这个规则内。
 packages/ai/src/providers/data/
+# AI模型生成阶段临时目录，*只匹配名称后缀。
 packages/ai/src/providers/.model-generation-*/
+# Node CPU分析结果，不是产品配置。
 *.cpuprofile
 
 # Environment
+# 忽略各层名为.env的文件；不等于所有.env.local等变体都由这一条匹配。
 .env
 
 # Editor files
+# VS Code项目级本地设置目录。
 .vscode/
+# Zed编辑器本地设置目录。
 .zed/
+# JetBrains IDE项目状态目录。
 .idea/
+# Claude工具本地状态目录。
 .claude/
+# Vim交换文件的常见后缀。
 *.swp
+# Vim另一类交换文件后缀。
 *.swo
+# 以~结尾的编辑器备份文件。
 *~
 
 # Package specific
+# 本地npm工作目录/缓存，不是根.npmrc配置文件。
 .npm/
+# 测试覆盖率报告目录。
 coverage/
+# NYC覆盖率工具的原始结果目录。
 .nyc_output/
+# 旧式Pi项目配置目录。
 .pi_config/
+# TUI调试日志的明确文件名；也会被前面的*.log匹配。
 tui-debug.log
+# 压缩测试或调试生成的结果目录。
 compaction-results/
+# OpenCode本地状态目录。
 .opencode/
+# 语法分析调试输出的JSONL文件。
 syntax.jsonl
+# 本地逐行JSON输出文件。
 out.jsonl
+# Pi导出的带名称HTML文件；这里*允许空名称片段。
 pi-*.html
+# 固定名称的本地HTML导出。
 out.html
+# 编码代理打包出来的可执行文件目录。
 packages/coding-agent/binaries/
+# env包生成或安装的辅助二进制目录。
 packages/env/bin/
+# Rust Cargo编译的target目录。
 packages/env/daemon/target/
+# 本地任务备忘文件。
 todo.md
+# 本地计划目录，不排除所有名字含plan的源码。
 plans/
+# 仓库中Hugging Face临时会话数据。
 .pi/hf-sessions/
+# 这些临时会话的备份目录。
 .pi/hf-sessions-backup/
+# 仓库私有Pi设置；其他.pi扩展源码仍可被跟踪。
 .pi/settings.json
+# 本地收集脚本，不是scripts目录整体忽略。
 collect.sh
+# 扩展文档生成的聚合入口；周边手写文档不受这一条影响。
 packages/agent/docs/extensions/pi-server-artifact/index.md

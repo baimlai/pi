@@ -1,13 +1,17 @@
 {
+	// schema 用于配置提示；Worker 的名字须与客户端绑定的 script_name 一致。
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "pi-codemode-sandbox",
 	"main": "src/index.ts",
 	"compatibility_date": "2026-04-22",
 	// Reached only through Durable Object bindings, never over HTTP.
+	// 关闭 workers.dev 和预览 URL；同样没有公开执行脚本的 HTTP 处理器，源码 fetch 固定返回 404。
 	"workers_dev": false,
 	"preview_urls": false,
+	// 平台登记导出的沙箱类；服务实现每次新建 VM，不把脚本状态写到对象 storage。
 	"migrations": [{ "tag": "v1", "new_sqlite_classes": ["CodemodeSandbox"] }],
 	// Optional. The default is 30 seconds of CPU per request; one execution is one request. Keep it above
 	// the time the interrupt budget allows, so scripts fail with a timeout instead of resetting the object.
+	// 这是平台每请求 CPU 额度，不能当成客户端 timeoutMs 的精确墙钟超时。
 	"limits": { "cpu_ms": 60000 }
 }

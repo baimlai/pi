@@ -1,15 +1,20 @@
 {
+	// 本地 schema 为编辑器提供配置提示，不会在运行时替工具检查参数。
 	"$schema": "node_modules/wrangler/config-schema.json",
+	// Worker 名称、入口与兼容日期原样保留；此 Worker 承载会话和宿主工具。
 	"name": "pi-codemode-agent-example",
 	"main": "src/index.ts",
 	"compatibility_date": "2026-04-22",
 	"durable_objects": {
+		// name 是 env 上的键，class_name 是目标 Worker 的导出类名。
 		"bindings": [
 			{ "name": "SESSION", "class_name": "Session" },
 			// The sandbox class lives in its own Worker. `script_name` is what puts scripts in a different
 			// isolate; binding a class exported from this Worker would run them on the session's thread.
+			// script_name 选择单独部署的沙箱 Worker；省略它而绑定本 Worker 的类会共享会话线程。
 			{ "name": "CODEMODE_SANDBOX", "class_name": "CodemodeSandbox", "script_name": "pi-codemode-sandbox" }
 		]
 	},
+	// 迁移声明新建 Session 类的 SQLite 存储能力；示例计数仍只在内存里，没有写 storage。
 	"migrations": [{ "tag": "v1", "new_sqlite_classes": ["Session"] }]
 }

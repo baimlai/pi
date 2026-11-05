@@ -1,7 +1,13 @@
+# GitHub 问题表单：收集故障描述、复现步骤、可选期望与版本。
+# 例如用户填写复现步骤后 GitHub 会生成 issue 正文；这里不执行 Pi，也不校验复现是否真实。
+# name 是模板选择器中的名称，description 是该模板的简短说明，保留英文供 GitHub UI 显示。
 name: Bug Report
 description: Report something that's broken
+# labels 是创建 issue 时自动附加的标签列表；[] 表示此模板不自动附标签。
 labels: ["bug"]
+# body 是按顺序显示的表单项数组；- 开始一项，缩进表示字段从属于该项。
 body:
+  # markdown 只显示引导文字；attributes.value 的 | 保留原多行字符串与换行，不是 shell 脚本。
   - type: markdown
     attributes:
       value: |
@@ -14,6 +20,7 @@ body:
         **Important:** before reporting an issue in core, please validate first with `pi -ne` that this is not caused by an extension you loaded.
 
   - type: textarea
+    # textarea 多行输入故障现象，id 是稳定字段标识；label/description 是用户可见文案。
     id: description
     attributes:
       label: What happened?
@@ -22,6 +29,7 @@ body:
       required: true
 
   - type: textarea
+    # textarea 收集最少复现步骤；required: true 是 GitHub 提交表单时的必填校验。
     id: repro
     attributes:
       label: Steps to reproduce
@@ -30,6 +38,7 @@ body:
       required: true
 
   - type: textarea
+    # 期望行为字段允许留空；required: false 不会推导或自动补齐期望结果。
     id: expected
     attributes:
       label: Expected behavior
@@ -37,6 +46,7 @@ body:
       required: false
 
   - type: input
+    # input 表示单行文本；版本仅作为文字提交，示例 0.49.0 不是运行时默认版本。
     id: version
     attributes:
       label: Version

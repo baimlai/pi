@@ -1,11 +1,15 @@
 {
+	// TypeScript 的配置解析器支持注释；继承仓库基础规则，下面只覆盖构建输出位置与输入集合。
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
+		// src 为源码根，产物写到 dist；此文件不负责启动运行时沙箱。
 		"outDir": "./dist",
 		"rootDir": "./src"
 	},
+	// include 只搜集 src 下 TS，测试与 Cloudflare 示例不在本包构建集合里。
 	"include": ["src/**/*.ts"],
 	// Ambient declarations the build needs; `exclude` below does not apply to `files`.
+	// 显式 files 仍纳入这份环境声明，即使下面的通配排除会排除其他 .d.ts。
 	"files": ["src/cloudflare-modules.d.ts"],
 	"exclude": ["node_modules", "dist", "**/*.d.ts", "src/**/*.d.ts"]
 }

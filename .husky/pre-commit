@@ -1,51 +1,73 @@
 #!/bin/sh
 
+# 此提交钩子按暂存区路径决定检查范围；检查失败返回非零，Git 会中止本次提交。
+# 它会运行可能改写格式的 check，并把最初暂存过且仍存在的文件重新暂存。
+# 例：暂存 packages/ai/src/types.ts 会额外触发浏览器 smoke；仅暂存文档通常不会。
 # Get list of staged files before running check
+# $(...) 执行括号里的命令并取得输出；--cached 指 Git 暂存区，保存检查前的路径列表。
 STAGED_FILES=$(git diff --cached --name-only)
 
+# 先运行锁文件提交守卫；它读取暂存的 package-lock.json，并检查显式授权或仅工作区元数据变化。
 node scripts/check-lockfile-commit.mjs
+# $? 是上一命令退出码；[ ... ] 是 shell 条件命令，-ne 表示数值不相等，失败就 exit 1。
 if [ $? -ne 0 ]; then
   exit 1
 fi
 
 # Run the check script (formatting, linting, and type checking)
+# 向提交者打印即将进行的检查。
 echo "Running formatting, linting, and type checking..."
+# 根 package.json 的 check 串联格式写入、依赖/导入/入口/安装锁检查、类型检查及浏览器 smoke。
 npm run check
 if [ $? -ne 0 ]; then
+  # npm 检查返回非零时打印错误说明并退出；并非只检查 TypeScript。
   echo "❌ Checks failed. Please fix the errors before committing."
   exit 1
 fi
 
+# 下面是私有仓库 apps/p2 的条件检查：本仓库没有该目录时整个分支跳过。
 # p2 has its own check (own biome.json, TypeScript 5.9; apps/ is outside the root Biome and tsc configs).
 # apps/ exists only in pi-private.
+# -d 测试目录存在；for 对未加引号的列表做 shell 分词，沿用原钩子的路径处理方式。
 if [ -d apps/p2 ]; then
+  # 遍历最初暂存的每个路径，任一匹配就运行一次 p2 检查。
   for file in $STAGED_FILES; do
+    # case 按路径模式匹配；下一行的 | 表示任选一种匹配，* 表示任意后缀。
     case "$file" in
       apps/p2/*|packages/*|package.json|package-lock.json|tsconfig.json|tsconfig.base.json)
+        # 相关根配置或任意包变化会影响 p2，因此打印提示，再用 --prefix 切换 npm 项目目录。
         echo "Checking apps/p2..."
         npm --prefix apps/p2 run check
+        # 立即检查 p2 命令退出码；失败报告并退出，成功后 break 结束路径循环。
         if [ $? -ne 0 ]; then
           echo "❌ apps/p2 checks failed."
           exit 1
         fi
+        # 只需运行一次 p2 检查，找到首个相关路径后跳出 for；;; 结束当前 case 分支。
         break
         ;;
     esac
   done
 fi
 
+# 用整数 0/1 记录是否需要额外浏览器 smoke；赋值等号两侧不能加空格。
 RUN_BROWSER_SMOKE=0
+# 再次遍历原暂存路径；ai、web-ui 或根包清单/锁文件会启用下面的浏览器检查。
 for file in $STAGED_FILES; do
   case "$file" in
     packages/ai/*|packages/web-ui/*|package.json|package-lock.json)
+      # 匹配后设为 1 并跳出循环，避免同一次提交重复设置。
       RUN_BROWSER_SMOKE=1
       break
       ;;
   esac
 done
 
+# -eq 判断数值相等；仅标志为 1 时打印提示并运行专门的 smoke 命令。
+# 根 check 当前也包含该命令，所以相关路径会再执行一次，这里按真实行为说明。
 if [ $RUN_BROWSER_SMOKE -eq 1 ]; then
   echo "Running browser smoke check..."
+  # 该脚本打包并检查浏览器入口，失败时下面的条件打印错误并阻止提交。
   npm run check:browser-smoke
   if [ $? -ne 0 ]; then
     echo "❌ Browser smoke check failed."
@@ -53,11 +75,15 @@ if [ $RUN_BROWSER_SMOKE -eq 1 ]; then
   fi
 fi
 
+# 格式化可能改写原已暂存文件；这里只重新暂存最初记录的路径，不枚举新增文件。
 # Restage files that were previously staged and may have been modified by formatting
 for file in $STAGED_FILES; do
+  # -f 只处理仍为普通文件的路径；双引号避免把当前路径值再拆词。
   if [ -f "$file" ]; then
+    # 重新暂存该文件当前全部内容；若同文件原有未暂存修改，也会一起进入暂存区。
     git add "$file"
   fi
 done
 
+# 所有上述命令成功后打印完成信息；末尾命令成功使钩子正常返回。
 echo "✅ All pre-commit checks passed!"

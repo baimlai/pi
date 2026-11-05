@@ -2,6 +2,16 @@
 
 分支：`learning/full-chain-study-bay`。日志记录具体完成范围和验证，不把计划写成已经完成。
 
+## 2026-11-05：第五十三批全链路注释，Chord/Durable/env/evals/ai 共380文件
+
+第五十三批新增380个完整文件，覆盖 Chord v2 手写 src 254、Durable 手写 src 97、env Rust daemon 16、evals 5、ai 4、核心测试4。覆盖清单由724条增至1,104条：1,073完整、31来源/候选、0部分、0需复核；全仓2,944个源码与配置中待处理1,789，整个仓库仍未全部完成。34个并行代理按不重叠文件集写入，文件头均含模块、职责、上下游、能力清单、示例与阅读顺序。
+
+验证：655个已修改路径用 esbuild 剥离注释后与 HEAD 比较，除 `study-coverage.json` 的预期数据变化外0失败；18个源码文件仅因 Biome 链式调用换行/括号产生非注释差异，转译产物一致。`npm run check` 全项通过，Biome `--write` 格式化57个文件；380个文件头检查0缺失；`git diff --check` 通过。`study-status.mjs` 显示0需复核。
+
+测试：各代理定向 Vitest 多数通过；g34 coding-agent tools 11项因本机缺 rg/fd 失败，g06/g10/g11 有 macOS/环境相关失败，g12 有1项在 HEAD 可复现失败；env Rust 因无 cargo/rustc 未编译，ai stream 的 E2E 用例按环境跳过，真实供应商与付费调用未执行。以上均不记为通过。
+
+提交并推送 fork `baimlai/pi` 的 `learning/full-chain-study-bay`；未同步上游 main。
+
 ## 2026-11-05：第五阶段已提交，继续供应商汇总与终端示例
 
 第五阶段已本地提交`b54536ee61f250c908fde6b9fa2d0c12a7d0a8ed`，标题`docs: annotate editor and interactive regression tests in Chinese`。归档第51–52批6份完成文件和3份维护文档，共9个明确路径、4,152行增加/8行删除。源码新增4,043条中文说明，另有状态测试原表达式格式变化；完整AST和执行JS相同。正常提交钩子的全检查与额外browser smoke全部通过，无格式调整，提交后工作区干净。715份显式记录与暂存/工作区指纹核对一致，覆盖684完整/2,178待处理/0需复核。

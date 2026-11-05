@@ -3,6 +3,26 @@
 // (a page under a `'self'` CSP: no `eval`, no `new Function`) or run by the terminal's runtime; the client evaluates the
 // registered function with a `require` that answers only its host packages.
 
+//
+// 文件导读
+// 所属：packages/chord 的 surfaces 层，定义插件脚本的“自注册”格式与客户端求值逻辑。
+// 职责边界：只负责把构建产物包装成 chordFacet(...) 调用、提供受限 require、把默认导出校验为 facet；
+// 不负责下载脚本、不执行 CSP 策略、不管理已加载集合（后者在 loaded.ts）。上游：构建/服务器生成注册脚本，
+// 客户端（页面或终端）加载后调用 evaluateRegistered；下游：插件 facet 的 setup。错误：未知模块、脚本抛出、
+// 默认导出不是 facet 都会抛出，并带上插件名；本文件不吞错。
+// 能力清单：
+// - REGISTER：全局注册函数名 "chordFacet"。
+// - FacetFunction：注册脚本函数签名（require/module/exports）。
+// - RegisteredScript：plugin + digest + run 的条目。
+// - ClientModules：客户端可用模块表（specifier → 模块命名空间）。
+// - registeredSource：把 facet 源码包装为可被 <script> 执行的文本。
+// - evaluateRegistered：用受限 require 运行脚本并返回校验过的 Facet。
+// - interop：把 ESM 命名空间包装成 CommonJS 友好的对象（WeakMap 缓存）。
+// 组合与顺序：构建产物 source → registeredSource 生成文本 → 页面/终端执行 → REGISTER 记录 →
+// evaluateRegistered 用 modules 解析 require → 取 module.exports.default → 校验 setup 后返回。
+// 示例：`const script = { plugin: "editor", digest: "d1", run };
+// const facet = evaluateRegistered(script, { "chord/web": api, react });`
+// 阅读顺序：先看 REGISTER/FacetFunction/RegisteredScript，再看 registeredSource，然后 evaluateRegistered，最后 interop。
 import type { Principal } from "../data/index.ts";
 import type { Facet } from "../host/index.ts";
 

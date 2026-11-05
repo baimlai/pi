@@ -1,4 +1,7 @@
+# GitHub 新建问题页配置；false 关闭不使用模板的空白 issue 入口。
+# 例如提问者选择 Questions 会跳去 Discord，GitHub 不会代替用户创建讨论。
 blank_issues_enabled: false
+# contact_links 是外部帮助入口数组；name 是显示名称，url 是目标地址，about 是用途说明。
 contact_links:
   - name: Questions
     url: https://discord.com/invite/3cU7Bz4UPx

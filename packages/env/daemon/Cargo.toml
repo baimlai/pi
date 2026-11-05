@@ -1,30 +1,48 @@
+# daemon 的 Cargo 清单；这里只描述 Rust 可执行程序，npm 客户端由上一层 package.json 描述。
 [package]
+# 此名决定默认二进制名 pi-env；与作用域 npm 包名不同。
 name = "pi-env"
+# Cargo 自身的包版本；对外 --version/hello 用 build.rs 读到的 npm 版本。
 version = "0.1.0"
+# 使用 Rust 2024 语言版本，不是把工具链固定为某一年发布的编译器。
 edition = "2024"
 description = "Remote execution environment daemon for Pi Durable"
+# 禁止将该 crate 发布到 Cargo registry；不影响构建 npm 包携带的可执行文件。
 publish = false
 
 [dependencies]
+# = 前缀要求精确版本；encoding_rs 为分块命令输出提供 UTF-8 解码。
 encoding_rs = "=0.8.42"
+# ignore 的目录遍历器处理 listFiles 的隐藏文件和 Git 忽略规则。
 ignore = "=0.4.33"
+# notify 为文件监控提供原生事件；watch.rs 仍负责快照、去抖和轮询降级。
 notify = "=8.2.0"
+# serde_json::Value/json! 表示协议头里的 JSON；原始文件/输出字节另走帧 payload。
 serde_json = "=1.0.151"
 
+# cfg(unix) 只对 Unix 目标加入 libc：进程组、PTY、文件描述符等操作需要系统调用绑定。
 [target.'cfg(unix)'.dependencies]
 libc = "=0.2.190"
 
+# Windows 目标才加入 windows-sys；features 是需要生成/公开的 Win32 API 模块，不是运行时功能开关。
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "=0.61.2", features = [
+	# 句柄/关闭与基础错误、进程安全属性。
 	"Win32_Foundation",
 	"Win32_Security",
+	# 文件打开/定位读、管道等 I/O 所用类型与函数。
 	"Win32_Storage_FileSystem",
 	"Win32_System_IO",
+	# Job object 与进程创建/终止接口；具体清理范围由 sys/windows.rs 决定。
 	"Win32_System_JobObjects",
 	"Win32_System_Threading",
 ] }
 
+# 这些设置只属于 release 构建；npm run build:daemon 默认是 debug 构建。
 [profile.release]
+# 链接时优化允许跨编译单元优化。
 lto = true
+# 每个 crate 使用一个代码生成单元，便于优化，可能增加构建耗时。
 codegen-units = 1
+# 从最终二进制去掉符号信息；不是删除源码或运行功能。
 strip = true

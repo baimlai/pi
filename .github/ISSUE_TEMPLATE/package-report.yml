@@ -1,7 +1,13 @@
+# GitHub 包举报表单：收集 pi.dev 包名、版本、问题类别与证据。
+# 例如选择恶意行为只会作为 issue 内容提交；此 YAML 不扫描、封禁或删除 npm 包。
+# name 是模板选择器中的名称，description 是该模板的简短说明，保留英文供 GitHub UI 显示。
 name: Package Report
 description: Report a problematic Pi package listed on pi.dev
+# labels 是创建 issue 时自动附加的标签列表；[] 表示此模板不自动附标签。
 labels: ["package-report"]
+# body 是按顺序显示的表单项数组；- 开始一项，缩进表示字段从属于该项。
 body:
+  # markdown 只显示引导文字；attributes.value 的 | 保留原多行字符串与换行，不是 shell 脚本。
   - type: markdown
     attributes:
       value: |
@@ -12,6 +18,7 @@ body:
         Keep this short. If it doesn't fit on one screen, it's too long. Write in your own voice.
 
   - type: input
+    # package-name 是单行包名字段；placeholder 只作输入提示，不自动填入 @scope/package。
     id: package-name
     attributes:
       label: Package name
@@ -21,6 +28,7 @@ body:
       required: true
 
   - type: input
+    # package-version 可留空；0.1.0 只是占位提示，不是默认待检查版本。
     id: package-version
     attributes:
       label: Version
@@ -30,6 +38,7 @@ body:
       required: false
 
   - type: dropdown
+    # dropdown 让用户从 options 列出的三种举报原因中选择；required: true 要求选择一项。
     id: report-type
     attributes:
       label: What are you reporting?
@@ -41,6 +50,7 @@ body:
       required: true
 
   - type: textarea
+    # details 是多行证据说明；label/description 显示给用户，required: true 要求提交前填写。
     id: details
     attributes:
       label: Details
