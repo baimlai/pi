@@ -457,6 +457,11 @@
 			"sha256": "196ed9f3b73228df7434677ce51ed4351ffeaad0254a105d5b3b3b7247eb17f6",
 			"note": "整文件：实际Provider装配/认证入口、OAuth分类可用性过滤、Vertex/AWS环境来源探测、Azure Completions部署onPayload包装；全文/callee/类型复读，4纯mock文件70通过，空串/??/取消检查位置与认证配置不等于远端成功的边界明确。"
 		},
+		"packages/ai/src/providers/ant-ling.ts": {
+			"status": "complete",
+			"sha256": "186f069a956d748c933c85cfe9afe8ce369b40fc5ca8c77f8fe362a14d123503",
+			"note": "整文件：静态key/目录/lazy装配、Completions与Mistral Conversations区别、TypeSafe分类专用/Vercel聊天分类并列与泛型默认Api联合/对象展开；作者原稿源/实际callee全文，root159稿全文，AST/JS及精确删中文还原通过。限定TypeSafe3个fetch替身/前置拒绝例通过、14名字未选中，不冒称wrapper或真实端点认证已测。"
+		},
 		"packages/ai/src/providers/anthropic.ts": {
 			"status": "complete",
 			"sha256": "87aa61843d39cbb5205bfcadda3118f863603145b52cdc04575a89ff16c44607",
@@ -552,6 +557,11 @@
 			"sha256": "00d3d8793b816a74ad3a1106af0c694d78f3f8298b5b8091c7917e473c5329bc",
 			"note": "整文件：MiniMax国际静态目录/Anthropic协议/key认证/lazy装配，函数/逐行与泛型例子；MINIMAX_API_KEY独立于CN，Provider URL仅元数据，新数组共享模型，构造不鉴权/联网。原/稿/源/真实callee全文与严格等价；本批2例仅目录/通用假env，不冒称直接MiniMax测试。"
 		},
+		"packages/ai/src/providers/mistral.ts": {
+			"status": "complete",
+			"sha256": "38e66ce324c691d99fb7f1270d1497ddb16f88d67cb985371af1f7e088d92d03",
+			"note": "整文件：静态key/目录/lazy装配、Completions与Mistral Conversations区别、TypeSafe分类专用/Vercel聊天分类并列与泛型默认Api联合/对象展开；作者原稿源/实际callee全文，root159稿全文，AST/JS及精确删中文还原通过。限定TypeSafe3个fetch替身/前置拒绝例通过、14名字未选中，不冒称wrapper或真实端点认证已测。"
+		},
 		"packages/ai/src/providers/model-schema.ts": {
 			"status": "complete",
 			"sha256": "d3bad1f310f62740afc07504d01984bfb49d91503a4e50d237ee9608481a0b50",
@@ -566,6 +576,11 @@
 			"status": "complete",
 			"sha256": "f50e3928b03055ed9fe94cbac6f1bdda2d4f5be571853b2c2a84d5ed2b0ec9a6",
 			"note": "整文件：Moonshot国际静态目录/Completions/key认证/lazy装配，逐行/泛型例子；国际和CN共用MOONSHOT_API_KEY但ID/目录/存储key可独立，baseUrl仅元数据。原/稿/源及实际callee全文，1文件2静态/假env例通过28过滤，不证明服务价格实时或真实授权。"
+		},
+		"packages/ai/src/providers/nvidia.ts": {
+			"status": "complete",
+			"sha256": "a6901a14c25cef17e6b3ee9c1203f84af7fcc463da29068e8ce74ee57359fa03",
+			"note": "整文件：静态key/目录/lazy装配、Completions与Mistral Conversations区别、TypeSafe分类专用/Vercel聊天分类并列与泛型默认Api联合/对象展开；作者原稿源/实际callee全文，root159稿全文，AST/JS及精确删中文还原通过。限定TypeSafe3个fetch替身/前置拒绝例通过、14名字未选中，不冒称wrapper或真实端点认证已测。"
 		},
 		"packages/ai/src/providers/openai-codex.ts": {
 			"status": "complete",
@@ -631,6 +646,16 @@
 			"status": "complete",
 			"sha256": "18ab1677965a0946aa2dbfda6736d0d93874370520eb229f57b98c4d071ac0de",
 			"note": "整文件：Together静态目录/思考兼容元数据与key认证/lazy装配，逐行/TS函数例子；构造无真实请求，模型品牌不改变provider，baseUrl仅Provider元数据。原/稿/源及实际callee全文，1文件3目录/env例通过，无真实SDK/模型。"
+		},
+		"packages/ai/src/providers/typesafe.ts": {
+			"status": "complete",
+			"sha256": "7251481b8ab8966585f47ecef3f32291109018c06bc68daf82b9f5219eb93b8f",
+			"note": "整文件：静态key/目录/lazy装配、Completions与Mistral Conversations区别、TypeSafe分类专用/Vercel聊天分类并列与泛型默认Api联合/对象展开；作者原稿源/实际callee全文，root159稿全文，AST/JS及精确删中文还原通过。限定TypeSafe3个fetch替身/前置拒绝例通过、14名字未选中，不冒称wrapper或真实端点认证已测。"
+		},
+		"packages/ai/src/providers/vercel-ai-gateway.ts": {
+			"status": "complete",
+			"sha256": "059c3503356228e2a03f373db8cc84a581eb9023800ded40bcd40b323561f9b3",
+			"note": "整文件：静态key/目录/lazy装配、Completions与Mistral Conversations区别、TypeSafe分类专用/Vercel聊天分类并列与泛型默认Api联合/对象展开；作者原稿源/实际callee全文，root159稿全文，AST/JS及精确删中文还原通过。限定TypeSafe3个fetch替身/前置拒绝例通过、14名字未选中，不冒称wrapper或真实端点认证已测。"
 		},
 		"packages/ai/src/providers/xai.ts": {
 			"status": "complete",
@@ -1957,6 +1982,11 @@
 			"sha256": "6729a1514cbd1f2046cc1287fadd78d4f8d4adf62b5e47738655a3293b4a2c8e",
 			"note": "整文件：临时正文/简单空格拆argv/继承cwd及stdio、error-close/标签联合/一个尾LF与清理，IO可reject；原成稿和固定fixture全文核对并root复读，两文件7通过，仅固定Node测试fixture和自建临时目录，无真实用户编辑器。"
 		},
+		"packages/coding-agent/src/modes/interactive/interactive-mode.ts": {
+			"status": "complete",
+			"sha256": "ff617dc51dc8469430194c36099276c7f289c318b77082dc59022b1b2c3bcf24",
+			"note": "整文件：启动/输入队列/事件工具/压缩/扩展UI/登录/会话重载/退出与TS语法、逐函数例子及语句；原7211行与12369首稿全文自审，实际callee及关键状态流交叉复核，330原注释顺序保留，最终12377行及格式差异全核。三指定原型/组件替身测试12通过，不构造真实交互或调用模型。"
+		},
 		"packages/coding-agent/src/modes/interactive/model-catalog-refresh.ts": {
 			"status": "complete",
 			"sha256": "9b04ff0ac6982a4c7a1b08ab4bc04272b96757c8e22af77043243d0ad3032444",
@@ -2247,6 +2277,16 @@
 			"sha256": "e214785a8c4379cb0fd31f741033a9919ba23ddbe64aa4c6b5f1aafddb23491a",
 			"note": "整文件：源码锚点/VM函数切片/JSON插值与费用新旧记录fallback、可选类型/浮点断言逐条解释；原稿源/computeStats全文及独立审，单例通过。AST含模板quasis/执行JS与精确原文保留，无模型/真实账单/浏览器。"
 		},
+		"packages/coding-agent/test/export-html-deep-tree.test.ts": {
+			"status": "complete",
+			"sha256": "475f1398b043eb01c9afb726f3808b60127abe5f4fd171ed122ce5023e326066",
+			"note": "整文件：自建两万深链JSONL/真实HTML导出/VM最小DOM/缓存let初始化后早返/函数提升与接口/satisfies/路径断言逐条解释；原稿源/实际树callee全文及独立审，单例通过。无vendor执行/真实浏览器，不将单链长度证明写成任意环或唯一性保证。"
+		},
+		"packages/coding-agent/test/export-html-skill-block.test.ts": {
+			"status": "complete",
+			"sha256": "dc7c348b0152eef1c20ea5993f967567f2415641eda79519cbd680bda48a7cba",
+			"note": "整文件：四例技能解析/同级显示/Markdown/树角色的源码正则线索逐条解释；原稿源/实际skill解析渲染核对及独立审，4例通过。明确文本含注释也可匹配，未执行解析/DOM/真实SKILL文件，不能凭名字存在证明完整产品行为。"
+		},
 		"packages/coding-agent/test/export-html-system-messages.test.ts": {
 			"status": "complete",
 			"sha256": "f55783ab0ea8321033f291283c718bca967ae9879457b274c97f1289c08e6357",
@@ -2257,10 +2297,25 @@
 			"sha256": "20997e0c8e6158c48ee141c2962e8af40500b699a56e18cd0f7d1b2430890473",
 			"note": "整文件：CSS文本正则/ANSI拼接/同步Component替身/工具渲染与as unknown as逐条讲解；明确正则可跨CSS块，不冒称最终级联或同块归属证明。原稿源/callee全文及独立审，单文件3通过，无真实TUI。"
 		},
+		"packages/coding-agent/test/export-html-xss.test.ts": {
+			"status": "complete",
+			"sha256": "26347df62a376c2939f4fa3e1f38e0e5756ef4a8e2a25456abccd5aaceff288d",
+			"note": "整文件：九例Markdown链接/图片/ID/树字段/模型页头转义源码约束、正则字面匹配与双层转义逐条讲解；原稿源及实际sanitize/escape/renderer核对，AST/JS/原英语和正则字符串原文保持，删42中文行精确还原，单文件9通过及统一check无格式变更。明确文本含注释、不同匹配不证明同一控制路径，不冒称浏览器攻击实测或完整安全性。"
+		},
+		"packages/coding-agent/test/export-jsonl-share.test.ts": {
+			"status": "complete",
+			"sha256": "f462df7608702edee605cb4e157a6e83993ba3af8189437e7a25ccaf8b398ebb",
+			"note": "整文件：SDK初始化副作用/内存后端不免导出I/O、工具schema/手工消息、树ID与toolCallId、JSONL重连父链/分享尾项/模型投影、断言/类型/try-finally逐条解释；作者原稿源/callee全文、root222稿及初始化边界复核，AST/JS/精确删100中文恢复。原测试最终单例在临时setup隔离resource reload与首次availability refresh后通过，fetch/refresh均0调用；非默认SDK完整初始化集成验证。"
+		},
 		"packages/coding-agent/test/footer-width.test.ts": {
 			"status": "complete",
 			"sha256": "f9d94f530fbb9595ac92e32092f77b8df75726711e1387711478ac6e975d2422",
 			"note": "整文件：11例路径/显示宽度/费用/缓存/订阅测试，双重as不造真实会话、mock条目引用不同实际浅拷贝；原/成稿/必要callee全文及独立审，11例通过。"
+		},
+		"packages/coding-agent/test/interactive-mode-bug-report-hint.test.ts": {
+			"status": "complete",
+			"sha256": "f97c73f55884b85266e8a6df94dd473ac83ab01c633f290fe2bdbc89608fdc41",
+			"note": "整文件：5例报告提示资格/去重/命令文字与原型假对象、Reflect/this/.call语法及断言边界；原71/稿118全文、实际callee和独立只读审，删新增说明逐字还原，三指定文件12通过，不执行真实报告/安装探测。"
 		},
 		"packages/coding-agent/test/llama-extension.test.ts": {
 			"status": "complete",
@@ -2276,6 +2331,11 @@
 			"status": "complete",
 			"sha256": "b885a0f8ee7fad7c0d512e920b3f734570ff47cda36d7fed704587267dc37802",
 			"note": "整文件：两轮提问、三次 faux 请求、真实 read 和会话历史断言；测试通过。"
+		},
+		"packages/coding-agent/test/suite/regressions/startup-session-rebind-duplicate-subscription.test.ts": {
+			"status": "complete",
+			"sha256": "727e5a632ae88e507c1289856a946ad0d7abad117cca0f667ba305266560fcfb",
+			"note": "整文件：受控Promise复现旧绑定迟到、session身份检查和订阅去重，this参数/.call/resolve!与一次await后保护边界；原79/稿136及callee全文、独立审，删新增说明逐字还原，三指定文件12通过，仅内存假上下文。"
 		},
 		"packages/coding-agent/test/system-theme.test.ts": {
 			"status": "complete",
@@ -3341,6 +3401,11 @@
 			"status": "complete",
 			"sha256": "c5835cc5d531fec402c4bac6b3f536e1e21bcee0be57df8f29ee17e51c437886",
 			"note": "整文件：宽度/ANSI裁剪/制表符/旗帜字素/CJK覆盖或图像前缀回归；逐例断言与语法、实际callee/已装xterm全文核对，8文件55离线测试通过，不冒充真实终端集成或性能验证。"
+		},
+		"packages/tui/test/tui-alt-screen.test.ts": {
+			"status": "complete",
+			"sha256": "096fcf37ba4ef6db20188ccb823028a40be0b75aa9f4cbbdc72e5481a702dc22",
+			"note": "整文件：70例备用屏输入/选择/鼠标/滚动/overlay生命周期、虚拟终端与TS语法；原2229/首稿3947全文自审和独立审，真实callee核对，22原注释顺序和最终格式差异全核。PI_HYPERLINKS=0内存Node单文件70通过，不运行真实终端/剪贴板。"
 		},
 		"packages/tui/test/tui-cell-size-input.test.ts": {
 			"status": "complete",

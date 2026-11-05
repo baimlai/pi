@@ -2,6 +2,85 @@
 
 分支：`learning/full-chain-study-bay`。日志记录具体完成范围和验证，不把计划写成已经完成。
 
+## 2026-11-05：完整交互主入口与备用屏测试
+
+第四十八批新增4份完整文件，9,590原行补至16,580行，新增6,980条中文说明，另外10行来自格式整理。累计完整669、待处理2,193、来源或候选82，部分与需复核均0，总数2,944。整个仓库仍未完成。
+
+- 主入口7,211补至12,377行，完整说明导入/类型/字段、构造与初始化、输入/发送/队列、模型和工具事件、压缩、扩展UI/编辑器、登录、会话切换、重载和退出。函数说明包含输入、流程、结果、副作用、错误及小例子，内部说明实际语句与TS语法。作者全文读原文和12,369行首稿后复核真实callee，交叉检查队列/重载/登录/Bash；修正模型计数优先使用scopedModels、同步回调/取消/清理的保证范围。构造可能触发Git和主题观察、工具准备可能下载，不把读源码等同于启动过这些行为。
+- 备用屏测试2,229补至3,949行，70例逐项解释虚拟终端、输入/选择/滚动、鼠标和overlay。作者与独立复核者均全文读原文和3,947行首稿，核真实VirtualTerminal与渲染/按键callee；修正indexOf失败仍可能得到正数、Kitty的moveCursor:false会编码C=1、滚动边界不能独立证明固定步长等说明。原断言和生产表达式不改。
+- 故障报告提示71补至118行、会话重绑回归79补至136行。说明假对象经Reflect/原型调用、TS的this参数不会成为普通实参、.call绑定接收者、resolve!不负责运行时初始化，以及一次身份检查不保证后续所有await都不会切会话。原稿、成稿、实际callee与独立只读审均完成。
+
+验证结果：
+
+- 三个指定交互相关Vitest文件共12通过；两份小测试与扩展对话框均使用受控原型/组件替身，不构造真实主交互实例。备用屏单文件70通过，无失败/跳过；只用内存终端，固定PI_HYPERLINKS=0阻止tmux探测，未运行真实TTY、剪贴板、认证或模型。合计4个不同文件82通过。
+- 首轮全仓检查只整理主入口和备用屏注释布局。所属作者完整复核格式差异后，将三元/类型及长断言链的新注释移到所属声明之前；最终检查仅收拢备用屏断言链，全部差异复核。最终`npm run check`各项通过；没有为检查通过而改功能。
+- 相对阶段HEAD `ad3adf32e`的13份TS/JS完整AST、执行JS、指令及下一非空行保持一致；375条原非中文注释保留，7,290条中文无异常控制字符，`git diff --check`通过。主入口330条、备用屏22条原注释顺序另核。小测试删新中文逐字恢复原文；长文件格式整理单独审阅，不冒称最终字节与原文相同。
+- 旧696条显式指纹全部不变，新增4条后保存700份匹配快照。没有改依赖、锁、生成产物或测试表达式。源码写入器已删除，证据和只读校验器留在tmp。下一步按授权提交第46–48批13份完成文件和3份维护文档；新Editor和模型数据校验稿仍仅TMP，不提前计完成。
+- 推送目标仍待确认：此前官方origin对当前账号返回403。本次先完成本地阶段归档，尚不声称推送成功，也不擅自创建fork或改origin。
+
+实际命令：
+
+```sh
+# packages/coding-agent：3文件12项
+PI_HYPERLINKS=0 PI_TUI_DEBUG=0 PI_TUI_DEBUG_REDRAW=0 PI_CODING_AGENT_DIR=/tmp/pi-study-validation-bay/interactive38-agent node ../../node_modules/vitest/dist/cli.js --run test/interactive-mode-extension-dialogs.test.ts test/interactive-mode-bug-report-hint.test.ts test/suite/regressions/startup-session-rebind-duplicate-subscription.test.ts
+
+# packages/tui：1文件70项
+PI_HYPERLINKS=0 PI_TUI_DEBUG=0 PI_TUI_DEBUG_REDRAW=0 node --test test/tui-alt-screen.test.ts
+```
+
+## 2026-11-05：导出转义与隔离后的JSONL分享测试
+
+第四十七批新增2个完整文件，189原行补至331行，仅加142条中文；累计完整665、待处理2,197、来源或候选82，部分/需复核均0，总数2,944。
+
+- 转义测试67补至109行，逐条解释九例的源码正则、双层反斜杠、协议允许列表/控制字符处理、href/图片/ID/树字段与模型页头的转义线索。明确注释也在匹配范围，不将分散的肯定匹配解释成已证明同一控制路径或浏览器安全。原/稿/源全文与实际escape/sanitize及renderer核对，单文件9通过，没有执行攻击样本或浏览器。
+- JSONL分享测试122补至222行，解释SDK默认初始化仍检查宿主认证/发现资源、inMemory不免除显式导出I/O、泛型schema与手工消息、tree id和toolCallId区别、父链重连、pi.share导出专用尾项和模型上下文投影。创建成功后的try/finally不覆盖SDK创建拒绝，dispose也不等待所有后台任务。作者原/稿/源和实际SDK790行、导出/历史/投影callee全文，root222稿及初始化边界复核。
+
+验证与隔离范围：
+
+- 最终`npm run check`全部通过；只给新分享测试一条finally说明缩进加一tab，差异完整核过。HEAD之后9份TS/JS完整AST、执行JS、指令/相邻目标一致，23原英语保留，310中文无异常控制字符，`git diff --check`通过。两文件删除142新中文行后逐字恢复HEAD。
+- 分享原测试未直接按默认SDK初始化运行。先核DefaultResourceLoader构造只保存状态、reload才发现用户/祖先资源；ModelRuntime.create的首次refresh才做availability/宿主env和ADC查询。临时setup只令reload返回空、包装原create强制refreshOnCreate:false/allowModelNetwork:false，仍执行真实SDK、AgentSession、SessionManager、两个导出器和全部原断言；不改HOME、生产代码或测试表达式。
+- setup额外要求create/reload各1次，运行时refresh和global fetch均0次，并对意外调用立即报错。隔离后的原基线先1通过；注释落盘后同一隔离条件最终再1通过，计本批分享用例为1而非2。加XSS共2个不同文件10通过。此结果只证明隔离启动发现后的导出行为，不冒称默认SDK完整初始化集成通过。
+- 临时config初用.ts时出现Vite未来原生配置加载的ESM/CommonJS提示，改.mts后最终运行无该提示；未压制告警或改依赖。临时setup/config与静态证据留在tmp，源码写入器/生成器删除。
+- 旧694条显式指纹全部不变，先登记XSS后验证695条均不变，再登记分享；共保存696份匹配快照。两份长文件已成首稿但尚在自审/交叉核，仍TMP/pending，继续第四十八批。
+
+实际命令（`packages/coding-agent`）：
+
+```sh
+PI_HYPERLINKS=0 PI_TUI_DEBUG=0 PI_TUI_DEBUG_REDRAW=0 PI_CODING_AGENT_DIR=/tmp/pi-study-validation-bay/xss47-agent node ../../node_modules/vitest/dist/cli.js --run test/export-html-xss.test.ts --maxWorkers 1
+
+# 临时配置保留包内原配置，只增加上述启动发现隔离与调用次数断言
+PI_HYPERLINKS=0 PI_TUI_DEBUG=0 PI_TUI_DEBUG_REDRAW=0 PI_CODING_AGENT_DIR=/tmp/pi-study-validation-bay/share47-agent node ../../node_modules/vitest/dist/cli.js --run test/export-jsonl-share.test.ts --config /tmp/pi-study-validation-bay/share47-isolation.config.mts
+```
+
+## 2026-11-05：分类/聊天装配与深会话树测试
+
+第四十六批新增7个完整文件，214原行补至382行，仅新增168条中文；累计完整663、待处理2,199、来源或候选82，部分/需复核均0，总数2,944。此批在第二阶段提交`ad3adf32e`之后继续。
+
+- 五入口81补至159行，分别说明Completions、Mistral Conversations、TypeSafe仅分类、Vercel聊天+分类；Provider默认Api联合不等有聊天实现，getModels只筛聊天，getAllModels可列分类。分类Promise和聊天事件流不同，网关key不自动替换原厂key。作者原/稿/源与真实factory/lazy/API及分类transport/本机类型全文核对，root159稿全文；3例只有固定fetch Response或发送前拒绝，14其它例未选中。
+- 两导出测试133补至223行。深树实际生成自建两万消息JSONL并导出，最小DOM/解码对象接VM，treeNodeMap先赋null再早返避免暂时死区，function声明提升使后置方法可用；不执行vendor或完整页面。断言只约束这份单子链，长度不独立证明全部id唯一/无遗漏，不宣称任意损坏环和性能保证。技能四例只查包含注释的源码名字/调用线索，未执行parse/DOM或读取真实SKILL。原/稿/源与实际callee全文、独立只读审通过；两文件5例通过。
+
+验证结果：
+
+- `npm run check`全部通过，无格式调整；新HEAD后的7份TS/JS完整AST、执行JS、指令及下一非空行一致，17原英语注释保留，168中文无异常控制字符，`git diff --check`通过。不把新7份报告误算成前阶段21份重新运行。
+- 七文件删除168条新中文行后逐字恢复HEAD，类型/字符串/控制流不变。3个不同指定测试文件8通过，14项名字未选中；无真实模型、认证、端口、剪贴板或浏览器调用。
+- 旧687条显式指纹全部不变，新增7条后保存694份匹配快照；临时写入器/生成器删除，无依赖/锁/生成产物改动。交互主入口与备用屏长测试仍TMP，继续下一批。
+
+指定命令：
+
+```sh
+# packages/ai：3个固定fetch/前置拒绝用例
+node ../../node_modules/vitest/dist/cli.js --run test/typesafe-system-one.test.ts -t '^TypeSafe System One (maps public bool questions and answers to TypeSafe noul values|rejects models for other classifier APIs|rejects image input for text-only models before sending)$'
+
+# packages/coding-agent
+PI_HYPERLINKS=0 PI_TUI_DEBUG=0 PI_TUI_DEBUG_REDRAW=0 PI_CODING_AGENT_DIR=/tmp/pi-study-validation-bay/export-tests46-agent node ../../node_modules/vitest/dist/cli.js --run test/export-html-deep-tree.test.ts test/export-html-skill-block.test.ts --maxWorkers 1
+```
+
+## 2026-11-05：第二阶段已提交，继续长文件注释
+
+第二阶段已本地提交`ad3adf32e062420e44f540a029a3a28ee757bcd4`，标题`docs: annotate HTML export and provider setup in Chinese`。提交28个明确路径：25个已验收文件与3份学习维护文档，1,941行增加/2行文档替换；源码只新增1,683行注释，没有删除源码表达式。正常提交钩子的全检查与额外browser smoke全部通过、无格式调整；提交后工作区干净，覆盖656完整/2,206待处理/0需复核。
+
+官方origin曾因账号baimlai无写权限返回403，可写fork选择仍待回复。两份阶段提交都保存在本地学习分支，当前尚未推送成功；没有改官方origin、远端main或强推。主入口7,211原行和TUI备用屏长测试继续只在仓库外临时稿，不纳入本次提交。后续差异检查将以新HEAD为比较起点，历史21份TS/JS比较记录仍对应提交前57d4b549d，不混成新一轮累计数。
+
 ## 2026-11-05：兼容聊天入口与导出统计/系统状态
 
 第四十五批新增7个完整文件，210原行补至382行，仅加172条中文；累计完整656、待处理2,206、来源或候选82，部分/需复核均0，总数2,944。
