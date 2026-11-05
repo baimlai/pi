@@ -467,6 +467,11 @@
 			"sha256": "8b15cd15be3b12337b44caa278d2de7ba7e7aa65e99731ecf6e7f69ca0afba83",
 			"note": "整文件：OAuth公共类型/工厂出口；模块边界1例通过、其余12例按名字未运行，无login/refresh/端口。"
 		},
+		"packages/ai/src/providers/all.ts": {
+			"status": "complete",
+			"sha256": "e95f4c89aba8401de1b0a8d5ccf18e91378fbcb50903a1b0c89849f6195bb727",
+			"note": "整文件：静态聊天/图片/分类目录、泛型键与API提取、共享模型引用、42内置工厂装配及动态目录区别；原/稿/实际工厂全文与独立审，3项本地目录/代次测试通过；不手改生成表。"
+		},
 		"packages/ai/src/providers/amazon-bedrock.ts": {
 			"status": "complete",
 			"sha256": "196ed9f3b73228df7434677ce51ed4351ffeaad0254a105d5b3b3b7247eb17f6",
@@ -546,6 +551,11 @@
 			"status": "complete",
 			"sha256": "61344b307c03c5d97b1be98fa1b7511c87641f4a0a1574f6e3f6d44fbd4d2976",
 			"note": "整文件：静态Completions/环境key/区域端点/目录共享/lazy与TS泛型对象语法；作者原稿源/callee全文、root151稿全文，精确删中文还原/AST/执行JS及统一check通过。ZAI静态目录3例通过，不冒称其它入口认证/端点或套餐已实测。"
+		},
+		"packages/ai/src/providers/huggingface.ts": {
+			"status": "complete",
+			"sha256": "69a3039157371cc62a14d0e4461256c71f22403ffd07668da2b067349a66e57b",
+			"note": "整文件：本地聊天目录、HF_TOKEN认证规则、createProvider与延迟Completions装配；原/稿/真实callee及独立全文复核，无构造时认证或联网。"
 		},
 		"packages/ai/src/providers/images/register-builtins.ts": {
 			"status": "complete",
@@ -651,6 +661,11 @@
 			"status": "complete",
 			"sha256": "7b6f5e52103230b82e06dd6bd58621cc8baa79c33623ee927484c322207f522e",
 			"note": "整文件：网关字符串规范化、未知JSON浅校验、模型映射、GET/错误体截断；原/成稿与调用方全文及独立审，5例mock/内存Radius测试通过，无真实HTTP。"
+		},
+		"packages/ai/src/providers/radius.ts": {
+			"status": "complete",
+			"sha256": "a98965e3114d5d36aa099b8c60b1723bc6512b9712a9db878deb7749d742f200",
+			"note": "整文件：公开基线与账户目录整体替换、缓存/旧OAuth迁移、网络门禁、publish判旧与存储非事务边界及延迟流；原/稿/callee全文和独立审，5项内存存储/固定fetch测试通过。"
 		},
 		"packages/ai/src/providers/schema-builders.ts": {
 			"status": "complete",
@@ -3292,6 +3307,11 @@
 			"sha256": "97e95b7854f2d2ee77870e04c38b4cc30789afdd5407abb24fa484513e4a91ca",
 			"note": "整文件：宽度/ANSI裁剪/制表符/旗帜字素/CJK覆盖或图像前缀回归；逐例断言与语法、实际callee/已装xterm全文核对，8文件55离线测试通过，不冒充真实终端集成或性能验证。"
 		},
+		"packages/tui/test/chat-simple.ts": {
+			"status": "complete",
+			"sha256": "db46da9f8edd71e1b1758d5caab8d3698e7dd5a021fffafb6a5c09767fa004a5",
+			"note": "整文件：手工主屏聊天/编辑补全/随机固定回复，逐语句与TS说明；指出初始组件索引和Loader移除不停止计时器的原有行为。原/稿/callee全文，语法/AST/JS验证；未启动真实终端。"
+		},
 		"packages/tui/test/colors.test.ts": {
 			"status": "complete",
 			"sha256": "a5cecb95af5fd74a5f697d21e5bd36c99b68dc89b63db846328a0f6135722827",
@@ -3306,6 +3326,11 @@
 			"status": "complete",
 			"sha256": "a6a29abf95d0002af6defc6dabebe7fbe8f7a592d8b6d948d367d698f6e4f3c1",
 			"note": "整文件：193例历史/文本光标/Unicode折行/删除环/撤销/异步补全/字符跳转/目标偏移/大粘贴注册表，逐函数语句与TS语法；原4410/稿7136由作者与独立审全部连续复读、真实callee/Node类型核对。单文件193通过，仅VirtualTerminal和自建tmp路径，5例MockTimers，无fd/TTY/剪贴板/网络。最终仅三条新说明缩进，删2726新增行精确保留全部925原注释和4410原文字节。"
+		},
+		"packages/tui/test/exit-restore.test.ts": {
+			"status": "complete",
+			"sha256": "a960440d1505f1b6084604fb18925b240fe5bf3f7bbfa0b0bc8106acc20e567a",
+			"note": "整文件：Node子进程pipe隔离、超时/退出码、控制串计数顺序与未stop/正常stop退出；原/稿/callee全文，2项通过，不冒称真实终端状态或硬杀复位覆盖。"
 		},
 		"packages/tui/test/fixtures/clipboard-reader.cjs": {
 			"status": "complete",
@@ -3327,15 +3352,30 @@
 			"sha256": "2ffec0263524ad1e49f4d8746e9ba7118e126e7a7a9f42eeff9a4dd638ce92cf",
 			"note": "整文件：177补至328，生产源码包含/64槽内存账本、metadata内存断言、text/image失败清理与真实X11 owner受控故障逐行C语法例子。原/稿/源/本机XCB及生产实现全文，删151中文精确恢复、原英语/字面量/预处理/1256辅助tokens保留；metadata也未编译执行，不把静态证明当X11运行覆盖。"
 		},
+		"packages/tui/test/fixtures/exit-without-stop.ts": {
+			"status": "complete",
+			"sha256": "8cff432e2e04c438009d91d6d8d527d371009f5b5fa9b96dd1ca961bc0edc5b8",
+			"note": "整文件：真实备用屏子进程启动、可选preserveScreen停止和同步exit兜底；原/稿/callee全文，随退出测试两次pipe子进程验证，不连接用户TTY。"
+		},
 		"packages/tui/test/fuzzy.test.ts": {
 			"status": "complete",
 			"sha256": "c6530d1b6aa3451f5ee03bad540e66c03c9c492cb48db1229af973462ac1bab2",
 			"note": "整文件：虚拟终端输入/异步写解析/flush与视图、模糊匹配/词导航/滚轮/键位/选择及Text缓存测试；原稿/成稿/callee/xterm实现全文核对，8指定离线文件90通过。末尾空单元裁剪不等于trimEnd、显式空格保留；20ms等待非全任务完成保证，CJK原英语与Map重复键边界按实际解释。"
 		},
+		"packages/tui/test/image-test.ts": {
+			"status": "complete",
+			"sha256": "0452adc8d2a26205b6c0900936e6c98096c7b170590eb8233dd066d54f931f88",
+			"note": "整文件：手工本地PNG读取/尺寸/base64/图片回退与焦点退出，unknown错误、never退出及旧as any边界；原/稿/callee全文，语法/AST/JS验证，未读取图片或启动终端。"
+		},
 		"packages/tui/test/input.test.ts": {
 			"status": "complete",
 			"sha256": "27b73f99f73b910ee143cac8a621bf9a5b0ba87de8df3ed9d974a6dc550478e8",
 			"note": "整文件：合成输入/光标与UTF16字素、kill ring/粘贴/undo、宽度渲染/断言实际边界；原成稿/Input与helpers全文核对，指定单文件36项离线测试通过，无系统剪贴板/TTY/网络。"
+		},
+		"packages/tui/test/key-tester.ts": {
+			"status": "complete",
+			"sha256": "20b36ca7056891ea69646b9ebf2900dc061285ff86b081d69c3fd653fe1d2f5c",
+			"note": "整文件：手工键码记录/协议状态/宽度与UTF16差异、焦点及SIGINT/interval生命周期；原/稿/callee全文，shebang/语法/AST/JS验证，未运行真实按键程序。"
 		},
 		"packages/tui/test/keybindings.test.ts": {
 			"status": "complete",
@@ -3501,6 +3541,11 @@
 			"status": "complete",
 			"sha256": "bcbe42a7b4171b716bd374d176a47a9263284683090d6a5a0c07cb65505288b3",
 			"note": "整文件：历史键位/缩小/技能补全/SIGWINCH回归/主题helper或ANSI换行；逐句断言/语法和实际callee全文核对，5指定离线文件37通过，信号/复制均mock，无真实终端或剪贴板。"
+		},
+		"packages/tui/test/viewport-overwrite-repro.ts": {
+			"status": "complete",
+			"sha256": "0b42ec8802048d2ec28a1cee805ccb780b943618bec5ee47d56536e90b986d6a",
+			"note": "整文件：手工三段ASCII定时追加/视口高度与失败收尾，数组共享/async/Promise/展开语法；原/稿/callee全文，语法/AST/JS验证，未复现真实终端缺陷。"
 		},
 		"packages/tui/test/virtual-terminal.ts": {
 			"status": "complete",
