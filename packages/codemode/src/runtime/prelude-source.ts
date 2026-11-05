@@ -1,4 +1,11 @@
 /**
+ * QuickJS脚本执行前的环境安装器：先保护内建对象，再装tools/全局代理、store/load与输出助手。
+ * vm.ts求值下面的PRELUDE_SOURCE，传入私有bridge及JSON目录/快照，拿到settle/run/stalled控制接口。
+ * 例await tools.read({path:"a"})先经bridge请求宿主，宿主回答后settle解开脚本Promise；成功done才带store差量。
+ * 模板内部是实际执行的JavaScript，逐句中文在docs/learning/pi/PRELUDE_WALKTHROUGH.md；不能把注释插进运行字符串。
+ * 只冻结/适配同一VM内部的内建对象，不承担跨realm边界隔离；WASM实例隔离与停止策略需读vm.ts和后端。
+ */
+/**
  * JavaScript evaluated inside the QuickJS VM before the script runs.
  *
  * The VM is its own wasm instance, so nothing here guards a realm boundary.
@@ -31,7 +38,9 @@
  * The prelude shares them with the script, so a script that patched one (for example
  * `Array.prototype.toJSON`) could otherwise corrupt what the prelude reports to the host.
  */
+// 单条store值编码后最多256Ki个JS字符串代码单元；不含键，也不等于UTF-8字节/token。
 export const MAX_STORE_VALUE_CHARS = 256 * 1024;
+// store总限1Mi个代码单元，包含键+JSON文本；只在非删除写入时检查，初始快照不追溯拒绝。
 export const MAX_STORE_TOTAL_CHARS = 1024 * 1024;
 /**
  * Output one script may produce with `text()`, `image()`, and `console.*`: characters of text and
@@ -39,12 +48,22 @@ export const MAX_STORE_TOTAL_CHARS = 1024 * 1024;
  * limit a script that prints in a loop grows the host's memory until it crashes. The item limit
  * covers loops that print empty strings.
  */
+// 文本/console/base64图片正文累计16Mi个代码单元；不含mime或协议外壳，超限先报告失败再抛RangeError。
 export const MAX_OUTPUT_CHARS = 16 * 1024 * 1024;
+// 最多100000项输出，数字下划线只为阅读；空串仍占一项，避免无限打印空串绕过字符预算。
 export const MAX_OUTPUT_ITEMS = 100_000;
 
+// 图片形状错误共用文字；JSON.stringify后插进运行脚本，正确转义引号，内容不是可执行注释。
 const IMAGE_HELPER_EXPECTS =
 	'image expects a non-empty image URL string, an object with image_url, or an image block { type: "image", data, mimeType }';
 
+/**
+ * VM内安装函数的完整JS源码文本，类型标注string仅检查外层，不验证脚本内的参数/JSON。
+ * 参数为bridge、工具目录JSON、全局函数目录JSON、store快照JSON，结果为settle/run/stalled。
+ * ${...}在装载本TS模块时插值；\\n等外层转义先构成脚本，再由QuickJS解释。
+ * 函数/分支/每条语句的解释见外置PRELUDE_WALKTHROUGH.md，避免改变此字符串参与的重放指纹/栈行号。
+ * 指纹只是32位兼容哈希，不保证无碰撞，不是认证；保持字符串一致也不等于完整环境一致。
+ */
 export const PRELUDE_SOURCE: string = `(function (bridge, toolsJson, globalsJson, storeJson) {
 	"use strict";
 

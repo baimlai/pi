@@ -4,7 +4,7 @@
 
 **先记住：模型输出“我要调用 read”，Pi 执行 read；执行结果再发给模型，模型才能根据文件内容回答。** 一次用户提问通常不止一次模型请求。
 
-配套源码的中文注释覆盖本主链的入口、调度、请求边界、工具执行和事件保存。在大文件中按函数范围注释；没有把整份 `agent-session.ts` 的树导航、导出、其他工具等旁支逐行展开。纯括号、空行不重复解释。供应商网络实现是后续阅读边界，下面给出真实入口，不把它们混入本次逐行范围。
+这份导读按 query 主线组织；后续整仓库注释工作已继续展开 `agent-session.ts`、SDK、模型运行时、压缩和会话存储等完整文件，具体完成与待验收状态见 [覆盖进度](STUDY_PROGRESS.md)。纯括号、空行不重复解释。供应商网络实现仍是后续阅读边界，下面给出真实入口，不把所有供应商误画成同一个实现。
 
 ## 1. 先运行一个确定的例子
 
@@ -319,7 +319,7 @@ agent-loop 发出 emit({type:"message_end", message})
 
 原始会话条目组成一棵带 parentId 的树。模型请求使用的是**投影**：沿当前分支，把压缩、上下文编辑等规则应用后得到的消息。原始记录与模型这次能看到的内容不必完全一样。
 
-见 [session-manager.ts](../../../packages/coding-agent/src/core/session-manager.ts) 的 `appendMessage()`、`_appendEntry()`、`_persist()`、`buildSessionProjection()`。本次没有给这份通用会话存储文件全文加注释。
+见 [session-manager.ts](../../../packages/coding-agent/src/core/session-manager.ts) 的 `appendMessage()`、`_appendEntry()`、`_persist()`、`buildSessionProjection()`。它已纳入整文件注释批次，按函数名定位即可继续读 JSONL 保存与历史投影。
 
 一个重要时序：公开 `message_end` 订阅回调在该事件的 `appendMessage()` **之前**执行，不能在这个公开回调中假定 SessionManager 已保存了当前消息。但整个内部 `emit()` 会等待会话监听器处理完，所以正常下一次模型请求开始前，对应工具结果已经保存。配套测试在第二次请求中验证这一点。
 
@@ -424,7 +424,7 @@ function explain(preparation: Preparation): string {
 9. 第二次进入 `streamAssistantResponse()`：确认历史多了 `A1 + T1`，用户消息仍只有一条。
 10. 测试第二个 `session.prompt()`：确认旧历史保留，并观察第三次模型请求。
 
-源码注释的第一版覆盖：
+最初 query 主线的阅读入口如下；整文件覆盖范围继续在 [覆盖进度](STUDY_PROGRESS.md) 和逐文件清单维护：
 
 | 文件 | 重点范围 |
 | --- | --- |
@@ -437,4 +437,4 @@ function explain(preparation: Preparation): string {
 | [read.ts](../../../packages/coding-agent/src/core/tools/read.ts) | schema、工厂、取消、文件读取、选行与截断 |
 | [学习测试](../../../packages/coding-agent/test/suite/query-call-chain-learning.test.ts) | 两句提问、三次请求、真实 read、会话记录和事件断言 |
 
-这些是学习注释，不改变业务表达式。已有架构文档中的源码行号基于加注释前的版本，读本分支时优先按函数名定位；本导读的函数名和相对文件链接可直接用于查找。
+这些注释不改变业务表达式。架构证据表对已注释入口使用文件链接和函数名定位；机器清单中的源码行号仍对应其生成基线。读本分支时优先按函数名查找，避免新增注释造成行号偏移。

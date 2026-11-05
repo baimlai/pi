@@ -4,6 +4,8 @@
 
 分析基线：提交 `5d74f40de919742b5847eb2da4b023d048987689`。覆盖全部 12 个顶层包及 4 个扩展示例工作区；核心流程通过源码核对，其余模块按公开入口和代表实现梳理。这是架构导读，不是逐函数正确性审计。
 
+学习分支已继续添加整文件中文注释，当前范围见 [覆盖进度](docs/learning/pi/STUDY_PROGRESS.md)。注释会改变源码行号，本文对已注释入口改用文件链接和函数名定位；机器清单中的行号仍对应生成时的分析基线。
+
 ## 1. Executive Summary（先抓住两条主线）
 
 Pi 同时包含一个终端编码助手和一组可复用的运行库。**理解 CLI，先读 coding-agent → agent → ai。** coding-agent 组织界面、配置、会话和工具；agent 执行“请求模型 → 调用工具 → 再请求模型”的循环；ai 适配模型提供商。
@@ -148,7 +150,7 @@ node ../../node_modules/vitest/dist/cli.js --run test/agent-loop.test.ts
 node ../../node_modules/vitest/dist/cli.js --run test/rpc-jsonl.test.ts
 ```
 
-本次生成的是文档和图解；验证文档结构、链接、清单一致性及页面渲染，不调用模型或执行项目完整测试。检查结果见 [验证记录](docs/learning/pi/VERIFICATION.md)。
+最初架构整理验证了文档结构、链接、清单一致性及页面渲染，见 [验证记录](docs/learning/pi/VERIFICATION.md)。后续源码注释另做语法树、执行代码和指定离线测试检查，实际批次结果见 [学习日志](docs/learning/pi/STUDY_LOG.md)。
 
 ## 10. How to Navigate the Codebase（新手阅读顺序）
 
@@ -220,15 +222,15 @@ Chord v2 开发和评审须按 AGENTS 完整阅读 design、slices、目标 slic
 
 | 结论 | 证据 | 置信度 |
 |---|---|---|
-| 源码 CLI 入口先 setup，再 main | `packages/coding-agent/src/cli.ts:2` | 高 |
-| 模式由显式 mode、print 和 TTY 状态选择 | `packages/coding-agent/src/main.ts:118` | 高 |
-| services 再进入 SDK 创建 session | `packages/coding-agent/src/core/agent-session-services.ts:214` | 高 |
-| SDK 组装 Agent 并注入 ModelRuntime 请求函数 | `packages/coding-agent/src/core/sdk.ts:403` | 高 |
-| session.prompt 最终启动 agent.prompt | `packages/coding-agent/src/core/agent-session.ts:2113`、同文件 1894/1920 行 | 高 |
-| 工具结果加入上下文并继续循环 | `packages/agent/src/agent-loop.ts:184`、同文件 273/537 行 | 高 |
-| 工具参数经过 schema 校验 | `packages/agent/src/agent-loop.ts:718`、`packages/ai/src/utils/validation.ts:1` | 高 |
-| 事件由 session 接收并追加消息记录 | `packages/coding-agent/src/core/agent-session.ts:1119`、同文件 1181 行 | 高 |
-| 模型上下文从历史投影生成 | `packages/coding-agent/src/core/session-manager.ts:544` | 高 |
+| 源码 CLI 入口先 setup，再 main | [cli.ts](packages/coding-agent/src/cli.ts) 的 `setupCli()` 与 `main()` 调用 | 高 |
+| 模式由显式 mode、print 和 TTY 状态选择 | [main.ts](packages/coding-agent/src/main.ts) 的 `resolveAppMode()` | 高 |
+| services 再进入 SDK 创建 session | [agent-session-services.ts](packages/coding-agent/src/core/agent-session-services.ts) 的 `createAgentSessionFromServices()` | 高 |
+| SDK 组装 Agent 并注入 ModelRuntime 请求函数 | [sdk.ts](packages/coding-agent/src/core/sdk.ts) 的 `createAgentSession()` | 高 |
+| session.prompt 最终启动 agent.prompt | [agent-session.ts](packages/coding-agent/src/core/agent-session.ts) 的 `prompt()`、`_startRun()`、`_prepareRun()` | 高 |
+| 工具结果加入上下文并继续循环 | [agent-loop.ts](packages/agent/src/agent-loop.ts) 的 `runLoop()`、`executeToolCalls()` | 高 |
+| 工具参数经过 schema 校验 | [agent-loop.ts](packages/agent/src/agent-loop.ts) 的 `prepareToolCallArguments()` 与 [validation.ts](packages/ai/src/utils/validation.ts) 的 `validateToolArguments()` | 高 |
+| 事件由 session 接收并追加消息记录 | [agent-session.ts](packages/coding-agent/src/core/agent-session.ts) 的 `_handleAgentEvent()` 与 `appendMessage()` 调用 | 高 |
+| 模型上下文从历史投影生成 | [session-manager.ts](packages/coding-agent/src/core/session-manager.ts) 的 `buildSessionProjection()` | 高 |
 | 新 ai API 由 Models/Provider 组合 | `packages/ai/src/models.ts:158`、同文件 1028/1077 行 | 高 |
 | Durable 模型请求与任务调度 | `packages/durable/src/harness/generation.ts:742`、`packages/durable/src/harness/harness.ts:252` | 高 |
 | Durable StoreStorage 连接 Chord Store | `packages/durable/src/storage/store/storage.ts:93` | 高 |

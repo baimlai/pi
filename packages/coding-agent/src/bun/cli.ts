@@ -1,4 +1,10 @@
 #!/usr/bin/env node
+// Bun独立二进制的启动壳：先尝试恢复沙箱环境，再安装打包适配，最后进入共用CLI。
+// 首行shebang保持原样；本入口含.wasm静态导入，普通Node不能仅凭这行就运行整条Bun专用链。
+// 无绑定的import用于模块求值副作用，不是函数调用；依赖图按ESM加载规则执行，不等把import当普通语句。
+// 例如编译后的pi在环境空缺时先走sandbox-env-setup，避免后续启动模块过早读取空process.env。
 import "./sandbox-env-setup.ts";
+// 安装Bun静态OAuth/Bedrock/嵌入WASM路径，并设置进程标记；具体动作在runtime-setup模块体。
 import "./runtime-setup.ts";
+// 复用通用cli.ts的setupCli/main，后者按process.argv启动运行模式；本壳不直接开启聊天请求。
 import "../cli.ts";

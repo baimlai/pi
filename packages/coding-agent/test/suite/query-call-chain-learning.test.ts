@@ -1,4 +1,4 @@
-// 学习入口：两次用户提问，第一次读真实文件，共发生三次离线模型请求。
+// 两次用户提问，第一次读真实文件，共发生三次离线模型请求。
 // 运行方法见 docs/learning/pi/QUERY_CALL_CHAIN.md；这里复用正式测试 harness，不需要 API Key。
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";

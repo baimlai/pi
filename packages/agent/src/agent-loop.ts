@@ -1,8 +1,10 @@
+// 调度模型与工具的低层循环：输入消息/上下文/回调，输出 Agent 事件与新增历史。宿主负责持久化和 UI，本文件负责回合、工具、插话与追问的顺序。
 /**
  * Agent loop that works with AgentMessage throughout.
  * Transforms to Message[] only at the LLM call boundary.
  */
 
+// 引入 pi-ai 的统一模型协议、流队列、system/工具声明重放和参数校验；本文件不硬编码具体模型供应商。
 import {
 	type AssistantMessage,
 	type ClientIdentity,
@@ -19,6 +21,7 @@ import {
 	validateToolArguments,
 } from "@earendil-works/pi-ai";
 import { getDefaultStreamFn } from "./stream-fn.ts";
+// Agent 的消息、上下文、配置和工具等契约仅用于 TS 类型检查。
 import type {
 	AgentContext,
 	AgentEvent,
@@ -32,42 +35,65 @@ import type {
 	StreamFn,
 } from "./types.ts";
 
-// 中文导读：emit 是事件接收函数。例如收到 message_end 后，会话层会保存这条完整消息；允许同步返回，也允许返回 Promise。
+// emit 是事件接收函数。例如收到 message_end 后，会话层会保存这条完整消息；允许同步返回，也允许返回 Promise。
 export type AgentEventSink = (event: AgentEvent) => Promise<void> | void;
 
 /**
  * Request identity of agent loops: pi-ai's defaults with provider attribution to pi. `AgentLoopConfig.identity`
  * overrides it field by field.
  */
+// 默认把模型请求归因到 Pi；调用方 identity 可按字段覆盖，和供应商认证不是一回事。
 export const DEFAULT_AGENT_IDENTITY: ClientIdentity = { attribution: PI_ATTRIBUTION };
 
 /**
  * Start an agent loop with a new prompt message.
  * The prompt is added to the context and events are emitted for it.
  */
+/**
+ * 启动带新输入的低层循环，立即返回 EventStream；调用方可逐条迭代 AgentEvent，并从 result() 取新增消息数组。
+ * 输入包含新消息、旧上下文、配置、取消和模型函数；内部启动 runAgentLoop 并转发事件，不创建有状态 Agent。
+ * 例：自己管理历史的宿主可 for await 读取事件，最后把新增消息并入自己的会话。
+ */
 export function agentLoop(
+	// 本次新增的起始消息，可能包含 system 更新、用户问题和扩展上下文；不包含全部旧历史。
 	prompts: AgentMessage[],
+	// 已有历史与当前可执行工具。循环会基于它准备模型请求，不把 execute 直接发送给模型。
 	context: AgentContext,
+	// 模型、消息转换、工具钩子、回合调度和队列读取函数的配置。
 	config: AgentLoopConfig,
+	// 整次运行的取消信号；允许缺省，网络/工具/钩子需要配合检查。
 	signal: AbortSignal | undefined,
+	// 宿主注入的模型请求函数，可为真实供应商、代理或测试 faux。
 	streamFn: StreamFn,
+	// 返回“逐条 AgentEvent + 最终新增消息数组”的双层流，不直接等所有工作完成。
 ): EventStream<AgentEvent, AgentMessage[]> {
+	// 为外部消费者建事件队列；内部 Promise 运行期间不断向它 push。
 	const stream = createAgentStream();
 
+	// 启动 Promise 版本循环并刻意不在当前同步函数等待；void 表达不使用 Promise 值，不是取消任务。
 	void runAgentLoop(
+		// 传入本次新增输入，低层会先发布这些消息的开始/结束。
 		prompts,
+		// 传入已有上下文，模型看到的是这份历史加新增消息。
 		context,
+		// 沿用本次模型/工具/钩子配置，调度策略不藏在流包装器中。
 		config,
+		// 这个回调充当事件出口，低层每 emit 一条就在外部队列追加一条。
 		async (event) => {
+			// 把事件交给 EventStream 消费者；事件本身不等于已经打印到终端。
 			stream.push(event);
 		},
 		// 把取消信号继续传到下层；用户取消后，模型请求或工具可以停止工作。
 		signal,
+		// 透传模型函数引用，此处不立即调用它。
 		streamFn,
+		// Promise 正常完成后拿到本次新增消息；当前包装器没有在这里添加独立 catch。
 	).then((messages) => {
+		// 关闭队列并给出最终消息数组，已入队事件仍可继续读完。
 		stream.end(messages);
 	});
 
+	// 立刻返回可迭代队列，调用方可用 for await 边生成边读。
 	return stream;
 }
 
@@ -79,46 +105,80 @@ export function agentLoop(
  * via `convertToLlm`. If it doesn't, the LLM provider will reject the request.
  * This cannot be validated here since `convertToLlm` is only called once per turn.
  */
+/**
+ * 继续已有上下文的流式入口，不追加新用户问题。先拒绝空历史/assistant 结尾，再启动 Promise 入口并桥接事件。
+ * 输入是现有上下文与配置，返回 EventStream；循环会生成消息/执行工具。例：历史尾部已有 toolResult 时继续等待模型解释。
+ */
 export function agentLoopContinue(
+	// 已有历史与当前可执行工具。循环会基于它准备模型请求，不把 execute 直接发送给模型。
 	context: AgentContext,
+	// 模型、消息转换、工具钩子、回合调度和队列读取函数的配置。
 	config: AgentLoopConfig,
+	// 整次运行的取消信号；允许缺省，网络/工具/钩子需要配合检查。
 	signal: AbortSignal | undefined,
+	// 宿主注入的模型请求函数，可为真实供应商、代理或测试 faux。
 	streamFn: StreamFn,
+	// 返回“逐条 AgentEvent + 最终新增消息数组”的双层流，不直接等所有工作完成。
 ): EventStream<AgentEvent, AgentMessage[]> {
+	// continue 没有任何历史时无法知道该回答什么，先拒绝空上下文。
 	if (context.messages.length === 0) {
+		// 同步包装入口直接抛错；async 入口则以拒绝 Promise 报错，宿主负责生命周期处理。
 		throw new Error("Cannot continue: no messages in context");
 	}
 
+	// 现成 assistant 结尾不能直接续问；需要先有用户输入/工具结果等可继续上下文。
 	if (context.messages[context.messages.length - 1].role === "assistant") {
+		// 拒绝把已完成模型回答当成新输入，避免供应商不接受的消息顺序。
 		throw new Error("Cannot continue from message role: assistant");
 	}
 
+	// 为外部消费者建事件队列；内部 Promise 运行期间不断向它 push。
 	const stream = createAgentStream();
 
+	// 继续已有历史的 Promise 入口；包装成与新 prompt 相同的事件流形状，不追加原问题。
 	void runAgentLoopContinue(
+		// 传入已有上下文，模型看到的是这份历史加新增消息。
 		context,
+		// 沿用本次模型/工具/钩子配置，调度策略不藏在流包装器中。
 		config,
+		// 这个回调充当事件出口，低层每 emit 一条就在外部队列追加一条。
 		async (event) => {
+			// 把事件交给 EventStream 消费者；事件本身不等于已经打印到终端。
 			stream.push(event);
 		},
 		// 把取消信号继续传到下层；用户取消后，模型请求或工具可以停止工作。
 		signal,
+		// 透传模型函数引用，此处不立即调用它。
 		streamFn,
+		// Promise 正常完成后拿到本次新增消息；当前包装器没有在这里添加独立 catch。
 	).then((messages) => {
+		// 关闭队列并给出最终消息数组，已入队事件仍可继续读完。
 		stream.end(messages);
 	});
 
+	// 立刻返回可迭代队列，调用方可用 for await 边生成边读。
 	return stream;
 }
 
-// 中文主线 4：低层循环入口。接收这次新消息和已有历史；一次调用可能向模型请求很多次。
+// 低层循环入口。接收这次新消息和已有历史；一次调用可能向模型请求很多次。
+/**
+ * 带新输入的 Promise 入口：声明工具变化、建立本次局部上下文、发起始消息事件，再运行共享循环。
+ * 返回本次新增消息；emit 的异步副作用会被等待。例：一个用户输入最终新增 user、带 read 调用的 assistant、toolResult、最终 assistant。
+ */
 export async function runAgentLoop(
+	// 本次新增的起始消息，可能包含 system 更新、用户问题和扩展上下文；不包含全部旧历史。
 	prompts: AgentMessage[],
+	// 已有历史与当前可执行工具。循环会基于它准备模型请求，不把 execute 直接发送给模型。
 	context: AgentContext,
+	// 模型、消息转换、工具钩子、回合调度和队列读取函数的配置。
 	config: AgentLoopConfig,
+	// 事件出口函数，允许返回 Promise；await 它能确保上层状态/保存完成才继续下一步。
 	emit: AgentEventSink,
+	// 整次运行的取消信号；允许缺省，网络/工具/钩子需要配合检查。
 	signal: AbortSignal | undefined,
+	// 宿主注入的模型请求函数，可为真实供应商、代理或测试 faux。
 	streamFn: StreamFn,
+	// 异步入口等到整个低层循环完成，返回新增消息数组，不是返回每段文字的数组。
 ): Promise<AgentMessage[]> {
 	// 先让工具声明与实际工具一致。例如运行时有 read，就要在 system 消息中告诉模型 read 的参数格式。
 	const initialMessages = declareToolChanges(context, prompts);
@@ -150,22 +210,38 @@ export async function runAgentLoop(
 	return newMessages;
 }
 
+/**
+ * 基于已有输入续跑，不重复追加已有消息；校验可续跑的历史后发运行/回合开始事件，进入同一个 runLoop。
+ * 返回新生成消息数组；浅复制上下文对象但沿用 messages 数组，传入上下文可能被追加消息。例：重试前已有 user 时只再生成回复。
+ */
 export async function runAgentLoopContinue(
+	// 已有历史与当前可执行工具。循环会基于它准备模型请求，不把 execute 直接发送给模型。
 	context: AgentContext,
+	// 模型、消息转换、工具钩子、回合调度和队列读取函数的配置。
 	config: AgentLoopConfig,
+	// 事件出口函数，允许返回 Promise；await 它能确保上层状态/保存完成才继续下一步。
 	emit: AgentEventSink,
+	// 整次运行的取消信号；允许缺省，网络/工具/钩子需要配合检查。
 	signal: AbortSignal | undefined,
+	// 宿主注入的模型请求函数，可为真实供应商、代理或测试 faux。
 	streamFn: StreamFn,
+	// 异步入口等到整个低层循环完成，返回新增消息数组，不是返回每段文字的数组。
 ): Promise<AgentMessage[]> {
+	// continue 没有任何历史时无法知道该回答什么，先拒绝空上下文。
 	if (context.messages.length === 0) {
+		// 同步包装入口直接抛错；async 入口则以拒绝 Promise 报错，宿主负责生命周期处理。
 		throw new Error("Cannot continue: no messages in context");
 	}
 
+	// 现成 assistant 结尾不能直接续问；需要先有用户输入/工具结果等可继续上下文。
 	if (context.messages[context.messages.length - 1].role === "assistant") {
+		// 拒绝把已完成模型回答当成新输入，避免供应商不接受的消息顺序。
 		throw new Error("Cannot continue from message role: assistant");
 	}
 
+	// continue 不把已有用户/工具消息重复计入新增列表，后续新生成的消息才追加。
 	const newMessages: AgentMessage[] = [];
+	// 浅复制上下文对象；这里没有新建 messages 数组，所以底层仍沿用给定消息数组。
 	const currentContext: AgentContext = { ...context };
 
 	// 通知订阅者：开始一次 Agent 运行。await 会等订阅者处理完，才继续向下执行。
@@ -179,9 +255,16 @@ export async function runAgentLoopContinue(
 	return newMessages;
 }
 
+/**
+ * 创建 Agent 事件队列，以 agent_end 识别结束，并把 event.messages 作为最终结果；无网络或工具副作用。
+ * 例：先 push message_update 可被逐片迭代，最后 push agent_end 后 result() 得到本轮新增消息数组。
+ */
 function createAgentStream(): EventStream<AgentEvent, AgentMessage[]> {
+	// 泛型的第一项是中间事件，第二项是最终 result 的类型；构造器下面两个回调识别终点和取结果。
 	return new EventStream<AgentEvent, AgentMessage[]>(
+		// 遇到 agent_end 就视为正常流终止事件。
 		(event: AgentEvent) => event.type === "agent_end",
+		// 终止时取该事件的新增消息数组；其他事件若走到取值函数则返回空数组。
 		(event: AgentEvent) => (event.type === "agent_end" ? event.messages : []),
 	);
 }
@@ -189,14 +272,26 @@ function createAgentStream(): EventStream<AgentEvent, AgentMessage[]> {
 /**
  * Main loop logic shared by agentLoop and agentLoopContinue.
  */
-// 中文主线 5：循环调度器。例：问“读文件”→模型给 read 调用→执行 read→把结果交回模型→模型回答。
+// 循环调度器。例：问“读文件”→模型给 read 调用→执行 read→把结果交回模型→模型回答。
+/**
+ * 共享调度器：内层处理模型、工具、插话；外层处理自然结束后的追问或明确继续决定，直到结束/取消/错误。
+ * 输入是可替换上下文/配置、新增消息数组与事件出口；副作用包括请求模型、执行工具、追加消息和等待钩子，不直接写磁盘。
+ * 例：read 完成后自动再问模型，随后用户排队的“总结三点”可在任务自然停下前作为追问继续。
+ */
 async function runLoop(
+	// 循环起点的历史/工具快照；后续可由准备钩子替换为新的上下文。
 	initialContext: AgentContext,
+	// 由调用者持有的新增消息列表，本循环会 push；所以没有必要另返回一份相同数组。
 	newMessages: AgentMessage[],
+	// 初始配置；模型和思考级别允许在请求边界更新。
 	initialConfig: AgentLoopConfig,
+	// 整次运行的取消信号；允许缺省，网络/工具/钩子需要配合检查。
 	signal: AbortSignal | undefined,
+	// 事件出口函数，允许返回 Promise；await 它能确保上层状态/保存完成才继续下一步。
 	emit: AgentEventSink,
+	// 实际模型函数，上层已经解析显式传入值或兼容默认函数。
 	streamFunction: StreamFn,
+	// 本异步函数以更新消息/事件为主要结果，不直接返回业务文本；void 不表示“没有副作用”。
 ): Promise<void> {
 	// 保存当前上下文；let 允许稍后用压缩或扩展产生的新上下文替换它。
 	let currentContext = initialContext;
@@ -341,6 +436,7 @@ async function runLoop(
 				await emit({ type: "turn_end", message, toolResults: [] });
 				// 低层循环不再产生新事件。注意：会话的重试、压缩和 agent_settled 仍可能在后面。
 				await emit({ type: "agent_end", messages: newMessages });
+				// 结束当前函数，已发布的消息/事件仍然存在；不会回滚此前工具副作用。
 				return;
 			}
 
@@ -399,6 +495,7 @@ async function runLoop(
 			if (decision?.action === "end") {
 				// 低层循环不再产生新事件。注意：会话的重试、压缩和 agent_settled 仍可能在后面。
 				await emit({ type: "agent_end", messages: newMessages });
+				// 结束当前函数，已发布的消息/事件仍然存在；不会回滚此前工具副作用。
 				return;
 			}
 
@@ -437,6 +534,7 @@ async function runLoop(
 		}
 
 		// No more messages, exit
+		// 没有工具、插话、追问或显式继续要求，退出外层 while，随后发布 agent_end。
 		break;
 	}
 
@@ -453,6 +551,10 @@ async function runLoop(
  * are treated as intent and replaced with the delta between the committed transcript and
  * the executable set, so replay always yields exactly `context.tools`. Otherwise a new
  * system message is inserted before the first non-system pending message.
+ */
+/**
+ * 比较历史中声明的工具与当前实际可执行工具，生成 toolsAdded/toolsRemoved，合进待发 system 或插入新 system。
+ * 返回待发消息数组，复用未变化对象；不执行工具。例：原来只有 read，运行时启用 bash，下一次请求先声明 bash 新增。
  */
 function declareToolChanges(context: AgentContext, pendingMessages: AgentMessage[]): AgentMessage[] {
 	// 找本次新消息里最后一条 system，优先把工具差异合进去，避免多造一条系统消息。
@@ -471,10 +573,13 @@ function declareToolChanges(context: AgentContext, pendingMessages: AgentMessage
 	const pending = pendingMessages[systemIndex] as SystemMessage | undefined;
 	// 先移除待发 system 自己携带的工具变化，按实际可执行工具重新计算。
 	const baseline = pending
-		? pendingMessages.map((message, index) =>
+		? // 有待发 system 时逐条映射，下面只在 systemIndex 对应位置替换工具字段。
+			pendingMessages.map((message, index) =>
+				// 三元表达式：目标 system 去掉旧工具变化，其他消息对象直接复用。
 				index === systemIndex ? withToolChanges(pending, NO_CHANGES) : message,
 			)
-		: pendingMessages;
+		: // 没有待发 system 时沿用新消息数组作为基线。
+			pendingMessages;
 	// 比较“历史声明了什么工具”与“当前真能执行什么工具”，得到新增和移除列表。
 	const changes = getToolStateChanges(
 		// 重放旧历史和本次消息，取得模型已被告知的工具。
@@ -505,12 +610,18 @@ function declareToolChanges(context: AgentContext, pendingMessages: AgentMessage
 	return [...pendingMessages.slice(0, index), update, ...pendingMessages.slice(index)];
 }
 
+// 表示“不增加也不移除工具”的差异对象，用于计算待发 system 的基线。
 const NO_CHANGES: ToolStateChanges = { toolsAdded: [], toolsRemoved: [] };
 
 /** Copy a system message with its tool fields replaced by `changes`; empty lists omit the field. */
+/**
+ * 复制 system 消息并替换工具差异字段，空数组省略对应字段；不改原消息、不发送请求。
+ * 第二参数是对象解构。例：移除旧 toolsAdded，再放入本次新声明，content/sections/timestamp 保持。
+ */
 function withToolChanges(message: SystemMessage, { toolsAdded, toolsRemoved }: ToolStateChanges): SystemMessage {
 	// 取走旧工具字段，...rest 留住正文、提示词章节、时间等其他字段。
 	const { toolsAdded: _added, toolsRemoved: _removed, ...rest } = message;
+	// 返回新的 system 对象，保留非工具字段，下面只条件添加非空工具差异。
 	return {
 		// 保留非工具字段。
 		...rest,
@@ -525,12 +636,22 @@ function withToolChanges(message: SystemMessage, { toolsAdded, toolsRemoved }: T
  * Stream an assistant response from the LLM.
  * This is where AgentMessage[] gets transformed to Message[] for the LLM.
  */
-// 中文主线 6：模型调用边界。先整理消息，再调用注入的 streamFn，最后把零碎流事件拼成完整回答。
+// 模型调用边界。先整理消息，再调用注入的 streamFn，最后把零碎流事件拼成完整回答。
+/**
+ * 模型调用边界：先变换/转换消息，规范化上下文并解析凭证，再调用注入模型函数，消费流并发布消息事件。
+ * 返回一条完整 assistant，可能带 toolCall；会追加/替换上下文里的草稿并等待 emit，工具执行不在这里发生。
+ * 例：先收到“使用”，后收到“ TypeScript”，外部见多次 message_update，最终历史只放一条完整消息。
+ */
 async function streamAssistantResponse(
+	// 已有历史与当前可执行工具。循环会基于它准备模型请求，不把 execute 直接发送给模型。
 	context: AgentContext,
+	// 模型、消息转换、工具钩子、回合调度和队列读取函数的配置。
 	config: AgentLoopConfig,
+	// 整次运行的取消信号；允许缺省，网络/工具/钩子需要配合检查。
 	signal: AbortSignal | undefined,
+	// 事件出口函数，允许返回 Promise；await 它能确保上层状态/保存完成才继续下一步。
 	emit: AgentEventSink,
+	// 实际模型函数，上层已经解析显式传入值或兼容默认函数。
 	streamFunction: StreamFn,
 ): Promise<AssistantMessage> {
 	// Apply context transform if configured (AgentMessage[] → AgentMessage[])
@@ -559,7 +680,7 @@ async function streamAssistantResponse(
 	const response = await streamFunction(config.model, llmContext, {
 		// 沿用原配置；这是浅层展开，不会递归复制消息或工具。
 		...config,
-		// 传入刚解析的凭证；学习时不要打印真实 key。
+		// 传入刚解析的认证凭证；该值只供请求函数使用，不应写入日志。
 		apiKey: resolvedApiKey,
 		// 合并请求身份信息，用于供应商归因等请求元数据，不是聊天历史。
 		identity: mergeClientIdentity(DEFAULT_AGENT_IDENTITY, config.identity),
@@ -589,6 +710,7 @@ async function streamAssistantResponse(
 				addedPartial = true;
 				// 向 Agent/UI 发布消息开始事件；浅拷贝草稿对象作为事件内容。
 				await emit({ type: "message_start", message: { ...partialMessage } });
+				// 本次 start/增量事件已经处理，退出 switch 继续读取下一个流事件；不会在这里执行工具。
 				break;
 
 			// 文字块开始；这些相邻 case 共用下面同一段更新逻辑。
@@ -625,6 +747,7 @@ async function streamAssistantResponse(
 						message: { ...partialMessage },
 					});
 				}
+				// 本次 start/增量事件已经处理，退出 switch 继续读取下一个流事件；不会在这里执行工具。
 				break;
 
 			// 供应商正常结束这一条消息。
@@ -637,7 +760,6 @@ async function streamAssistantResponse(
 				if (addedPartial) {
 					// 用完整结果替掉草稿，保留相同历史位置。
 					context.messages[context.messages.length - 1] = finalMessage;
-					// 走上面条件不成立的分支；结合相邻 if 看这里处理的另一种情况。
 				} else {
 					// 没有流式占位的路径直接追加完整消息。
 					context.messages.push(finalMessage);
@@ -661,7 +783,6 @@ async function streamAssistantResponse(
 	if (addedPartial) {
 		// 用完整结果替掉草稿，保留相同历史位置。
 		context.messages[context.messages.length - 1] = finalMessage;
-		// 走上面条件不成立的分支；结合相邻 if 看这里处理的另一种情况。
 	} else {
 		// 没有流式占位的路径直接追加完整消息。
 		context.messages.push(finalMessage);
@@ -681,9 +802,16 @@ async function streamAssistantResponse(
  * whose arguments parse and validate but are silently incomplete. None of them
  * are safe to execute; report each as an error so the model can re-issue them.
  */
+/**
+ * 模型输出被 token 上限截断时，把本条所有工具调用转换为失败结果，完全不执行这些可能缺参数的调用。
+ * 返回结果消息批次并发布配对事件，terminate:false 允许模型修正重发。例：只生成了一半 edit 参数时不能贸然写文件。
+ */
 async function failToolCallsFromTruncatedMessage(
+	// 模型这一条 assistant 回答中的所有工具请求，按内容块出现顺序排列。
 	toolCalls: AgentToolCall[],
+	// 事件出口函数，允许返回 Promise；await 它能确保上层状态/保存完成才继续下一步。
 	emit: AgentEventSink,
+	// 返回本批的工具结果消息与是否终止自动续轮；不是只返回工具正文。
 ): Promise<ExecutedToolCallBatch> {
 	// 收集本批将写入模型对话的 toolResult 消息。
 	const messages: ToolResultMessage[] = [];
@@ -691,18 +819,20 @@ async function failToolCallsFromTruncatedMessage(
 	for (const toolCall of toolCalls) {
 		// 异步发布事件；先让 Agent 状态和订阅者处理完，再推进当前流程。
 		await emit({
-			// 通知外部工具管线开始；参数校验或权限钩子仍可能让这次调用直接失败。
+			// 发布被截断调用的工具开始事件以保持生命周期配对；这条分支随后直接生成失败结果，不执行工具。
 			type: "tool_execution_start",
 			// 调用的唯一 id；结果必须带同一 id，模型才能把请求与结果配对。
 			toolCallId: toolCall.id,
 			// 工具名字，例如 read；它用来查找已经注册的本地实现。
 			toolName: toolCall.name,
-			// 模型发来的原始参数，例如 {path:"decision.txt"}；后面还要校验。
+			// 保留可能被截断的原始参数供事件展示；此分支不会继续参数校验或执行。
 			args: toolCall.arguments,
 		});
+		// 为未执行的调用构造最终失败结果，仍保留原调用以维持请求/结果配对。
 		const finalized: FinalizedToolCallOutcome = {
 			// 保留原始调用信息，包括 id/name/arguments，方便与工具结果关联。
 			toolCall,
+			// 生成模型可见错误文字；截断调用不会进入 execute 或参数前置钩子。
 			result: createErrorToolResult(
 				`Tool call "${toolCall.name}" was not executed: the response hit the output token limit, so its arguments may be truncated. Re-issue the tool call with complete arguments.`,
 			),
@@ -718,19 +848,30 @@ async function failToolCallsFromTruncatedMessage(
 		// 将结果加入本批返回值；runLoop 之后也会把它追加到请求上下文。
 		messages.push(toolResultMessage);
 	}
+	// 让模型有机会下一轮重发完整调用，而不是因这批被截断的参数永久终止。
 	return { messages, terminate: false };
 }
 
 /**
  * Execute tool calls from an assistant message.
  */
-// 中文主线 7：工具分发入口。模型给的是调用声明，执行哪些本地函数由 Pi 在这里决定。
+// 工具分发入口。模型给的是调用声明，执行哪些本地函数由 Pi 在这里决定。
+/**
+ * 从完整 assistant 取出工具调用并选择串行/并行策略，返回本批结果消息和终止决定。
+ * 全局 sequential 或任一工具要求 sequential 都走串行；否则顺序准备、并行执行。例：多个只读调用可并行，需顺序的工具改变整批策略。
+ */
 async function executeToolCalls(
+	// 当前回合消息与可执行工具，提供给查工具和钩子判断。
 	currentContext: AgentContext,
+	// 发出本批工具调用的完整 assistant 消息，不是草稿片段。
 	assistantMessage: AssistantMessage,
+	// 模型、消息转换、工具钩子、回合调度和队列读取函数的配置。
 	config: AgentLoopConfig,
+	// 整次运行的取消信号；允许缺省，网络/工具/钩子需要配合检查。
 	signal: AbortSignal | undefined,
+	// 事件出口函数，允许返回 Promise；await 它能确保上层状态/保存完成才继续下一步。
 	emit: AgentEventSink,
+	// 返回本批的工具结果消息与是否终止自动续轮；不是只返回工具正文。
 ): Promise<ExecutedToolCallBatch> {
 	// 只拿工具调用块；同一条回答中的解释文字不会当作代码执行。
 	const toolCalls = assistantMessage.content.filter((c) => c.type === "toolCall");
@@ -748,19 +889,34 @@ async function executeToolCalls(
 	return executeToolCallsParallel(currentContext, assistantMessage, toolCalls, config, signal, emit);
 }
 
+// 工具批次结果的内部类型：把多条结果和批次调度决定放一起。
 type ExecutedToolCallBatch = {
+	// 每个已安排调用对应一条结果消息，后面会追加到下一次模型请求上下文。
 	messages: ToolResultMessage[];
+	// true 表示本批一致要求结束；false 允许模型拿结果后再继续。
 	terminate: boolean;
 };
 
+/**
+ * 按模型给的顺序逐个准备、执行、后处理、发工具结束及结果消息；前一个完整收尾后才开始下一个。
+ * 返回按顺序的结果批次；取消后不再安排后续调用。例：第一个工具失败仍可把失败结果配对发出，是否整体结束看批次规则。
+ */
 async function executeToolCallsSequential(
+	// 当前回合消息与可执行工具，提供给查工具和钩子判断。
 	currentContext: AgentContext,
+	// 发出本批工具调用的完整 assistant 消息，不是草稿片段。
 	assistantMessage: AssistantMessage,
+	// 模型这一条 assistant 回答中的所有工具请求，按内容块出现顺序排列。
 	toolCalls: AgentToolCall[],
+	// 模型、消息转换、工具钩子、回合调度和队列读取函数的配置。
 	config: AgentLoopConfig,
+	// 整次运行的取消信号；允许缺省，网络/工具/钩子需要配合检查。
 	signal: AbortSignal | undefined,
+	// 事件出口函数，允许返回 Promise；await 它能确保上层状态/保存完成才继续下一步。
 	emit: AgentEventSink,
+	// 返回本批的工具结果消息与是否终止自动续轮；不是只返回工具正文。
 ): Promise<ExecutedToolCallBatch> {
+	// 按执行顺序收集最终结果，之后判断是不是每个调用都要求 terminate。
 	const finalizedCalls: FinalizedToolCallOutcome[] = [];
 	// 收集本批将写入模型对话的 toolResult 消息。
 	const messages: ToolResultMessage[] = [];
@@ -781,9 +937,11 @@ async function executeToolCallsSequential(
 
 		// 先查工具、准备参数、按 schema 校验，再跑 beforeToolCall；此处尚未真正读文件。
 		const preparation = await prepareToolCall(currentContext, assistantMessage, toolCall, config, signal);
+		// 两条准备分支都会给出最终结果：立即失败，或真正执行并后处理；let 允许分支赋值。
 		let finalized: FinalizedToolCallOutcome;
 		// kind 是联合类型的分辨字段；immediate 表示已有最终失败/阻止结果，跳过实际执行。
 		if (preparation.kind === "immediate") {
+			// 准备阶段已有结果时直接包装，不再调用工具执行函数。
 			finalized = {
 				// 保留原始调用信息，包括 id/name/arguments，方便与工具结果关联。
 				toolCall,
@@ -792,10 +950,10 @@ async function executeToolCallsSequential(
 				// 带上失败标志；模型收到错误结果后可以修改参数再试。
 				isError: preparation.isError,
 			};
-			// 走上面条件不成立的分支；结合相邻 if 看这里处理的另一种情况。
 		} else {
 			// 真正调用 tool.execute()；read 会在这里进入 read.ts 的文件读取逻辑。
 			const executed = await executePreparedToolCall(preparation, signal, emitToolExecutionUpdate(toolCall, emit));
+			// 等待后置钩子和结果合并结束后，才发布工具结束事件。
 			finalized = await finalizeExecutedToolCall(
 				// 传入本轮上下文，让工具钩子能看到当前对话与工具集合。
 				currentContext,
@@ -805,6 +963,7 @@ async function executeToolCallsSequential(
 				preparation,
 				// 执行得到的内容、错误标志和耗时。
 				executed,
+				// 沿用本次模型/工具/钩子配置，调度策略不藏在流包装器中。
 				config,
 				// 把取消信号继续传到下层；用户取消后，模型请求或工具可以停止工作。
 				signal,
@@ -824,24 +983,39 @@ async function executeToolCallsSequential(
 
 		// 用户取消后停止继续安排工具；?. 允许调用方没有传入取消信号。
 		if (signal?.aborted) {
+			// 取消已发生，退出当前 for，不再继续安排后面的工具调用；已完成结果仍保留。
 			break;
 		}
 	}
 
+	// 交回按串行顺序收集的结果与批次终止决定；runLoop 会继续把这些结果加入模型上下文。
 	return {
+		// 把本批按原始调用顺序收集的工具消息交给外层 runLoop。
 		messages,
+		// 串行批次也遵守“非空且每个最终结果都要求终止”规则，单个工具要求终止不够。
 		terminate: shouldTerminateToolBatch(finalizedCalls),
 	};
 }
 
-// 中文主线 8：默认的并行工具批次。即使本例只有一个 read，也会经过这个函数。
+// 默认的并行工具批次。即使本例只有一个 read，也会经过这个函数。
+/**
+ * 先按顺序做参数/策略准备，保存允许执行的异步任务，再一起启动；工具结束事件可按完成速度发，结果消息按原调用顺序发。
+ * 返回工具结果批次；会等待工具和后置钩子。例：read(a) 比 read(b) 慢，也不会把 a/b 的 toolResult 历史顺序交换。
+ */
 async function executeToolCallsParallel(
+	// 当前回合消息与可执行工具，提供给查工具和钩子判断。
 	currentContext: AgentContext,
+	// 发出本批工具调用的完整 assistant 消息，不是草稿片段。
 	assistantMessage: AssistantMessage,
+	// 模型这一条 assistant 回答中的所有工具请求，按内容块出现顺序排列。
 	toolCalls: AgentToolCall[],
+	// 模型、消息转换、工具钩子、回合调度和队列读取函数的配置。
 	config: AgentLoopConfig,
+	// 整次运行的取消信号；允许缺省，网络/工具/钩子需要配合检查。
 	signal: AbortSignal | undefined,
+	// 事件出口函数，允许返回 Promise；await 它能确保上层状态/保存完成才继续下一步。
 	emit: AgentEventSink,
+	// 返回本批的工具结果消息与是否终止自动续轮；不是只返回工具正文。
 ): Promise<ExecutedToolCallBatch> {
 	// 列表中可以是已完成的结果，也可以是稍后才启动的异步函数；类型用联合类型表达两种情况。
 	const finalizedCalls: FinalizedToolCallEntry[] = [];
@@ -880,6 +1054,7 @@ async function executeToolCallsParallel(
 			finalizedCalls.push(finalized);
 			// 用户取消后停止继续安排工具；?. 允许调用方没有传入取消信号。
 			if (signal?.aborted) {
+				// 取消已发生，退出当前 for，不再继续安排后面的工具调用；已完成结果仍保留。
 				break;
 			}
 			// 跳到当前循环的下一轮；不会递归调用用户的 prompt()。
@@ -917,6 +1092,7 @@ async function executeToolCallsParallel(
 				preparation,
 				// 执行得到的内容、错误标志和耗时。
 				executed,
+				// 沿用本次模型/工具/钩子配置，调度策略不藏在流包装器中。
 				config,
 				// 把取消信号继续传到下层；用户取消后，模型请求或工具可以停止工作。
 				signal,
@@ -928,6 +1104,7 @@ async function executeToolCallsParallel(
 		});
 		// 用户取消后停止继续安排工具；?. 允许调用方没有传入取消信号。
 		if (signal?.aborted) {
+			// 取消已发生，退出当前 for，不再继续安排后面的工具调用；已完成结果仍保留。
 			break;
 		}
 	}
@@ -949,72 +1126,119 @@ async function executeToolCallsParallel(
 		messages.push(toolResultMessage);
 	}
 
+	// 交回按模型调用顺序排列的结果与终止决定；各工具完成快慢不会改变消息排列。
 	return {
+		// 把本批按原始调用顺序收集的工具消息交给外层 runLoop。
 		messages,
 		// 只有本批非空且每个结果都要求 terminate，才终止工具后的自动续轮。
 		terminate: shouldTerminateToolBatch(orderedFinalizedCalls),
 	};
 }
 
+// 联合类型的可执行分支：准备成功才有 tool 和已校验 args。
 type PreparedToolCall = {
+	// 字面量标签让 TS 在 if(kind === "prepared") 后知道可安全访问 tool。
 	kind: "prepared";
+	// 保留模型原始 id/name/arguments，便于事件和结果配对。
 	toolCall: AgentToolCall;
+	// 在注册列表找到的本地工具实现，里面的 execute 才真正干活。
 	tool: AgentTool<any>;
+	// 通用执行器不知道具体 schema 的静态参数形状；运行时已在准备阶段校验。
 	args: unknown;
 };
 
+// 另一联合类型分支：找不到工具、参数错误、被策略阻止或取消时已有最终结果。
 type ImmediateToolCallOutcome = {
+	// 标签表示立即结果，没有可执行 tool，调用方不能再去执行。
 	kind: "immediate";
+	// 工具内容、详情和可选结构化输出；现有 any 兼容各种工具详情类型。
 	result: AgentToolResult<any>;
+	// 是否作为错误结果交给模型；与 Promise 是否成功 resolve 是两个维度。
 	isError: boolean;
 };
 
+// 真实执行阶段的结果，还未经过 afterToolCall 最终覆盖。
 type ExecutedToolCallOutcome = {
+	// 工具内容、详情和可选结构化输出；现有 any 兼容各种工具详情类型。
 	result: AgentToolResult<any>;
+	// 是否作为错误结果交给模型；与 Promise 是否成功 resolve 是两个维度。
 	isError: boolean;
+	// 用单调时钟测得的 execute 阶段耗时，单位毫秒。
 	durationMs: number;
 };
 
+// 内部名字复用对外结果结构，没有另生成一种运行时包装类。
 type FinalizedToolCallOutcome = AgentToolCallOutcome;
 
 /** The `beforeToolCall` and `afterToolCall` hooks of {@link AgentLoopConfig}. */
+// Pick 只选前后工具钩子，允许嵌套工具调用复用这条管线而不需要整个循环配置。
 export type ToolCallHooks = Pick<AgentLoopConfig, "beforeToolCall" | "afterToolCall">;
 
+// 进度接收函数可以同步处理，也可以异步处理；执行器会等待已经接收的更新任务。
 type ToolUpdateSink = (partialResult: AgentToolResult<any>) => Promise<void> | void;
 
+// 并行批次列表可存已完成对象，也可存稍后才运行的异步函数；写入函数并不会立即启动工具。
 type FinalizedToolCallEntry = FinalizedToolCallOutcome | (() => Promise<FinalizedToolCallOutcome>);
 
+/**
+ * 纯判断：批次非空且每个最终结果都显式 terminate:true 才返回 true，不修改结果。
+ * 例：[true,true] 结束，[true,undefined] 不结束，[] 也不结束，避免空集合 every 为 true 产生误判。
+ */
 function shouldTerminateToolBatch(finalizedCalls: FinalizedToolCallOutcome[]): boolean {
+	// 先排除空批次，再要求 every 一致为 true。例：两工具只有一个 terminate:true，仍不整体终止。
 	return finalizedCalls.length > 0 && finalizedCalls.every((finalized) => finalized.result.terminate === true);
 }
 
+/**
+ * 可选地先调用工具的输入适配器；没适配器或返回同一参数引用则复用原调用，否则浅复制调用并替换 arguments。
+ * 本函数不做 schema 验证，失败抛给外层准备函数。例：把工具支持的旧参数别名整理成正式字段。
+ */
 function prepareToolCallArguments(tool: AgentTool<any>, toolCall: AgentToolCall): AgentToolCall {
+	// 工具没有输入适配器时保留模型的原始参数，后面仍会做 schema 验证。
 	if (!tool.prepareArguments) {
+		// 原对象无需改变就复用，避免制造内容相同的新调用对象。
 		return toolCall;
 	}
+	// 同步调用工具自己的参数整理函数；如它抛错，prepareToolCall 的 catch 会形成工具失败结果。
 	const preparedArguments = tool.prepareArguments(toolCall.arguments);
+	// 适配器返回相同参数引用表示不需重新包装工具调用。
 	if (preparedArguments === toolCall.arguments) {
+		// 原对象无需改变就复用，避免制造内容相同的新调用对象。
 		return toolCall;
 	}
+	// 创建替换参数后的新调用对象；不会改变原 toolCall 的 id/name，也不会在这里执行工具。
 	return {
+		// 保留调用 id/name 等其他字段，下面只替换 arguments。
 		...toolCall,
+		// as 是适配异构工具参数的静态断言，不做 JSON 校验；正式验证紧接着在 prepareToolCall 执行。
 		arguments: preparedArguments as Record<string, any>,
 	};
 }
 
-// 中文主线 9：工具执行前的关口。模型输出属于外部输入，TypeScript 类型不能替代这里的参数校验。
+// 工具执行前的关口。模型输出属于外部输入，TypeScript 类型不能替代这里的参数校验。
+/**
+ * 单次调用前置管线：按名字找工具 → 可选参数适配 → schema 校验 → beforeToolCall → 取消检查。
+ * 返回带 kind 标签的可执行调用或立即失败结果；不执行工具。例：read 的 path 不是字符串时返回错误结果，让模型修正。
+ */
 async function prepareToolCall(
+	// 当前回合消息与可执行工具，提供给查工具和钩子判断。
 	currentContext: AgentContext,
+	// 发出本批工具调用的完整 assistant 消息，不是草稿片段。
 	assistantMessage: AssistantMessage,
+	// 当前单次工具调用的 id/name/arguments；不同于整条含多个调用的 assistantMessage。
 	toolCall: AgentToolCall,
+	// 只需要工具前置与后置策略，不需要完整模型配置。
 	config: ToolCallHooks,
+	// 整次运行的取消信号；允许缺省，网络/工具/钩子需要配合检查。
 	signal: AbortSignal | undefined,
+	// 可显式给出查找范围；默认用当前工具，没工具则空列表。readonly 限制本函数不能修改输入数组。
 	tools: readonly AgentTool<any>[] = currentContext.tools ?? [],
 ): Promise<PreparedToolCall | ImmediateToolCallOutcome> {
 	// 在可用工具中按 name 找实现。模型不能凭空发明一个名字就获得任意本地能力。
 	const tool = tools.find((t) => t.name === toolCall.name);
 	// 没有对应工具，就给模型返回“工具不存在”，不执行任何文件操作。
 	if (!tool) {
+		// 用 kind 标记本准备分支的结果；调用方据此区分立即返回与允许执行，不靠猜测字段形状。
 		return {
 			// 标记这条调用已经得出结果，调用方不应继续执行工具。
 			kind: "immediate",
@@ -1025,6 +1249,7 @@ async function prepareToolCall(
 		};
 	}
 
+	// 捕获参数适配、schema 校验和前置钩子的异常，转换成 immediate 失败结果；真正 execute 不在本段。
 	try {
 		// 工具可先兼容/整理输入形状，例如把别名参数转成正式参数名；不是所有工具都有这步。
 		const preparedToolCall = prepareToolCallArguments(tool, toolCall);
@@ -1049,6 +1274,7 @@ async function prepareToolCall(
 			);
 			// 用户取消后停止继续安排工具；?. 允许调用方没有传入取消信号。
 			if (signal?.aborted) {
+				// 用 kind 标记本准备分支的结果；调用方据此区分立即返回与允许执行，不靠猜测字段形状。
 				return {
 					// 标记这条调用已经得出结果，调用方不应继续执行工具。
 					kind: "immediate",
@@ -1067,6 +1293,7 @@ async function prepareToolCall(
 					// 把终止要求写到结果；批次是否整体终止由所有调用结果共同决定。
 					result.terminate = true;
 				}
+				// 用 kind 标记本准备分支的结果；调用方据此区分立即返回与允许执行，不靠猜测字段形状。
 				return {
 					// 标记这条调用已经得出结果，调用方不应继续执行工具。
 					kind: "immediate",
@@ -1079,6 +1306,7 @@ async function prepareToolCall(
 		}
 		// 用户取消后停止继续安排工具；?. 允许调用方没有传入取消信号。
 		if (signal?.aborted) {
+			// 用 kind 标记本准备分支的结果；调用方据此区分立即返回与允许执行，不靠猜测字段形状。
 			return {
 				// 标记这条调用已经得出结果，调用方不应继续执行工具。
 				kind: "immediate",
@@ -1088,6 +1316,7 @@ async function prepareToolCall(
 				isError: true,
 			};
 		}
+		// 用 kind 标记本准备分支的结果；调用方据此区分立即返回与允许执行，不靠猜测字段形状。
 		return {
 			// 另一种联合类型分支：工具已找到、参数校验通过，可以进入实际执行。
 			kind: "prepared",
@@ -1100,6 +1329,7 @@ async function prepareToolCall(
 		};
 		// 捕获本阶段抛出的异常，把它转为工具结果；具体是否重试由后续模型/会话策略决定。
 	} catch (error) {
+		// 用 kind 标记本准备分支的结果；调用方据此区分立即返回与允许执行，不靠猜测字段形状。
 		return {
 			// 标记这条调用已经得出结果，调用方不应继续执行工具。
 			kind: "immediate",
@@ -1111,9 +1341,15 @@ async function prepareToolCall(
 	}
 }
 
+/**
+ * 创建单工具的进度转发函数，闭包保存 id/name/原参数；调用返回函数时才发 tool_execution_update。
+ * 不发最终消息、不执行工具。例：bash 上报一段 stdout，UI 可按 id 把它归到正确工具。
+ */
 function emitToolExecutionUpdate(toolCall: AgentToolCall, emit: AgentEventSink): ToolUpdateSink {
+	// 返回一段稍后调用的函数：工具上报进度时补齐工具 id/name 并交给事件出口。
 	return (partialResult) =>
 		emit({
+			// 这是工具进度事件，不是模型文字的 message_update。
 			type: "tool_execution_update",
 			// 调用的唯一 id；结果必须带同一 id，模型才能把请求与结果配对。
 			toolCallId: toolCall.id,
@@ -1121,19 +1357,26 @@ function emitToolExecutionUpdate(toolCall: AgentToolCall, emit: AgentEventSink):
 			toolName: toolCall.name,
 			// 展示当初模型发来的参数；这是执行中的进度事件，校验已在执行前完成。
 			args: toolCall.arguments,
+			// 把本次进度结果交给订阅者，不在这里追加为最终 toolResult 消息。
 			partialResult,
 		});
 }
 
 /** Options for {@link runToolCall}. */
+// 嵌套/程序化单工具调用选项，继承相同前后钩子，确保不能绕过统一检查路径。
 export interface RunToolCallOptions extends ToolCallHooks {
 	/** Tools the call resolves against. */
+	// 明确可查找的工具集合，不能按任意名字执行未授权注册的函数。
 	tools: readonly AgentTool<any>[];
 	/** Passed to the hooks as the message that issued the call. */
+	// 提供“是谁发起调用”的模型消息，钩子使用同一上下文协议。
 	assistantMessage: AssistantMessage;
 	/** Passed to the hooks as the current agent context. */
+	// 给钩子看的当前运行上下文。
 	context: AgentContext;
+	// 可选取消信号，执行与钩子都沿用它。
 	signal?: AbortSignal;
+	// 可选工具进度回调，不自动发布完整 Agent 消息事件。
 	onUpdate?: ToolUpdateSink;
 }
 
@@ -1146,22 +1389,39 @@ export interface RunToolCallOptions extends ToolCallHooks {
  * Never rejects for tool failures: unknown tools, validation errors, blocked calls, and thrown
  * errors come back as `isError: true`.
  */
+/**
+ * 程序化/嵌套调用复用同一工具管线：准备、校验、前置钩子、执行、后置钩子；不自行发 Agent 事件或追加历史。
+ * 返回最终结果，普通工具失败转成 isError:true。例：外层工具通过 ctx 调另一个工具，也不应绕过策略钩子。
+ */
 export async function runToolCall(toolCall: AgentToolCall, options: RunToolCallOptions): Promise<AgentToolCallOutcome> {
+	// 对象解构取出常用字段；保持原对象引用，不深复制历史。
 	const { assistantMessage, context, signal } = options;
+	// 同模型工具调用一样先适配参数、schema 校验和 beforeToolCall；显式使用 options.tools 范围。
 	const preparation = await prepareToolCall(context, assistantMessage, toolCall, options, signal, options.tools);
 	// kind 是联合类型的分辨字段；immediate 表示已有最终失败/阻止结果，跳过实际执行。
 	if (preparation.kind === "immediate") {
+		// 准备阶段已失败/阻止就直接返回结果，不执行工具也不发消息事件。
 		return { toolCall, result: preparation.result, isError: preparation.isError };
 	}
+	// 真正调用工具；没进度回调时用空函数，仍沿用统一的执行/异常处理。
 	const executed = await executePreparedToolCall(preparation, signal, options.onUpdate ?? (() => {}));
+	// 再走 afterToolCall 并返回最终结果；此入口不修改消息数组，也不自行发 Agent 生命周期事件。
 	return finalizeExecutedToolCall(context, assistantMessage, preparation, executed, options, signal);
 }
 
-// 中文主线 10：实际执行单个工具。核心就是 await prepared.tool.execute(...)。
+// 实际执行单个工具。核心就是 await prepared.tool.execute(...)。
+/**
+ * 真正调用准备好的 tool.execute，接收进度并等待已经发出的进度接收任务，测量 execute 耗时。
+ * 返回原始执行结果、错误标志和耗时；工具抛错转换成错误内容，结束后不再接收迟到更新。例：read 在这里进入文件 API。
+ */
 async function executePreparedToolCall(
+	// 只有准备成功分支能传进来，包含可执行工具和已校验参数。
 	prepared: PreparedToolCall,
+	// 整次运行的取消信号；允许缺省，网络/工具/钩子需要配合检查。
 	signal: AbortSignal | undefined,
+	// 执行期间的进度出口，接收器可以异步，收尾前要等已发更新完成。
 	onUpdate: ToolUpdateSink,
+	// 返回执行内容/错误标志/耗时；后置钩子随后还可能覆盖它。
 ): Promise<ExecutedToolCallOutcome> {
 	// 保存执行期间发布的增量结果任务，结束前要等这些通知处理完。
 	const updateEvents: Promise<void>[] = [];
@@ -1172,6 +1432,7 @@ async function executePreparedToolCall(
 	// 箭头函数：调用时计算经过的毫秒数，Math.round 将结果四舍五入。
 	const elapsed = () => Math.round(performance.now() - startedAt);
 
+	// 覆盖实际 execute 及进度收尾；工具抛错时转成统一失败结果，finally 仍会关闭进度入口。
 	try {
 		// 真正跨进具体工具实现。例如工具名为 read，就进入 createReadToolDefinition 返回的 execute。
 		const result = await prepared.tool.execute(
@@ -1205,6 +1466,7 @@ async function executePreparedToolCall(
 		acceptingUpdates = false;
 		// 确保执行中已发出的进度通知处理完，再发布最终结果。
 		await Promise.all(updateEvents);
+		// 把本次执行异常包装成失败内容，并附已测量耗时；外层仍能正常配对工具结果。
 		return {
 			// 异常可能不是 Error；在这个外部错误边界统一取出可读文字。
 			result: createErrorToolResult(error instanceof Error ? error.message : String(error)),
@@ -1220,14 +1482,25 @@ async function executePreparedToolCall(
 	}
 }
 
-// 中文主线 11：执行后的统一收尾，允许 afterToolCall 修改给模型看的结果。
+// 执行后的统一收尾，允许 afterToolCall 修改给模型看的结果。
+/**
+ * 将执行结果交给 afterToolCall，逐字段合并覆盖并处理 structuredContent 与 content 的一致性，返回最终结果。
+ * 后置钩子失败也作为工具错误，不再发给模型原来的成功结果。例：扩展替换了正文却未提供结构化内容时删掉旧结构化值。
+ */
 async function finalizeExecutedToolCall(
+	// 当前回合消息与可执行工具，提供给查工具和钩子判断。
 	currentContext: AgentContext,
+	// 发出本批工具调用的完整 assistant 消息，不是草稿片段。
 	assistantMessage: AssistantMessage,
+	// 只有准备成功分支能传进来，包含可执行工具和已校验参数。
 	prepared: PreparedToolCall,
+	// 真实工具执行阶段返回的内容和耗时。
 	executed: ExecutedToolCallOutcome,
+	// 只需要工具前置与后置策略，不需要完整模型配置。
 	config: ToolCallHooks,
+	// 整次运行的取消信号；允许缺省，网络/工具/钩子需要配合检查。
 	signal: AbortSignal | undefined,
+	// 等待后置钩子完成后返回最终单工具结果，供事件与 toolResult 消息共用。
 ): Promise<FinalizedToolCallOutcome> {
 	// 先用工具原始结果，后置钩子有覆盖时再替换。
 	let result = executed.result;
@@ -1236,6 +1509,7 @@ async function finalizeExecutedToolCall(
 
 	// 会话层默认安装了这个钩子，用于扩展 tool_result 和图片处理等。
 	if (config.afterToolCall) {
+		// 后置扩展可能异步失败；在这个边界将它转成工具错误，避免把未完成的覆盖当成功。
 		try {
 			// 等待后置处理完成，再确定最终工具结果；模型还没有收到这份结果。
 			const afterResult = await config.afterToolCall(
@@ -1292,6 +1566,7 @@ async function finalizeExecutedToolCall(
 		}
 	}
 
+	// 返回后置钩子处理后的最终内容、错误标志和原执行耗时，供事件与消息包装共用。
 	return {
 		// 将这份结果与原始模型调用关联，保证 id、工具名可追踪。
 		toolCall: prepared.toolCall,
@@ -1304,21 +1579,34 @@ async function finalizeExecutedToolCall(
 	};
 }
 
+/**
+ * 把可读错误文字包装成工具结果的 content/details 形状，无外部副作用；isError 由调用管线另外携带。
+ * 例：找不到 read 时正文写“工具不存在”，上层再包装 role:toolResult 并标记错误。
+ */
 function createErrorToolResult(message: string): AgentToolResult<any> {
+	// 错误结果保留统一 content/details 形状；错误标志由外面的调用结果对象携带。
 	return {
+		// 错误原因也放在模型可读文字块里，让下一次模型有机会修正参数或选择其他方案。
 		content: [{ type: "text", text: message }],
+		// 通用错误没有特定工具的结构化详情，用空对象占位。
 		details: {},
 	};
 }
 
+/**
+ * 把单工具最终结果发布为 tool_execution_end，等待订阅者处理；并不在这里创建模型 toolResult 消息。
+ * 输入最终调用结果和事件出口，返回完成 Promise。例：UI 收到耗时后结束工具运行指示。
+ */
 async function emitToolExecutionEnd(finalized: FinalizedToolCallOutcome, emit: AgentEventSink): Promise<void> {
 	// 异步发布事件；先让 Agent 状态和订阅者处理完，再推进当前流程。
 	await emit({
+		// 工具执行生命周期结束；模型实际读取内容还要等后面的 toolResult 消息。
 		type: "tool_execution_end",
 		// 沿用模型发起调用的 id，例如 read-decision。
 		toolCallId: finalized.toolCall.id,
 		// 记录 read 等工具名，便于模型、会话回放和 UI 识别来源。
 		toolName: finalized.toolCall.name,
+		// 把最终内容和详情提供给事件订阅者。
 		result: finalized.result,
 		// 给事件订阅者报告成功或失败；模型读取结果要等后面的 toolResult 消息。
 		isError: finalized.isError,
@@ -1327,8 +1615,13 @@ async function emitToolExecutionEnd(finalized: FinalizedToolCallOutcome, emit: A
 	});
 }
 
-// 中文主线 12：把工具对象包装成模型历史消息；toolCall 与 toolResult 必须通过 id 配对。
+// 把工具对象包装成模型历史消息；toolCall 与 toolResult 必须通过 id 配对。
+/**
+ * 把工具结果包装成模型历史消息，写入 role、配对调用 id、工具名、内容/详情/用量/错误与可选耗时。
+ * 不发事件、不直接写历史。例：模型发 id=read-1，返回消息仍用 read-1，模型才能把内容对应到那次调用。
+ */
 function createToolResultMessage(finalized: FinalizedToolCallOutcome): ToolResultMessage {
+	// 创建独立的 toolResult 历史消息；函数只负责包装，发布和追加由调用者负责。
 	return {
 		// 消息角色明确为工具结果；不是用户说的话，也不是模型回答。
 		role: "toolResult",
@@ -1353,7 +1646,11 @@ function createToolResultMessage(finalized: FinalizedToolCallOutcome): ToolResul
 	};
 }
 
-// 中文主线 13：工具结果也走统一消息事件；不要误以为只有 assistant 文字才写入会话。
+// 工具结果也走统一消息事件；不要误以为只有 assistant 文字才写入会话。
+/**
+ * 顺序发布工具结果消息的 start/end，并等接收器处理完；外层会话可在 message_end 保存完整结果。
+ * 例如 read 返回正文后，下一次模型请求要等这条结果的事件处理完成，避免请求上下文漏掉它。
+ */
 async function emitToolResultMessage(toolResultMessage: ToolResultMessage, emit: AgentEventSink): Promise<void> {
 	// 通知工具结果这条消息开始，和工具执行开始事件不是同一个事件。
 	await emit({ type: "message_start", message: toolResultMessage });

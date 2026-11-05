@@ -75,6 +75,8 @@ npm install --ignore-scripts 安装依赖，npm run build 生成构建产物，p
 
 下一步读 [两句 query 的完整调用链](QUERY_CALL_CHAIN.md)：从 `session.prompt()` 跟到模型、真实文件读取、工具结果回传和追问，配套源码有中文注释与离线测试。遇到 TypeScript 语法再查 [TypeScript 注释课](TYPESCRIPT.md)。架构扫描的验证结果与覆盖边界见 [VERIFICATION.md](VERIFICATION.md)。
 
+整个学习分支的注释范围、逐文件状态、合并上游后的复核方式见 [覆盖与维护](STUDY_PROGRESS.md)，每批实际进度见 [维护日志](STUDY_LOG.md)。
+
 ## 后续设计讨论
 
 [按 Topic 管理上下文与记忆的设计草案](TOPIC_MEMORY_PROPOSAL.md) 汇总主题归档、决策更新、短期与长期记忆、工具结果保留，以及固定快照和前缀缓存的取舍。它是候选方案讨论，尚未实现，不属于上述 Pi 当前架构的事实描述。

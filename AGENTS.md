@@ -12,6 +12,23 @@
 - When the user asks a question, answer it first before making edits or running implementation commands.
 - When responding to user feedback or an analysis, explicitly say whether you agree or disagree before saying what you changed.
 
+## Chinese Learning Branch Exception
+
+The branch `learning/full-chain-study-bay` is a Chinese learning edition of this repository. The user explicitly authorized this exception and parallel agent work for its annotation task.
+
+- On this branch, educational comments may explain what individual lines do, TypeScript syntax, common usage, and concrete examples. This overrides the Chord v2 comment-style restriction that inline comments must only explain non-obvious reasons. The production-oriented comment-style restrictions continue to apply outside this learning branch.
+- Before a function, explain its purpose, inputs, result, side effects, main flow, and a small example in plain Chinese. Distinguish examples from actual runtime behavior. Explain type declarations and unfamiliar syntax where they occur.
+- Write explanations directly. Do not prefix source comments with labels such as `【中文学习】`, `【学习】`, `中文导读`, or `中文主线`; the branch purpose is already documented here.
+- Inside a function, explain each meaningful source line in context, including conditions, callbacks, asynchronous steps, mutations, and errors. Explain a multiline statement's continuation lines where needed. Explain paired delimiters through the surrounding construct rather than adding repeated, content-free comments to every closing brace.
+- Keep original English documentation and source expressions intact. Add learning comments without changing behavior, public APIs, prompts, string literals, schemas, or configuration defaults. Do not insert comments into template-literal contents or between a compiler/linter directive and its target.
+- Read the entire file and verify its callees and types before explaining it. Do not generate generic line-by-line filler or infer guarantees from function names alone. Explain both what TypeScript checks during development and what runtime validation actually checks.
+- Cover handwritten source, tests, examples, build scripts, and other project languages in the learning inventory. Do not edit generated or vendored output by hand; explain its generator and inputs instead, and record that boundary explicitly.
+- Maintain `docs/learning/pi/STUDY_PROGRESS.md`, its per-file coverage inventory, and `docs/learning/pi/STUDY_LOG.md`. A file with only some annotated methods remains partial; the presence or number of Chinese comments does not prove completion.
+- After merging `main`, review upstream changes against the learning inventory, update affected explanations and examples, rerun relevant checks, and record the actual reviewed upstream commit in the learning log. Do not report an automated stale-content check as a semantic review.
+- Parallel agents own disjoint file sets and must not stage, commit, or rewrite each other's files. Run repository-wide formatting/checks after their edits have finished.
+- The user requested committing and pushing this learning branch after each completed major stage. Treat that as standing authorization for stage commits and non-force pushes. Include only finished, reviewed work and its coverage/log updates; unfinished temporary drafts stay outside the commit. Freeze source writers, run the required checks, inspect the exact staged paths, and retain normal Git hooks.
+- All other correctness, security, dependency, generated-file, Git, and verification rules in this document remain in force. Comment-only edits do not require refactoring code to match newer style preferences.
+
 ## Code Quality
 
 - Read files in full before wide-ranging changes, before editing files you have not fully inspected, and when asked to investigate or audit. Do not rely on search snippets for broad changes.
