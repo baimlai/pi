@@ -1,3 +1,18 @@
+// 文件导读
+// 所属：packages/durable/test/examples 的 26-plan-mode.ts，Durable 示例系列第 26 个，演示“计划模式与工具筛选”。
+// 演示内容：普通模式使用内置 CodingTools；会话 configure 进入计划模式后只提供 read 与 submit_plan 两个工具，
+// 模型先读 server.ts，再把计划步骤写入扩展自己的 PlanDoc；退出计划模式后恢复完整工具集。最后打印模型上下文中的
+// 系统消息，观察扩展与工具的增删如何作为提示词变化记录。
+// 上游入口：node 直接运行本文件；脚本化 faux 模型，无 API key；真实磁盘上创建并删除临时目录。
+// 下游依赖：Durable 的 Harness/defineDoc/defineExtension/defineTool/section/createReadTool/CodingTools/NodeExecutionEnv，pi-schema 参数。
+// 能力清单：PlanDoc 文档（rewindable/asOf）；submitPlan 工具；Plan 扩展；enterPlanMode/leavePlanMode 配置对象；
+// read 工具工厂；faux 三步脚本；tools 查询；系统消息 diff 打印。
+// 典型顺序：定义文档与工具 -> 打包扩展 -> 写临时夹具 -> 配置 faux -> 安装扩展并打开 Harness -> 查看默认工具 ->
+// 进入计划模式 -> 读文件并提交计划 -> 退出并查看工具 -> 打印系统消息变化 -> 清理。
+// 前置条件：无需网络；工具会真实读取临时目录中的 server.ts；示例只读取，不修改该文件。
+// 预期输出：默认工具列表、计划模式下的 [read, submit_plan]、计划步骤数组、退出后的完整工具列表，以及两条 system 记录。
+// 阅读顺序：先看 PlanDoc 的存储语义，再看 submitPlan 如何在事务里写文档，然后看进入/退出模式的配置对象，
+// 最后看 faux 脚本与系统消息输出。
 // 通过文档保存计划，并以会话配置限制工具：只读模式是本例的工具选择策略，不是操作系统权限隔离。
 // Plan mode: the user switches a conversation into a read-only planning mode, the agent writes a plan into the
 // extension's own document, and switching back restores the full tool set.
@@ -10,6 +25,7 @@ import { join } from "node:path";
 import { BACKGROUND_CONTEXT } from "@earendil-works/chord/context";
 import { createModels } from "@earendil-works/pi-ai/models";
 import { fauxAssistantMessage, fauxProvider, fauxToolCall } from "@earendil-works/pi-ai/providers/faux";
+// pi-schema 的组合子：obj/arr/str 生成 JSON Schema，同时推导 execute 参数类型；Harness 在运行时据此校验。
 import { arr, obj, str } from "@earendil-works/pi-schema";
 import { NodeExecutionEnv } from "../../src/env/node.ts";
 import {
@@ -21,6 +37,7 @@ import {
 	MemoryStorage,
 	section,
 } from "../../src/index.ts";
+// CodingTools 是普通模式的完整工具扩展；createReadTool 按需创建单个只读文件工具实例。
 import { CodingTools, createReadTool } from "../../src/tools/index.ts";
 
 // 所有顶层 await 顺序执行；此例没有异常清理 finally，IO/运行失败会直接拒绝模块执行。

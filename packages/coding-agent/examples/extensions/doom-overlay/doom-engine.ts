@@ -2,6 +2,45 @@
  * DOOM Engine - WebAssembly wrapper for doomgeneric
  */
 
+/**
+ * 文件导读（doom-overlay 的 WASM 引擎包装）
+ *
+ * 所属与用途：本文件属于 `doom-overlay` 示例，封装 Emscripten 编译出的 doomgeneric WASM 模块：
+ * 读取 WAD、在虚拟文件系统中注入 WAD、初始化 C 引擎、逐帧推进、拷贝 RGBA 帧、推入按键。
+ * 它不负责终端渲染或覆盖层布局。
+ *
+ * 上游如何进入：`index.ts` 构造 `DoomEngine(wadPath)` 并 `await init()`；`doom-component.ts`
+ * 之后定时调用 `tick()`、读取 `getFrameRGBA()`、通过 `pushKey()` 发送按键。
+ * 下游产物：`doom/build/doom.js`（Emscripten 生成的 JS 胶水，不要手改）和同目录 `doom.wasm`，
+ * 由 `doom/build.sh` 从 `doomgeneric` 上游 C 源码与 `doomgeneric_pi.c` 构建。
+ *
+ * 能力清单：
+ * - `DoomModule`：生成模块的预期导出接口（仅编译期描述）。
+ * - `DoomEngine.init`：读 WAD + 动态执行生成的 JS + 创建模块 + 初始化 C 引擎。
+ * - `initDoom`：构造 argc/argv 并调用 `_doomgeneric_Create`。
+ * - `tick`：推进一帧；`getFrameRGBA`：把 ARGB 帧转成 RGBA；`pushKey`：入键盘队列。
+ * - `width`/`height`/`isInitialized`：只读状态。
+ *
+ * 典型运行顺序：
+ *   1. 先运行 `doom/build.sh`（需要 emcc），确认 `doom/build/doom.js` 与 `doom.wasm` 存在；
+ *   2. `new DoomEngine("/path/doom1.wad")`；
+ *   3. `await engine.init()`；
+ *   4. 循环 `engine.tick()` + `engine.getFrameRGBA()`，按键调用 `engine.pushKey(true/false, key)`。
+ *
+ * 示例（真实签名）：
+ *   const engine = new DoomEngine("./doom1.wad");
+ *   await engine.init();
+ *   engine.tick();
+ *   const rgba = engine.getFrameRGBA(); // 长度 = width * height * 4
+ * 初始化前 `tick`/`pushKey` 静默无操作，`getFrameRGBA` 返回全零数组。
+ *
+ * 建议阅读顺序：先看 `DoomModule` 了解可调用的 C 导出，再读 `init` 的加载流程，
+ * 然后看 `initDoom` 的内存布局，最后看帧转换与按键。
+ *
+ * 失败行为：缺少 `doom.js`、WAD 不可读、生成 JS 抛错、工厂未返回模块，都会让 `init()` 的
+ * Promise 拒绝；`init` 没有重复调用保护，重复调用会重新加载并覆盖模块。
+ */
+
 import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
@@ -40,7 +79,14 @@ export interface DoomModule {
 	getValue: (ptr: number, type: string) => number;
 }
 
-// 管理一份 WASM 引擎及其帧缓冲；init 有磁盘读取、动态执行生成 JS 和 WASM 初始化副作用。
+/**
+ * 一份 DOOM WASM 引擎实例。
+ *
+ * 生命周期：构造只保存 WAD 路径；`init()` 完成磁盘读取、动态执行生成 JS、WASM 实例化和 C 初始化；
+ * 之后才能 `tick`/`pushKey`。类没有清理方法，WASM 内存随实例或进程回收。
+ * 状态字段不是并发安全的：不要在 `init()` 进行中调用其他方法。
+ * 示例：`const e = new DoomEngine("./doom1.wad"); await e.init(); e.tick();`
+ */
 export class DoomEngine {
 	// private 由 TS 限制类外访问；| null 表示尚未加载，运行时仍是普通字段。
 	private module: DoomModule | null = null;
@@ -55,27 +101,59 @@ export class DoomEngine {
 	// 默认高也不是运行时分辨率校验。
 	private _height = 400;
 
-	// 构造只保存 WAD 路径，无读取或启动；例：new DoomEngine("./doom1.wad") 后仍须 await init()。
+	/**
+	 * 保存 WAD 路径，不加载任何文件。
+	 *
+	 * 输入：宿主 WAD 路径；存在性/格式不在这里验证。
+	 * 输出：实例。副作用：只写 `this.wadPath`。
+	 * 错误路径：无（空字符串也会接受）。
+	 * 示例：`const e = new DoomEngine("./doom1.wad");` 之后必须 `await e.init()`。
+	 */
 	constructor(wadPath: string) {
 		// 把参数保存到实例供异步 init 使用。
 		this.wadPath = wadPath;
 	}
 
-	// 只读访问器返回当前宽，无副作用；例：engine.width 初始化前为640。
+	/**
+	 * 当前帧宽（像素）。
+	 *
+	 * 输入/输出：无参数，返回 `_width`。副作用：无。
+	 * 初始化前是默认 640，init 成功后是 WASM 导出的实际宽。
+	 * 示例：`engine.width` 可作为 `getFrameRGBA` 返回数组的宽度依据。
+	 */
 	get width(): number {
 		// 读取实例字段；get 让调用方用属性语法访问。
 		return this._width;
 	}
 
-	// 只读访问器返回当前高，无副作用；例：engine.height 初始化前为400。
+	/**
+	 * 当前帧高（像素）。
+	 *
+	 * 输入/输出：无参数，返回 `_height`。副作用：无。
+	 * 初始化前是默认 400，init 成功后是 WASM 导出的实际高。
+	 * 示例：`engine.height` 与 `width` 相乘再乘 4 得到 RGBA 数组长度。
+	 */
 	get height(): number {
 		// 返回缓存的像素高。
 		return this._height;
 	}
 
-	// 无参数，异步加载生成 JS/WASM 并把 WAD 放进虚拟文件系统；成功返回 Promise<void>。
-	// 依次读取文件、执行模块工厂、初始化 C 参数、缓存帧信息；文件/执行/工厂错误向调用者传播。
-	// 例：await engine.init() 成功后 tick() 才实际推进；此方法没有重复初始化门禁。
+	/**
+	 * 加载并初始化 WASM 引擎。
+	 *
+	 * 输入：无（使用构造时保存的 `wadPath`）。
+	 * 输出：`Promise<void>`，成功即表示 `tick`/`pushKey` 可用。
+	 * 副作用：同步读取 WAD 与生成的 `doom.js`；动态执行该 JS；创建 WASM 实例；在 Emscripten
+	 * 虚拟文件系统中创建 `/doom/doom1.wad`；调用 C 初始化。不写宿主文件。
+	 * 错误路径：JS 文件缺失时抛带构建提示的错误；WAD 读取、生成 JS 执行、模块工厂拒绝、
+	 * 工厂返回空值时错误向调用方传播（后两者会让 Promise 拒绝）。
+	 * 主要流程：定位 build 目录 -> 检查 doom.js -> 读 WAD -> 读 JS -> 执行 CommonJS 包装 ->
+	 * 准备 locateFile/preRun -> await 工厂 -> initDoom -> 缓存帧地址与尺寸 -> 标记 initialized。
+	 * 注意：没有“已初始化”门禁；重复调用会重新创建模块并覆盖 `this.module`。
+	 *
+	 * 示例：`await engine.init()` 成功后 `engine.isInitialized()` 返回 true；
+	 * 若缺少 `doom/build/doom.js`，会得到 `WASM not found at ... Run ./doom/build.sh first`。
+	 */
 	async init(): Promise<void> {
 		// Locate WASM build
 		// 把当前模块 URL 转成本机目录，用于相对定位示例构建输出。
@@ -163,9 +241,20 @@ export class DoomEngine {
 		this.initialized = true;
 	}
 
-	// 将固定命令参数编码成 C 的 argc/argv，调用创建函数，再释放临时内存；无返回。
-	// 例：虚拟命令相当于 doom -iwad /doom/doom1.wad；只编码这里的 ASCII 参数，不是通用 UTF-8 编码器。
-	// C 调用抛错时无 finally，因此本函数不保证异常路径释放已申请内存。
+	/**
+	 * 把固定命令行参数编码进 WASM 内存并调用 C 初始化。
+	 *
+	 * 输入：无；使用 `this.module`。
+	 * 输出：无返回值。副作用：用 `_malloc` 分配临时内存、`setValue` 写入、`_doomgeneric_Create`
+	 * 初始化引擎，最后 `_free` 释放临时内存。不会写宿主文件。
+	 * 错误路径：模块为空时静默返回；`_malloc`/`setValue`/C 调用抛错时异常直接传播，且没有
+	 * `finally`，已分配内存可能泄漏。
+	 * 主要流程：为每个 ASCII 参数字符串分配 `length+1` 字节并写 NUL 结尾 -> 分配 argv 指针数组
+	 * （WASM32 每个指针 4 字节）-> 调用 Create -> 释放所有字符串与 argv。
+	 *
+	 * 示例：参数为 `["doom","-iwad","/doom/doom1.wad"]`，虚拟引擎看到的 argc=3，
+	 * argv[0] 指向 "doom"。这不是通用 UTF-8 编码器，只适用于当前的 ASCII 路径。
+	 */
 	private initDoom(): void {
 		// 还没有模块时不做任何事。
 		if (!this.module) return;
@@ -179,13 +268,11 @@ export class DoomEngine {
 		for (const arg of args) {
 			// 额外一个字节给 C 字符串结尾的零。
 			const ptr = this.module._malloc(arg.length + 1);
-			// 按 JS 字符索引遍历这个 ASCII 字符串。
-			// 把各字符串地址写进数组对应槽。
+			// 按 JS 字符索引遍历这个 ASCII 字符串；每个字符写一个 i8 字节，地址按字节递增。
 			for (let i = 0; i < arg.length; i++) {
-				// 每个字符写一个 i8 字节，地址按字节递增。
-				// 写零字节，标识字符串结束。
 				this.module.setValue(ptr + i, arg.charCodeAt(i), "i8");
 			}
+			// 写零字节，标识字符串结束（C 字符串的 NUL 终止符）。
 			this.module.setValue(ptr + arg.length, 0, "i8");
 			// 记录地址供 argv 指针数组使用。
 			argPtrs.push(ptr);
@@ -203,17 +290,26 @@ export class DoomEngine {
 
 		// 初始化返回后逐个释放临时 C 字符串。
 		for (const ptr of argPtrs) {
-			// 释放当前字符串内存。
-			// 最后释放指针数组本身。
+			// 释放当前函数分配的字符串内存；这里假定 C 侧不会在返回后继续保留这些指针。
+			// 若上游实现保存了 argv 指针，后续使用会变成悬空引用，JS 层无法验证这一约定。
 			this.module._free(ptr);
 		}
+		// 最后释放指针数组本身。
 		this.module._free(argvPtr);
 	}
 
 	/**
 	 * Run one game tick
 	 */
-	// 无参数、无返回；已初始化时推进一次逻辑，异常向上传播；例：组件定时约每1/35秒调用。
+	/**
+	 * 推进一帧游戏逻辑。
+	 *
+	 * 输入/输出：无参数、无返回值。
+	 * 副作用：调用 C 的 `_doomgeneric_Tick`，可能改写 WASM 内部帧缓冲和游戏状态。
+	 * 错误路径：未初始化时静默返回；C 内部抛出的 WASM 异常会向上传播（组件据此退出）。
+	 * 示例：组件每约 28.6ms 调用一次；手动调用 `engine.tick()` 也只会推进一帧，
+	 * 不会自动重绘终端。
+	 */
 	tick(): void {
 		// 缺模块或未完成初始化便静默忽略。
 		if (!this.module || !this.initialized) return;
@@ -225,8 +321,17 @@ export class DoomEngine {
 	 * Get current frame as RGBA pixel data
 	 * DOOM outputs ARGB, we convert to RGBA
 	 */
-	// 无参数，返回新分配 RGBA 字节数组，不返回 WASM 原内存视图；无初始化时返回全零数组。
-	// 逐像素读取32位 ARGB 并拆色，alpha 固定255；例：0x00ff0000 转为 [255,0,0,255]。
+	/**
+	 * 把当前帧复制成 RGBA 字节数组。
+	 *
+	 * 输入：无。输出：新分配的 `Uint8Array`，长度 `width*height*4`，顺序为 R/G/B/A。
+	 * 副作用：逐像素读取 WASM 线性内存；不修改帧缓冲。未初始化时返回全零数组（alpha 也是 0）。
+	 * 错误路径：不抛错；帧缓冲地址无效时会读到意外值，但不会由 JS 层校验。
+	 * 主要流程：遍历每个像素 -> 读有符号 32 位 ARGB -> 掩码提取 RGB -> alpha 固定 255。
+	 *
+	 * 示例：一个 ARGB 值 `0x00ff0000` 会写成 `[255, 0, 0, 255]`。
+	 * 真实 DOOM 帧是 640x400（默认构建），数组约 1MB；每帧调用都会重新分配。
+	 */
 	getFrameRGBA(): Uint8Array {
 		// 尚无可读引擎时使用默认/缓存尺寸分配空帧。
 		if (!this.module || !this.initialized) {
@@ -262,8 +367,15 @@ export class DoomEngine {
 	/**
 	 * Push a key event
 	 */
-	// 输入按下/松开布尔值和键码，入 C 队列，无返回；未初始化则忽略。
-	// 例：pushKey(true, 13) 排入回车按下；C 队列满时静默丢弃，调用方收不到成功标记。
+	/**
+	 * 向 DOOM 的 C 按键队列推入一个事件。
+	 *
+	 * 输入：`pressed` 为 true 表示按下、false 表示松开；`key` 是 DOOM 键码（见 doom-keys.ts）。
+	 * 输出：无。副作用：写入 WASM 里的固定大小环形队列；未初始化时静默忽略。
+	 * 错误路径：不抛错；队列满时 C 代码丢弃事件，调用方无法得知。
+	 * 示例：`pushKey(true, 13)` 排入回车按下，`pushKey(false, 13)` 排入回车松开；
+	 * 键码超出 unsigned char 范围时由 C 截断，不在这里校验。
+	 */
 	pushKey(pressed: boolean, key: number): void {
 		// 模块和初始化标记都就绪才发送输入。
 		if (!this.module || !this.initialized) return;
@@ -271,7 +383,13 @@ export class DoomEngine {
 		this.module._DG_PushKeyEvent(pressed ? 1 : 0, key);
 	}
 
-	// 无参数，返回初始化标记，无副作用；例：新建后为false，init成功后为true。
+	/**
+	 * 查询引擎是否已完成初始化。
+	 *
+	 * 输入/输出：无参数，返回缓存的布尔标记。
+	 * 副作用/错误：无；只读标记，不重新检查 WASM 模块是否仍有效。
+	 * 示例：新建后返回 false，`await init()` 成功后返回 true；WASM 内部崩溃不会自动把它改回 false。
+	 */
 	isInitialized(): boolean {
 		// 只读取标记，不再次检查 WASM 状态。
 		return this.initialized;

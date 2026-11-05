@@ -1,3 +1,29 @@
+// 文件导读
+// 所属：packages/durable 的 test/examples 系列第 13 个示例，演示一轮最小聊天：提交输入、等待回答、读取回答条目与转录。
+// 演示内容：用 faux provider 排队固定回答 "Paris."；安装一个 tag:false 的 preamble 段；打开 Harness 并创建根会话；
+//   提交 "Capital of France?"；等待 Submission 结算；按 answer 条目 ID 读取 AssistantEntry；最后读取最近十条条目的 kind。
+// 上游入口：从 packages/durable 目录直接运行；下游调用 fauxProvider、createModels.setProvider、defineExtension/section、
+//   Harness.open/root、Conversation.submit、Submission.wait、Conversation.commit/tx.entry、Conversation.entries。
+//   没有网络请求与费用；MemoryStorage 在进程结束后清空。
+// 能力清单（按演示机制）：
+// - fauxProvider/fauxAssistantMessage：脚本化模型；setResponses 按生成轮次消费，不根据输入推理。
+// - section(key, render, {tag:false})：每次请求准备时渲染系统提示段；tag:false 表示不包 <key>。
+// - Harness.open(storage, {models, registry}, context)：registry 需含内置任务。
+// - Harness.root(context, {agent})：首次创建根会话并写入模型选择。
+// - Conversation.submit(draft, context)：持久化受理输入并返回 Submission；此 await 不代表回答完成。
+// - Submission.wait(context)：等待该输入成为 done 或 unanswered，返回带 answer 条目 ID 的结算记录。
+// - Conversation.commit(tx => tx.entry(AssistantEntry, id), context)：按类型和 ID 读取条目。
+// - Conversation.entries(query, limit, cursor, context)：分页读取转录，默认最新在前。
+// 典型运行顺序：注册 faux 与响应 → 注册扩展 → open → root → submit → wait → 读取回答 → entries → close。
+// 示例（真实运行命令）：
+//   cd packages/durable
+//   node --conditions=source --experimental-strip-types test/examples/13-chat.ts
+// 实际输出：
+//   answer: [ { type: 'text', text: 'Paris.' } ]
+//   transcript: [ 'pi.user', 'pi.system', 'pi.assistant' ]
+// 阅读顺序：先看 faux 队列与模型选择如何对应，再看 submit 与 wait 的两阶段语义，随后看 answered 的判别收窄，
+//   最后看 entries 的逆序与 kind 列表。
+// 前置条件：只需仓库依赖，无环境变量；失败时顶层 await 直接拒绝，脚本不会执行 close。
 // 最小聊天脚本：注册预设模型和提示词，提交一个问题，再读取其回答与记录。
 // 顶层 await 按顺序等待异步操作；没有 catch，存储/提交等异常会使脚本失败。这里只演示 faux，不访问真实模型。
 // A chat turn.

@@ -1,10 +1,26 @@
 <!doctype html>
+<!--
+  文件导读
+  所属：仓库根 scripts/issues/ui.html，issue 分诊服务的单页前端（无构建步骤、无外部依赖）。
+  职责：展示收件箱/已决策/全部 issue、分诊结果与对话，提交优先级和分类决策，触发同步与重新分诊。
+  能力：列表/对话渲染；优先级与分类提交；状态轮询；本地排序/显示偏好；token 换取 cookie。
+  上游：main.ts 的 GET / 直接返回本文件；本页再请求 /api/state、/api/conversation、/api/sync、
+    /api/retriage、/api/decide（均要求 cookie 认证，首次用 ?t=<token> 链接换取）。
+  下游：main.ts 的路由与 triage.ts 的持久状态；数据只经 JSON API 往返，本页不直接读文件或调用模型。
+  输入：服务端 JSON + 用户鼠标/键盘操作；输出：DOM 渲染、localStorage 偏好、POST 决策。
+  副作用：localStorage 保存 sort/showRelated；每 8 秒轮询 /api/state；点击按钮会改变服务端持久状态。
+  失败：非 2xx 时首页显示状态码与响应文本；对话 404 显示 No conversation yet；页面不重试。
+  示例：浏览器打开 http://127.0.0.1:7788/?t=<data/token 的内容>，之后可直接访问 http://127.0.0.1:7788/。
+  建议阅读顺序：页面骨架与样式变量 → 全局状态/转义辅助 → load/fetchConv → card/render → 事件监听。
+  说明：脚本里的注释只添加在模板字符串之外；模板字符串本身是运行时输出，不能插入注释。
+-->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>pi issues</title>
 <style>
+/* 颜色/间距全部走 CSS 变量；color-scheme 与下面的 media query 一起提供深色主题。 */
 :root{--bg:#fbfaf8;--card:#fff;--text:#1d1b19;--muted:#77716a;--line:#e7e4df;--hover:#f3f0eb;--p0:#c8433d;--p1:#c98a1b;--none:#8a847c;--ok:#2f8f5b;--accent:#5b4bd6;font:15px/1.45 -apple-system,BlinkMacSystemFont,Inter,"Segoe UI",Roboto,sans-serif;color-scheme:light dark}
 @media (prefers-color-scheme:dark){:root{--bg:#151413;--card:#1c1b19;--text:#ecebe8;--muted:#9b958d;--line:#2c2a27;--hover:#24221f;--accent:#9d91ff}}
 *{box-sizing:border-box}
@@ -96,33 +112,50 @@ kbd{font:12.5px ui-monospace,Menlo,monospace;border:1px solid var(--line);border
 	</table>
 </dialog>
 <script>
+// 全局 UI 状态：data 是 /api/state 的最新响应；view 是当前标签页；cat 是分类过滤；
+// sel 是键盘选中的卡片下标（-1 表示无）；openDetails 记录展开的 details，重渲染后据此恢复。
 let data = null, view = "inbox", cat = "", sel = -1, openDetails = new Set();
+// 排序与“显示 related”偏好放在 localStorage，刷新/重启浏览器后仍保留。
 let sort = localStorage.getItem("sort") || "suggestion";
 let showRelated = localStorage.getItem("showRelated") !== "0";
 // Fetched transcripts by issue number; refreshed on every load while their section is open.
+// Map 的键是 issue 编号，值是对话条目数组；页面每 8 秒刷新时只重取仍展开的对话。
 const convs = new Map();
+// 简写辅助：$ 取元素；esc 对用户可控文本做 HTML 转义，防止 issue 正文里的标签被执行。
+// 替换回调用对象查表，String(s ?? "") 同时处理 null/undefined 与数字。
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+// GitHub issue 链接由仓库名与编号拼出；data.repo 来自服务端。
 const gh = (n) => `https://github.com/${data.repo}/issues/${n}`;
+// 相对时间：小时以下显示分钟，48 小时内显示小时，否则显示天；Date.parse 解析 ISO 时间。
 const ago = (iso) => { const h = (Date.now() - Date.parse(iso)) / 3.6e6; return h < 1 ? `${Math.round(h * 60)}m` : h < 48 ? `${Math.round(h)}h` : `${Math.round(h / 24)}d`; };
+// 分类优先取维护者覆盖，其次取模型结果；没有分诊结果时为空串。
 const category = (it) => it.decision?.category || it.triage?.result?.category || "";
+// 信号标签分两档配色：BAD 显示红色，WARN 显示黄色，其余默认灰色。
 const WARN = new Set(["theoretical", "AI-written", "third-party", "upstream", "maybe fixed", "no repro"]);
 const BAD = new Set(["regression", "spam", "empty", "duplicate cluster"]);
 
+// 拉取服务端状态并重绘。失败时只把错误写进主区域，不清空已有 data。
+// 返回前并发刷新所有展开的对话（openDetails 里以 conv: 开头的键），保持对话内容最新。
 async function load() {
 	const res = await fetch("/api/state");
+	// res.ok 表示 2xx；错误响应正文用于显示认证失败或服务端错误。
 	if (!res.ok) { $("main").innerHTML = `<p class="empty">${res.status}: ${esc(await res.text())}</p>`; return; }
 	data = await res.json();
+	// Set 先展开成数组才能 filter/map；slice(5) 去掉 "conv:" 前缀，Number 转回 issue 编号。
 	await Promise.all([...openDetails].filter((k) => k.startsWith("conv:")).map((k) => fetchConv(Number(k.slice(5)))));
 	render();
 }
 
+// 取某个 issue 的分诊对话；非 2xx（通常是 404 还没有会话）时存入 null，由 transcript 显示提示。
 async function fetchConv(n) {
 	const res = await fetch(`/api/conversation?number=${n}`);
 	convs.set(n, res.ok ? (await res.json()).items : null);
 }
 
+// 把工具调用压缩成一行摘要：三个内建工具各有固定格式，其他工具退回截断后的 JSON 参数。
 function toolLine(t) {
+	// args 是模型提交的任意 JSON；?? {} 避免读取未传参数时抛错。
 	const a = t.args ?? {};
 	if (t.name === "search_issues") return `search_issues "${a.query}"`;
 	if (t.name === "read_issue") return `read_issue #${a.number}`;
@@ -130,29 +163,38 @@ function toolLine(t) {
 	return `${t.name} ${JSON.stringify(a).slice(0, 120)}`;
 }
 
+// 渲染一个 issue 的对话：tool 与 user 用可折叠 details，assistant 文本/思考直接显示。
+// 每个 details 的 data-key 由类型+编号+下标组成，展开状态保存在 openDetails，重渲染后恢复。
 function transcript(n) {
+	// 还没抓取时显示 Loading；抓取失败/无会话（值为 null）时显示 No conversation yet。
 	if (!convs.has(n)) return `<p class="ai">Loading…</p>`;
 	const items = convs.get(n);
 	if (!items) return `<p class="ai">No conversation yet.</p>`;
 	return `<div class="conv">${items.map((it, i) => {
 		if (it.type === "tool") {
 			const key = `tool:${n}:${i}`;
+			// submit_triage 的参数本身就是最终结果，直接格式化；其他工具显示执行输出，未完成时显示 running。
 			const out = it.name === "submit_triage" ? JSON.stringify(it.args, null, 2) : it.output ?? "(running…)";
 			return `<details data-key="${key}" ${openDetails.has(key) ? "open" : ""}><summary><code>${esc(toolLine(it))}</code>${it.isError ? ` <span class="err">error</span>` : ""}</summary><pre>${esc(out)}</pre></details>`;
 		}
 		if (it.type === "user") {
 			const key = `prompt:${n}:${i}`;
+			// 摘要只取第一行前 100 字符；展开后显示完整提示词。
 			return `<details data-key="${key}" ${openDetails.has(key) ? "open" : ""}><summary><span class="who">user</span> ${esc(it.text.split("\n")[0].slice(0, 100))}</summary><pre>${esc(it.text)}</pre></details>`;
 		}
+		// 剩下的 text/thinking 都是普通段落；thinking 样式由 CSS .thinking 区分。
 		return `<div class="msg ${it.type}"><span class="who">${it.type === "thinking" ? "thinking" : "agent"}</span> ${esc(it.text)}</div>`;
 	}).join("")}</div>`;
 }
 
+// 发送 JSON POST，忽略响应体，然后重新拉取状态。写操作失败不会单独提示，只会体现在下一次 /api/state。
 async function post(path, body) {
 	await fetch(path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
 	await load();
 }
 
+// 按当前分类与标签页筛选 issue。decided 的依据是是否有维护者优先级（不是模型建议）。
+// 注意 `!!` 把 decision.priority 转成布尔：null 与 undefined 都算未决策。
 function visible() {
 	return data.items.filter((it) => {
 		if (cat && category(it) !== cat) return false;
@@ -161,6 +203,8 @@ function visible() {
 	});
 }
 
+// 把可见 issue 分组成 [组名, 列表] 数组；返回结构让 render 统一遍历，不必重复判断排序模式。
+// asc 按编号升序；desc/view=all 不分组；只有 inbox 且按建议排序时按 p0/p1/none/pending 分组。
 function groups(items) {
 	if (sort === "asc") return [["", [...items].sort((a, b) => a.number - b.number)]];
 	if (view !== "inbox" || sort === "desc") return [["", items]];
@@ -169,8 +213,11 @@ function groups(items) {
 	return [["Suggested p0", by.p0], ["Suggested p1", by.p1], ["Suggested none", by.none], ["Not triaged yet", by.pending]];
 }
 
+// 渲染一张 issue 卡片。r 是模型结果，d 是维护者决策，st 是作者历史统计；
+// 三者都可能为空，模板里用可选链与三元表达式处理。
 function card(it, idx) {
 	const r = it.triage?.result, d = it.decision, st = it.authorStats;
+	// 元信息数组：空字符串表示该维度缺失；filter(Boolean) 去掉空项后用 · 连接。
 	const meta = [
 		`<a href="${gh(it.number)}" target="_blank">#${it.number}</a>`,
 		r ? `<span>${esc(category(it))}${d?.category ? " ✎" : ""}${r.confidence === "low" ? ` <span class="chip warn">low conf${r.alternative ? `, alt ${esc(r.alternative)}` : ""}</span>` : ""}</span>` : "",
@@ -182,17 +229,23 @@ function card(it, idx) {
 	let body = "";
 	if (r) {
 		body += `<p class="sum">${esc(r.summary)}</p>`;
+		// 信号标签按 WARN/BAD 集合选样式；集合外的标签保持默认样式。
 		if (r.signals.length) body += `<div class="chips">${r.signals.map((s) => `<span class="chip ${BAD.has(s) ? "bad" : WARN.has(s) ? "warn" : ""}">${esc(s)}</span>`).join("")}</div>`;
+		// “Show related”关闭时只保留 duplicate；打开时 duplicate 与 related 都显示。
 		const dups = showRelated ? r.duplicates : r.duplicates.filter((x) => x.kind === "duplicate");
 		if (dups.length) body += `<ul class="dups">${dups.map((x) => `<li><span class="k ${x.kind}">${x.kind}</span> <a href="${gh(x.number)}" target="_blank">#${x.number}</a> ${esc(x.title)} <span class="meta" style="display:inline">(${esc(x.status)})</span><br><span class="meta" style="display:inline">${esc(x.reason)}</span></li>`).join("")}</ul>`;
 		body += `<div class="ai">AI: <b>${r.suggestion}</b> — ${esc(r.reason)}</div>`;
 	} else if (it.triage?.status === "failed") {
+		// 失败时显示错误文本；尚未开始时显示当前状态（queued/running）。
 		body += `<p class="err">Triage failed: ${esc(it.triage.error)}</p>`;
 	} else {
 		body += `<p class="ai">${it.triage ? esc(it.triage.status) : "waiting"}…</p>`;
 	}
+	// pri 是生成优先级按钮的小工厂：已选中的按钮加 on 类；data-n 记录 issue 编号供点击处理。
 	const pri = (p) => `<button class="btn ${p} ${d?.priority === p ? "on" : ""}" data-act="prio" data-p="${p}" data-n="${it.number}">${p}</button>`;
+	// 分类下拉选项；未分诊时额外插入一个空选项作为占位。
 	const cats = data.categories.map((c) => `<option ${c.name === category(it) ? "selected" : ""}>${c.name}</option>`).join("");
+	// 外层卡片用 data-idx 与键盘选中下标对应；两个 details 的展开状态由 openDetails 恢复。
 	return `<div class="card ${idx === sel ? "sel" : ""}" data-idx="${idx}">
 		<div class="meta">${meta}</div>
 		<a class="title" href="${gh(it.number)}" target="_blank">${esc(it.title)}</a>
@@ -208,11 +261,15 @@ function card(it, idx) {
 	</div>`;
 }
 
+// 重绘整个主区域：先按筛选/分组生成卡片，再更新状态栏与分类下拉。
+// 所有内容通过 innerHTML 一次性替换；用户输入在 card/transcript 里已转义。
 function render() {
 	const items = visible();
+	// 重建分类下拉会丢掉当前选择；先保存再恢复，否则每次轮询都会跳回“全部”。
 	const sel0 = $("cat").value;
 	$("cat").innerHTML = `<option value="">All categories</option>` + data.categories.map((c) => `<option value="${c.name}">${c.name}${c.owner ? ` (${c.owner})` : ""}</option>`).join("");
 	$("cat").value = sel0;
+	// 未决策数量用于状态栏；队列与同步状态来自服务端。
 	const undecided = data.items.filter((it) => !it.decision?.priority).length;
 	const q = data.queue;
 	$("status").innerHTML = [
@@ -223,6 +280,7 @@ function render() {
 		`${esc(data.model)} $${data.cost.toFixed(2)}`,
 	].filter(Boolean).join(" · ");
 	let html = "", idx = 0;
+	// 空分组不显示标题；“Suggested none”分组额外提供批量标记按钮。
 	for (const [name, list] of groups(items)) {
 		if (!list.length) continue;
 		if (name) html += `<div class="grp"><span>${name} (${list.length})</span>${name === "Suggested none" ? `<button class="btn small" data-act="allnone">Mark all none</button>` : ""}</div>`;
@@ -231,8 +289,11 @@ function render() {
 	$("main").innerHTML = html || `<p class="empty">Nothing here.</p>`;
 }
 
+// 键盘导航使用的扁平列表；每次按键都根据当前筛选与分组重新计算，保证顺序与页面一致。
 function flat() { return groups(visible()).flatMap(([, list]) => list); }
 
+// 事件委托：卡片是动态生成的，所以在 document 上监听，再用 closest 找带 data-act 的元素。
+// 优先级按钮再次点击同一值会发送 null，相当于取消决策。
 document.addEventListener("click", (e) => {
 	const t = e.target.closest("[data-act]");
 	if (t?.dataset.act === "prio") {
@@ -240,39 +301,49 @@ document.addEventListener("click", (e) => {
 		post("/api/decide", { number: Number(t.dataset.n), priority: it.decision?.priority === t.dataset.p ? null : t.dataset.p });
 	} else if (t?.dataset.act === "retriage") post("/api/retriage", { number: Number(t.dataset.n) });
 	else if (t?.dataset.act === "allnone") {
+		// 批量操作只作用于当前可见且模型建议为 none 的 issue；confirm 是浏览器原生确认框。
 		const numbers = visible().filter((it) => it.triage?.result?.suggestion === "none").map((it) => it.number);
 		if (confirm(`Mark ${numbers.length} issues as none?`)) post("/api/decide", { numbers, priority: "none" });
 	}
+	// 点击任意卡片区域都会选中它，供 j/k 之后的快捷键操作使用。
 	const c = e.target.closest(".card");
 	if (c) { sel = Number(c.dataset.idx); document.querySelectorAll(".card").forEach((x) => x.classList.toggle("sel", x === c)); }
 });
+// change 事件同时服务四类控件：卡片内分类下拉、顶部分类过滤、Show related、排序。
 document.addEventListener("change", (e) => {
 	if (e.target.dataset.act === "cat") post("/api/decide", { number: Number(e.target.dataset.n), category: e.target.value });
 	if (e.target.id === "cat") { cat = e.target.value; sel = -1; render(); }
 	if (e.target.id === "related") { showRelated = e.target.checked; localStorage.setItem("showRelated", showRelated ? "1" : "0"); render(); }
 	if (e.target.id === "sort") { sort = e.target.value; localStorage.setItem("sort", sort); sel = -1; render(); }
 });
+// details 的 toggle 不冒泡，因此用捕获阶段（第三个参数 true）在 document 上监听。
+// openDetails 是唯一事实来源：状态已一致时直接返回，避免自己改 open 属性触发循环。
 document.addEventListener("toggle", (e) => {
 	const key = e.target.dataset?.key;
 	if (e.target.tagName !== "DETAILS" || !key || e.target.open === openDetails.has(key)) return;
 	if (!e.target.open) { openDetails.delete(key); return; }
 	openDetails.add(key);
+	// 首次展开对话时抓取一次；之后 load() 会刷新仍展开的会话。
 	if (key.startsWith("conv:")) {
 		const n = Number(key.slice(5));
 		fetchConv(n).then(render);
 	}
 }, true);
+// 三个标签页只切换 view 并重绘；tab 的 on 高亮由 classList.toggle 控制。
 document.querySelectorAll(".tab").forEach((t) => t.onclick = () => {
 	view = t.dataset.view; sel = -1;
 	document.querySelectorAll(".tab").forEach((x) => x.classList.toggle("on", x === t));
 	render();
 });
+// 顶部按钮：Sync 触发后台同步；? 打开快捷键对话框。
 $("sync").onclick = () => post("/api/sync", {});
 $("help").onclick = () => $("keys").showModal();
 // A click on the backdrop lands on the dialog element itself.
+// 点击对话框外的遮罩时关闭；点击内容子元素不会命中 dialog 本身。
 $("keys").onclick = (e) => { if (e.target === $("keys")) $("keys").close(); };
 
 // Keyboard: j/k select, 0/1/n decide, o open on GitHub, c show the conversation, ? show the shortcuts.
+// 输入框/下拉/修饰键/对话框打开时让浏览器保留默认行为；只处理页面级快捷键。
 document.addEventListener("keydown", (e) => {
 	if (e.key === "?" && !$("keys").open) { $("keys").showModal(); return; }
 	if (!data || $("keys").open || e.target.tagName === "SELECT" || e.metaKey || e.ctrlKey) return;
@@ -281,6 +352,7 @@ document.addEventListener("keydown", (e) => {
 	else if (e.key === "k") sel = Math.max(sel - 1, 0);
 	else if (it && e.key === "o") { window.open(gh(it.number), "_blank"); return; }
 	else if (it && e.key === "c") {
+		// toggleAttribute("open") 会触发 details 的 toggle 事件，从而保持 openDetails 同步。
 		document.querySelector(`details[data-key="conv:${it.number}"]`)?.toggleAttribute("open");
 		return;
 	}
@@ -289,10 +361,13 @@ document.addEventListener("keydown", (e) => {
 		post("/api/decide", { number: it.number, priority: p });
 		return;
 	} else return;
+	// j/k 只改变选中下标，需要重绘高亮并确保选中卡片在视口内。
 	render();
 	document.querySelector(".card.sel")?.scrollIntoView({ block: "nearest" });
 });
 
+// 初始化：把 localStorage 偏好写回控件，首次加载数据，并每 8 秒轮询。
+// 页面隐藏或焦点在 select 时不轮询，避免打断用户操作。
 $("sort").value = sort;
 $("related").checked = showRelated;
 load();

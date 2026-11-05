@@ -2,6 +2,16 @@
 	"version": 1,
 	"baselineCommit": "be37fb285158aba7ce545dace5ce94e1640ae4ee",
 	"files": {
+		"packages/agent/examples/mcp-codemode/main.ts": {
+			"status": "complete",
+			"sha256": "0bd91b8077e0e160d0ba8f0cdf28d65ff4f6bc3f0373430dbe9c99b7fc1c1039",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/agent/examples/mcp-codemode/tools.ts": {
+			"status": "complete",
+			"sha256": "15bef903d2525187a7acadf4e42e546deaed5ce81716fb6eec0d028f1c90a948",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
 		"packages/agent/src/agent-loop.ts": {
 			"status": "complete",
 			"sha256": "8fb0a5195ca465a81ffb4bf4020dc44b6eb9e2b9f7ef21da8498727318f52441",
@@ -2322,6 +2332,1236 @@
 			"sha256": "4d54192f7c144d2f2274a7dedc5b2848a48869b22a3b5fa73924b0662fe1c86d",
 			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
 		},
+		"packages/chord/test/examples/01-objects.ts": {
+			"status": "complete",
+			"sha256": "98424e9e9e48b76b4eb876c80604e7fbc48194a2ef19ea6416f9f871e1ad6509",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/02-documents.ts": {
+			"status": "complete",
+			"sha256": "8335e724a61bad7c138dd3341a371ef1db3873f617502689da8b83e2e033ca1d",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/03-derives.ts": {
+			"status": "complete",
+			"sha256": "2a6e74cd3ccc92ecc80ce68f705f25b216a6831857d5dbafa4511dbd731b5ffa",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/04-watches.ts": {
+			"status": "complete",
+			"sha256": "bc283bbacf1511920a12b77707ec2c23b035b4fed91a08e0fdd8600974345a16",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/05-errors.ts": {
+			"status": "complete",
+			"sha256": "1e74b7fe49c20f71e3b937b314d97d5ddc1e1cb24b537592c1544af421335dba",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/06-natives.ts": {
+			"status": "complete",
+			"sha256": "9acbe49c8af3b967c93302ec5c780490a6955e1c2a01875c0e72406d9e52b9f9",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/07-failures.ts": {
+			"status": "complete",
+			"sha256": "d9c482bcdaaa6bd206a64da3ff22a6f4590109c3e3ce660d32244d9ee2462313",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/08-remote.ts": {
+			"status": "complete",
+			"sha256": "f3290fc874fed97d22712c7c2f8bd5cbd63a3147d124b293e84e5fa7ca47e085",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/09-calls.ts": {
+			"status": "complete",
+			"sha256": "9cb607133cb1b901aea2941d120d4e4350a9ae5f02a2a3f1093c78bf12e61c6c",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/10-drops.ts": {
+			"status": "complete",
+			"sha256": "5b9258b93378fcafd22fe84991ce7becfd6bffb19a8b0bb2f42dbc6fcdfee041",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/11-linger-and-retry.ts": {
+			"status": "complete",
+			"sha256": "5eac1dffe9a5eaee75af7b4204522b8e28d79a143c948cd4d8af76c20c8c7e9e",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/12-routes.ts": {
+			"status": "complete",
+			"sha256": "ad9c9d35958423a39cafdf2437eb70c72c83dc6fc2c92ce2deb87dcc1bbdddef",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/13-relay.ts": {
+			"status": "complete",
+			"sha256": "2c1186832a1298bac431acc8c7ab4acd688d47c8be63849631f7a78728dccff3",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/14-flow-control.ts": {
+			"status": "complete",
+			"sha256": "a395e4545bab41b21153ff39f12fc9958858aa4916f63fcad813641e87bddba3",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/15-revocation.ts": {
+			"status": "complete",
+			"sha256": "789f3f427743a1abcdca929d24df5ef4e374527eec5b5e2e23b90c9122455e8c",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/16-presence-and-activity.ts": {
+			"status": "complete",
+			"sha256": "6b79ac7e8e67663016f1af0ec9546bb160689d2f9ccbc64ff15d6e4b36df4252",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/17-limits-and-compression.ts": {
+			"status": "complete",
+			"sha256": "80f6c969f37520027b5f5b411ea118f22e97b476b0e71c7b00874ce2a122df77",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/18-routines.ts": {
+			"status": "complete",
+			"sha256": "cedaa5ff0dfa7be4a9195bccc3afa78cb430cfed6fc540258fb009b7dbe4949b",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/19-jobs.ts": {
+			"status": "complete",
+			"sha256": "a512f38f40023745763cfa46461083d92b74d3b47c8111e27f42772250544e18",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/20-tables.ts": {
+			"status": "complete",
+			"sha256": "f995cfc8832f976e14e7ae14267e79c18a82ca133ba3a06e694de3417be79dc3",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/21-persisted-documents.ts": {
+			"status": "complete",
+			"sha256": "e884c50c8e526700de07fb76799e1003acfa8a965197eb16d4344ed933d45b31",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/22-migrations.ts": {
+			"status": "complete",
+			"sha256": "41b111976cf3e9e10be87d038713e3d663a05c37f30a87f0beb5f92a867ab4c0",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/23-keyed-watches.ts": {
+			"status": "complete",
+			"sha256": "785226896d54e7ac15015b3297b0ac4d3b87644ddef68a1c298b286220ad757c",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/24-keyed-members.ts": {
+			"status": "complete",
+			"sha256": "519091ec9e08b63f9bb79e5ad9dcce7f8656784490e4887f43ebd9e6ee70585c",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/25-export-import.ts": {
+			"status": "complete",
+			"sha256": "c8ef84040536feb530ae858d22f3825b9a0ca690ef6d813ea53ce189658a7d13",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/28-persisted-jobs.ts": {
+			"status": "complete",
+			"sha256": "d271d41e4d586f2db383f86f1f30c93ceb8e2efe75435d2659dac6f4514dde85",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/29-registries.ts": {
+			"status": "complete",
+			"sha256": "4b721ded271dac72c98d752d88732b1bd060b85b788c0c3f72a04a1287b8ec57",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/30-host-root.ts": {
+			"status": "complete",
+			"sha256": "6917c26e5cc778edc67a0397bbbe25bfac4a8c438281ccb559bbc3d55f5d9f24",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/31-parked-dependencies.ts": {
+			"status": "complete",
+			"sha256": "48cfd24ca2fdd26327fe38029bfafac2c6c364ec9494652d21bba2600a40e7f8",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/32-startup.ts": {
+			"status": "complete",
+			"sha256": "29b958ef14debb00e7db8f5ef2b17b09c19fcf3d4ed862dc3191f3ec57582056",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/33-reload.ts": {
+			"status": "complete",
+			"sha256": "31f2e1077a6ff2ff0ed6f3b2f8511b04982c0d7b994ec73d08f4835093b8a768",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/34-versions.ts": {
+			"status": "complete",
+			"sha256": "8f4a998b31af385f86240df5dc3cf427fd32a307611f5bbae63c68d9ef3e1476",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/35-plugins/main.ts": {
+			"status": "complete",
+			"sha256": "3aee853f969c02f12ae70193c25ee77c46a474bf057482dad4f7542d14306c21",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/35-plugins/plugins/clock/package.json": {
+			"status": "reference",
+			"sha256": "9ba93b5a1f2153f169aae0400eae7de0242070f61ca9a43cc00cf979027fac69",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/35-plugins/plugins/clock/server.ts": {
+			"status": "complete",
+			"sha256": "247744b864b37398d543eb366c7061f042bf62e712628b66965093c1f3dfc50b",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/35-plugins/plugins/contracts/contract.ts": {
+			"status": "complete",
+			"sha256": "33a57bbc26b03a996c1c38824ca8d8019a6cab8a7a6c7f7cebdca44f581041a0",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/35-plugins/plugins/contracts/package.json": {
+			"status": "reference",
+			"sha256": "dd7566f1f1a6ba15f9e61387814b04937658dd8bbefb23655dc18e8de8c350b5",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/35-plugins/plugins/notes/label.ts": {
+			"status": "complete",
+			"sha256": "9cdb4de54a70dd6410d731b717c923e7d2015e85c5e0506ab76ab261ba127237",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/35-plugins/plugins/notes/package.json": {
+			"status": "reference",
+			"sha256": "aa16c870317eda1357718f54072cf85d7072d8403be3fd5d947ff4c64110458e",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/35-plugins/plugins/notes/server.ts": {
+			"status": "complete",
+			"sha256": "117891b7d335044b3261bc0245acae3d8eede4a706ac18947fce2834957a4a2a",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/35-plugins/plugins/notes/worker.ts": {
+			"status": "complete",
+			"sha256": "36e193e9e57991eaf2b122d7c4ba87b04b21c2a6d698df6c566d7cf8981a14f4",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/36-plugin-failures/main.ts": {
+			"status": "complete",
+			"sha256": "3d1c8e31ca16f012c629c34855cd1e8317f43092aaf705bdf5b6d2c1de1a6a5d",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/36-plugin-failures/plugins/boot/package.json": {
+			"status": "reference",
+			"sha256": "80450ce09540678dadafc8e6cbbc9f0bdd091e826692e711386ec9f75c188421",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/36-plugin-failures/plugins/boot/server.ts": {
+			"status": "complete",
+			"sha256": "9b10fbca3403c3e8c81ff95df33d87fc47c4d26880c20c92c5dab7f9dd2fa4e6",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/36-plugin-failures/plugins/cache/package.json": {
+			"status": "reference",
+			"sha256": "aa867466e3b804034e939685d27b08cd05b984b476a8ca80079bd1b33e177a9b",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/36-plugin-failures/plugins/cache/server.ts": {
+			"status": "complete",
+			"sha256": "f1a306c5b9b06554ca838a12a8a8ac1ff9865f1023f1e37ce3f381c21ce76dec",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/36-plugin-failures/plugins/counter/package.json": {
+			"status": "reference",
+			"sha256": "d1d44b2f40a542c046067974d1c053dfa7eaafd7f8c63577643eb7b51e7bb747",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/36-plugin-failures/plugins/counter/server.ts": {
+			"status": "complete",
+			"sha256": "820bbb54167a3f0ea994e6fd053a3d5a9d87d7f1148bb0b402381983a194c97f",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/36-plugin-failures/plugins/forecast/package.json": {
+			"status": "reference",
+			"sha256": "24c4da165f7527d6c68e214cb397ec0ce6a0f455c692d56c0ddd8e52c4712c9c",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/36-plugin-failures/plugins/forecast/server.ts": {
+			"status": "complete",
+			"sha256": "30f1f8604a7ada33fa8c9c39adbe4258521827d933c2923fe6ba7b8023b9b7f1",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/36-plugin-failures/plugins/greeter/label.ts": {
+			"status": "complete",
+			"sha256": "c4698d710844edcf311621297fff8314e646922b17ce421cc746fa58ccbd87e7",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/36-plugin-failures/plugins/greeter/package.json": {
+			"status": "reference",
+			"sha256": "2f8d2ac87870fae45a96e16abb6bb90e050941f438ee028f15164cb96c962b85",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/36-plugin-failures/plugins/greeter/server.ts": {
+			"status": "complete",
+			"sha256": "baca564569f69990a6a6e313fe7dfd89713e3ea5c1c406e157a045b07c8653c2",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/36-plugin-failures/plugins/prices/contract.ts": {
+			"status": "complete",
+			"sha256": "8ad622ab709f21ce0e740320ce6b10f0888c92e661f18fd242f66315878143f5",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/36-plugin-failures/plugins/prices/package.json": {
+			"status": "reference",
+			"sha256": "6524ffab1f03d7be08b306490e20678e59292029a48c78c775797637d26c7a76",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/36-plugin-failures/plugins/prices/server.ts": {
+			"status": "complete",
+			"sha256": "753932c52ec0d5d0600790e55ba7b52e671bf891866b551b8b862f424ff41e38",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/36-plugin-failures/plugins/summary/package.json": {
+			"status": "reference",
+			"sha256": "ab7be8586ef766dae8ae000c4c68f5db3c438a6beda4999a195abd291836ddca",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/36-plugin-failures/plugins/summary/server.ts": {
+			"status": "complete",
+			"sha256": "e910c926cfabac2fe19aa391cc8934bab112d84cd21a711fec79141d749c383a",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/36-plugin-failures/plugins/weather/contract.ts": {
+			"status": "complete",
+			"sha256": "4423bb30eaaa65989dd9c2f013992c6a3a5796072d7b1b8cb515b258f59bddf8",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/36-plugin-failures/plugins/weather/package.json": {
+			"status": "reference",
+			"sha256": "f08b100ecae640703c2aa362023f2f479ecfd57399d24e98e0ec9e19bdadc974",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/36-plugin-failures/plugins/weather/server.ts": {
+			"status": "complete",
+			"sha256": "f909a0b0417bdcb4a18494ed8fc65abb9431573e33a06da8491afe19858b1cfa",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/app/index.ts": {
+			"status": "complete",
+			"sha256": "0cf9d644d004d760f99de195a17636ddcde44b388f81b2c26feba23173651ed4",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/app/legacy.cjs": {
+			"status": "complete",
+			"sha256": "075f647b8b6ad3607fd2e82006dc4df7038b7311a629a738eef6440c96187e5d",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/deps/example-greeting/index.js": {
+			"status": "complete",
+			"sha256": "3db638e901f4fba14544a2e96039e5076573f02a85cd1e8809b4bd8618a5215c",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/deps/example-greeting/package.json": {
+			"status": "reference",
+			"sha256": "877f7298a2e51861eed9eccb341996c311601b4f3fe44b8412b3cb88527552c8",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/deps/example-native/index.js": {
+			"status": "complete",
+			"sha256": "bbec0204345c21814bdba556941d853f5581de3620f180e91eec81b98b275a75",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/deps/example-native/package.json": {
+			"status": "reference",
+			"sha256": "d8e101b78e89dd32f67562543d7e3357652b4e31e189c84dc448e628bb36031a",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/fake-npm.mjs": {
+			"status": "complete",
+			"sha256": "3606c3d6da533e1d55cecb7c739ae0945abfef76738d9446e56a24dbad0f7559",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/main.ts": {
+			"status": "complete",
+			"sha256": "5385b99485e609a2d93096bdbd373c70d937dcc7a877d06b3b0195cd9d04b939",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/plugins/paths/package.json": {
+			"status": "reference",
+			"sha256": "99c0c423c3cc3b6339bea521cfafa90dc8d1c58bfa5140d832b0aafba276a334",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/plugins/paths/server.ts": {
+			"status": "complete",
+			"sha256": "86273bf6f0e482a0bd65123a13229913e29232e3c2f9af9a81075b1a84082ab9",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/plugins/refused/other.ts": {
+			"status": "complete",
+			"sha256": "106fa892264cfb6e1e0afe8fc89874c7e9d43d6371b53d1d25280db62e59c33d",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/plugins/refused/package.json": {
+			"status": "reference",
+			"sha256": "d9eb324e14fae8e76d15721f867cdde6921bb4bb7b2ccc2550b7d03cda308a07",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/plugins/refused/server.ts": {
+			"status": "complete",
+			"sha256": "37d6f2eecd9480b1f38d11fb52f8552ab8983c5fe772f1b06c57f9eed6a0fddd",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/plugins/report/data/rates.json": {
+			"status": "reference",
+			"sha256": "acce0565f808afa475e6b31d3187885b03799358beed481b0bcadef92fc6a2e6",
+			"note": "示例数据（JSON 不支持注释）。读取与校验方式见同目录 server.ts 导读。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/plugins/report/env.d.ts": {
+			"status": "complete",
+			"sha256": "9b8fa457ef44221ee6163e423db214f5f6f4c5275de3ed52858926aa42b73302",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/plugins/report/package.json": {
+			"status": "reference",
+			"sha256": "2d1cba005692d7933147ef2d832313bd33f1879519fc0cdcf2064677eeacf510",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/plugins/report/server.ts": {
+			"status": "complete",
+			"sha256": "68f3db617a379818acb4dd20a19e24d669937b59e576913ce6f9d4d426201b17",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/plugins/ruler/package.json": {
+			"status": "reference",
+			"sha256": "3b45ba6eca802e0642d0973725ad96a85880a0e29699398d5ba2d601bdd5492d",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/plugins/ruler/server.ts": {
+			"status": "complete",
+			"sha256": "a3a55e8ad55d936dbdd6bab048e5b34c1b20809788bcf655a28228982cc84d50",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/plugins/shapes/contract.ts": {
+			"status": "complete",
+			"sha256": "04b6ead41113c891d52ec0294d217b53730df4da38d2c2c8a9d79d7651390d5a",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/plugins/shapes/package.json": {
+			"status": "reference",
+			"sha256": "c4adbafdbe7734038a504bea9a59c40c35c8644340d2ae97623a7254f99da981",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/37-plugin-imports/plugins/shapes/units.ts": {
+			"status": "complete",
+			"sha256": "d7f01724cebaea4f2ca290cc8e1fcb801258e80652a4a9bd35f848291611d936",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/38-watch-and-rollout/app/config.ts": {
+			"status": "complete",
+			"sha256": "e0a505f0111e4ff84b722b2bc149f17b8756976f537b1f9233fa47fdfca363d1",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/38-watch-and-rollout/incoming/extra/package.json": {
+			"status": "reference",
+			"sha256": "81e6552c9821491df2bd89594ab7d741c42ac0cf20948e992bc874c9a09fb459",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/38-watch-and-rollout/incoming/extra/server.ts": {
+			"status": "complete",
+			"sha256": "ce8ce5934fbac44c5c22bf2881952e51a54fa7e3911c49e1ef412c7208af2553",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/38-watch-and-rollout/main.ts": {
+			"status": "complete",
+			"sha256": "86d79c74e3e9301fd702afdd2dec94837ffd31ba54bd5378efa30d3a90e6a643",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/38-watch-and-rollout/plugins/contracts/contract.ts": {
+			"status": "complete",
+			"sha256": "0efb261d5613dcb66dcec8142565af8115a7f981b6bb1f98605f253bc5a0107a",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/38-watch-and-rollout/plugins/contracts/package.json": {
+			"status": "reference",
+			"sha256": "e1d47183ed2d9e6d901e8cda0d56ac5a489da1b99321c79fa7c77b1d9f415542",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/38-watch-and-rollout/plugins/notes/label.ts": {
+			"status": "complete",
+			"sha256": "0b958db1cce13444dcc49448ccd9436d119b0f58c81ffccd0f44931b7a5e1ea2",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/38-watch-and-rollout/plugins/notes/package.json": {
+			"status": "reference",
+			"sha256": "aa16c870317eda1357718f54072cf85d7072d8403be3fd5d947ff4c64110458e",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/38-watch-and-rollout/plugins/notes/server.ts": {
+			"status": "complete",
+			"sha256": "851df1e1b6540914380d0f4d54f261de8d8c7263ff4d12a4aa476fa4750fcb8e",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/38-watch-and-rollout/plugins/notes/worker.ts": {
+			"status": "complete",
+			"sha256": "83a816f7b061372fc735a18d7ce8391c3d2980b007d92d9a1a8d02ee66514491",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/38-watch-and-rollout/plugins/old/package.json": {
+			"status": "reference",
+			"sha256": "e156681a18a8e75159f920e24a59924edf5beca3ae0fe6782d3e0b1a2e79505b",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/38-watch-and-rollout/plugins/old/server.ts": {
+			"status": "complete",
+			"sha256": "031bb79f6cb59898ec5037be3a220481554a202477e04887e773df361effae9f",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/38-watch-and-rollout/plugins/tags/package.json": {
+			"status": "reference",
+			"sha256": "b20d61e1c34ab9120f92b6e53c5cfb28ee82ba1a14d2a50bd074544682ecce31",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/38-watch-and-rollout/plugins/tags/server.ts": {
+			"status": "complete",
+			"sha256": "7f2c871d76b0d8474802fc6bac354339ce0a319c03d3b1f27d0e5272a4e45794",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/38-watch-and-rollout/plugins/tags/worker.ts": {
+			"status": "complete",
+			"sha256": "46c812cd7178a9faef860be64207fbbb25ff23fdfb7d486d011d498bd8241bb4",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/39-browser-build/main.ts": {
+			"status": "complete",
+			"sha256": "3d7650d86fe7dc2ffcb212112eb54016e8563848aec744b3bdfeaab554317080",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/39-browser-build/plugins/bad-web/package.json": {
+			"status": "reference",
+			"sha256": "fe6bce01b9291383295c2ce00a712905edf3a258bdc708f1db7e22ae2a130644",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/39-browser-build/plugins/bad-web/web.ts": {
+			"status": "complete",
+			"sha256": "3b072e37a5866a98fd8b07e239aa99b9144c7241ad721a4dac31ba7a3d86b0bc",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/39-browser-build/plugins/gallery/assets.d.ts": {
+			"status": "complete",
+			"sha256": "0bd5cc3c818d309a23196384d363e32714b1f10c943ed484fe5d674ae5ead152",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/39-browser-build/plugins/gallery/gallery.css": {
+			"status": "complete",
+			"sha256": "5df09ae884ea420a3db6b77a5369a520ed1c79453e294c9748251bf9a3996be9",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/39-browser-build/plugins/gallery/package.json": {
+			"status": "reference",
+			"sha256": "f42796b16159773b6818c3e68e986355b39ce91fdeee8d6cac3aeb584c7fb691",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/39-browser-build/plugins/gallery/web.ts": {
+			"status": "complete",
+			"sha256": "2574d5368e1fe653224cd137bb5ee3e08d84249c509a2d219fa30a27cf8db066",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/40-http/main.ts": {
+			"status": "complete",
+			"sha256": "2e02056228d299102df93227c8f7abc380d398cacd2ccf96a8ef10d519b09187",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/40-http/plugins/notes/package.json": {
+			"status": "reference",
+			"sha256": "aa16c870317eda1357718f54072cf85d7072d8403be3fd5d947ff4c64110458e",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/40-http/plugins/notes/server.ts": {
+			"status": "complete",
+			"sha256": "3e9d35195b969b628d7d9c5461f03fc2509a56dbd3b443e450655d6a0dc3095f",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/41-workers/main.ts": {
+			"status": "complete",
+			"sha256": "b987b713f8f4a83b45ea04707a1da077f0b4db3ddc513a1f898da6e6c5d92da9",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/41-workers/plugins/sessions/contract.ts": {
+			"status": "complete",
+			"sha256": "ba14a662e519a5c4ae0d220dc421e1742eae4f4024ee452db8741e7288641173",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/41-workers/plugins/sessions/package.json": {
+			"status": "reference",
+			"sha256": "9c18b0fbab03d15a9e475377d903122cc66fe6ed2b6d9994eb94bcfccb58a411",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/41-workers/plugins/sessions/worker.ts": {
+			"status": "complete",
+			"sha256": "f358553f3c79a81734106fedc548df99c83532cc2c16a32d5d33e365742f086e",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/41-workers/worker.ts": {
+			"status": "complete",
+			"sha256": "07f1e81c37b22a22b58931f563966a770481406aa8dce87c7f768a4407288aaf",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/42-worker-crash/main.ts": {
+			"status": "complete",
+			"sha256": "6e58e4f37779e13cd3fb21d10557a77b0cbf80a168afb06a617ddd6395dc83ee",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/42-worker-crash/plugins/sessions/contract.ts": {
+			"status": "complete",
+			"sha256": "4e4751cdd1de8ca43ba24d32726c9dbffccfd299388fc3a2982185518226bc60",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/42-worker-crash/plugins/sessions/package.json": {
+			"status": "reference",
+			"sha256": "9c18b0fbab03d15a9e475377d903122cc66fe6ed2b6d9994eb94bcfccb58a411",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/42-worker-crash/plugins/sessions/worker.ts": {
+			"status": "complete",
+			"sha256": "0de41d67d14df760518391ffbfec699eb10b9da70deedd3bf6252ea5426dfe98",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/42-worker-crash/worker.ts": {
+			"status": "complete",
+			"sha256": "0ad1e234aa792597c9418a8136b68c5c63c2a863ae592974387bde42528d751d",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/43-rollout/main.ts": {
+			"status": "complete",
+			"sha256": "5780b91fb5c9d767e48c544776ef7ff871c73eebbc7afd0054919b1a890e9811",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/43-rollout/plugins/notes/contract.ts": {
+			"status": "complete",
+			"sha256": "12cf030f217cf791bf3fe380f2225198418181de7eed8a197f8b38b47feeb26f",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/43-rollout/plugins/notes/label.ts": {
+			"status": "complete",
+			"sha256": "6676b13fe808cc0b4379ca87afb143eec6c1cf77cfe18d238f494aa72b62b3e9",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/43-rollout/plugins/notes/package.json": {
+			"status": "reference",
+			"sha256": "aa16c870317eda1357718f54072cf85d7072d8403be3fd5d947ff4c64110458e",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/43-rollout/plugins/notes/server.ts": {
+			"status": "complete",
+			"sha256": "253e8d0ec91c48b5ef73302965e61ca815fba7fff0441df3d3fb95332fb619bf",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/43-rollout/plugins/notes/worker.ts": {
+			"status": "complete",
+			"sha256": "6f6f83a6325b0a802a5f92a8fdbebce9a35f0a8234a406b46f12d6a37c69b125",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/43-rollout/worker.ts": {
+			"status": "complete",
+			"sha256": "58f88500a56d3f63801d9d1c3d0b10494d962cfe4e2fdb0e522e9d54537073d0",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/44-http-wraps/main.ts": {
+			"status": "complete",
+			"sha256": "65ba39e28cec3d3de08239dd2875150b3072b72204f473efcfbeb48854477360",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/44-http-wraps/plugins/audit/package.json": {
+			"status": "reference",
+			"sha256": "b79afc508c43c96e2eb368bb2f54005c46bfc8dc30fd1b93659d06d58437d008",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/44-http-wraps/plugins/audit/server.ts": {
+			"status": "complete",
+			"sha256": "37f4c81cf1a7d42ae6ca59720a2ed275b387235f8d4fc618c9e4c381d70f2879",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/44-http-wraps/plugins/notes/package.json": {
+			"status": "reference",
+			"sha256": "aa16c870317eda1357718f54072cf85d7072d8403be3fd5d947ff4c64110458e",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/44-http-wraps/plugins/notes/server.ts": {
+			"status": "complete",
+			"sha256": "a15b9b18cf10fe04981dc42a22b3f7a6bc1f745f92c795c03fc8886db920c4e5",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/45-plugin-socket/main.ts": {
+			"status": "complete",
+			"sha256": "842f0d044b73b861293d2e59229eebcdc06bfa0751c078ddbb42264ba06c8988",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/45-plugin-socket/plugins/echo/package.json": {
+			"status": "reference",
+			"sha256": "47a38a3b08e5a694a5486bf82962ba0e5e2d71849e72143c84e409502d9df4ec",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/45-plugin-socket/plugins/echo/server.ts": {
+			"status": "complete",
+			"sha256": "6756a22980c75708389b545eee02409453fff5a09907f3b703a31bab674cfcfd",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/46-allowed-hosts/main.ts": {
+			"status": "complete",
+			"sha256": "f4e3389a59a173d3c2417aaa17d896e7b3e3bfcbcaff616012a68d874d88bcba",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/46-allowed-hosts/plugins/tunnel/package.json": {
+			"status": "reference",
+			"sha256": "0e51f0694e4d8261a9d599d2df9d46b305bc9721290086e640f0737381824dab",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/46-allowed-hosts/plugins/tunnel/server.ts": {
+			"status": "complete",
+			"sha256": "c6bbdd497349712df3c32da72332562af780f19538e17b5f4f375cdedbfba711",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/47-http-own-server/main.ts": {
+			"status": "complete",
+			"sha256": "578a5f19df7a383509f813e673bfc18df8c3855bef66f17a413e5e7eb722e065",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/47-http-own-server/plugins/notes/package.json": {
+			"status": "reference",
+			"sha256": "aa16c870317eda1357718f54072cf85d7072d8403be3fd5d947ff4c64110458e",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/47-http-own-server/plugins/notes/server.ts": {
+			"status": "complete",
+			"sha256": "46c4e1373cbf76868a2370484b36cdf9b46aea5643ec5310e2dc31f08a6b116e",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/48-http-baseline/main.ts": {
+			"status": "complete",
+			"sha256": "f3262dc93a176923e06d82ce4c9ba32695d50fedf5019101f24c87cd2eaf93a8",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/48-http-baseline/plugins/notes/package.json": {
+			"status": "reference",
+			"sha256": "aa16c870317eda1357718f54072cf85d7072d8403be3fd5d947ff4c64110458e",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/48-http-baseline/plugins/notes/server.ts": {
+			"status": "complete",
+			"sha256": "cc1f9ff54c01ea696cc3702fc665ae8d990698f15d30d966d54694acdacd3e76",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/49-plugin-api/app/v2.ts": {
+			"status": "complete",
+			"sha256": "e116602edb208bd32b402ee597003ff2cb9b7a1298dfac2f078e7cd14ae21192",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/49-plugin-api/app/v3.ts": {
+			"status": "complete",
+			"sha256": "97dd3e987777b4c68b0a1e2a8adbc0ba38076c4b8a220da1ef3cf7795e9c6a34",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/49-plugin-api/app/v3/server.ts": {
+			"status": "complete",
+			"sha256": "ba6d99ffa88638c4ad25db434ea1591e07960a02dbf7baf520edb4cae5a17ab3",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/49-plugin-api/app/v3/web.ts": {
+			"status": "complete",
+			"sha256": "5a4c9866d3657cc74edd71601a63eca23a6bbc14ae82a4a244fbf126a9429240",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/49-plugin-api/app/v3/worker.ts": {
+			"status": "complete",
+			"sha256": "9cd0c2bb3ff4753c4f13c5eb542cbfc1fb1e4991c48617f5e7a454b38683050d",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/49-plugin-api/main.ts": {
+			"status": "complete",
+			"sha256": "af1459c160c822062de679e9987c4a60c0edc41c883f384b78fe03089f1d1bdb",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/49-plugin-api/plugins/ancient/env.d.ts": {
+			"status": "complete",
+			"sha256": "b380313e115875472795a7201fb1a182c0a8153d1ae3d64e7a5336146b0d2be5",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/49-plugin-api/plugins/ancient/package.json": {
+			"status": "reference",
+			"sha256": "dc4c4bfed28f93fd9e2ddc99853cfd22b64664daabc2eb71564edfe721681256",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/49-plugin-api/plugins/ancient/server.ts": {
+			"status": "complete",
+			"sha256": "e4596b039ed43b7f0f5aa5f9125e9e3c60e7197d5b3056babf65134227895559",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/49-plugin-api/plugins/direct/package.json": {
+			"status": "reference",
+			"sha256": "9e7cebd77382b29e9e988d2756d8c53cf18829071964d468da80a71526673daa",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/49-plugin-api/plugins/direct/server.ts": {
+			"status": "complete",
+			"sha256": "aa5807172de09e44d67e6e40b824296b039e4d2543093757e77d540811558fd2",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/49-plugin-api/plugins/hello/package.json": {
+			"status": "reference",
+			"sha256": "a5f72536eb46e3b9038f5c937f0320c98865a5e3243ed5d53625d0e6495744c7",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/49-plugin-api/plugins/hello/server.ts": {
+			"status": "complete",
+			"sha256": "44c7479922038a447b1941624b9a6e7261661965113838724552188c03ac6aa1",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/49-plugin-api/plugins/legacy/package.json": {
+			"status": "reference",
+			"sha256": "0568c5f02173d095074217ff09088d4fa45ce0e862d9c854e3655dd2824329a9",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/49-plugin-api/plugins/legacy/server.ts": {
+			"status": "complete",
+			"sha256": "e615d1d595422177fbb07710085a1dd020cc80d39dfb9d88dee2e0d3c52edf25",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/49-plugin-api/plugins/mixed/package.json": {
+			"status": "reference",
+			"sha256": "fd1deba4fe5272cc72783e2c25b3d87339d2d9c2eb94fc0b80ca0cf4f7b52d3b",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/49-plugin-api/plugins/mixed/server.ts": {
+			"status": "complete",
+			"sha256": "c9cf62757ceca1d62bb31d7d5eb668b4804e5e9a787833a051e03b28867f9c43",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/49-plugin-api/plugins/panel/package.json": {
+			"status": "reference",
+			"sha256": "4b0c1e8efdd9a1d0809ca456ae6e1915502f073d2daf1843e299667cce0d7546",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/49-plugin-api/plugins/panel/server.ts": {
+			"status": "complete",
+			"sha256": "5c57204bba849dff9018e3d848f2b9fd1cd484dfdda61b76348dda549a4c1cfd",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/49-plugin-api/plugins/panel/web.ts": {
+			"status": "complete",
+			"sha256": "0941edd2d853f56a45d0d71cf2e7520c6e84433c141049923747c2e11acd2aa9",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/50-plugin-imports/main.ts": {
+			"status": "complete",
+			"sha256": "1698b7274e612d2d0461d5e17d81abb7a604910b31741abea13db375a4b67603",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/50-plugin-imports/plugins/notes/contract.ts": {
+			"status": "complete",
+			"sha256": "0472e8539150fb2a1426313739e2b3a1c90ee3f1cad6cfc5ee054a040189770e",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/50-plugin-imports/plugins/notes/contract.web.ts": {
+			"status": "complete",
+			"sha256": "df7d3386498a19cab26ad6e0d5c2c81ea25db2e55092e6175585a7a73f278040",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/50-plugin-imports/plugins/notes/package.json": {
+			"status": "reference",
+			"sha256": "6cc1594eb33c733e7477bfbe0e38090d05658d3c149fff5558b621f78bb2b759",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/50-plugin-imports/plugins/notes/server.ts": {
+			"status": "complete",
+			"sha256": "7ab23407776ed4e34ed6701fe3ed14d97cc354391c1d4a1783949172a93b233d",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/50-plugin-imports/plugins/peek/package.json": {
+			"status": "reference",
+			"sha256": "7038d8b6ec362a7cf97de796fec61ccf37c6c51b82cb057a3fa5410f55f3f70d",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/50-plugin-imports/plugins/peek/server.ts": {
+			"status": "complete",
+			"sha256": "b9bec01e0fe06c810bc8cc630e0eee0dc52bf2ad0548bba2df4a9ec9c04e9674",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/50-plugin-imports/plugins/peek/view.ts": {
+			"status": "complete",
+			"sha256": "fe1f67b59c55a0ec21857ff2eb898ef789dbd0547384c36c099b2a6d65b8296a",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/50-plugin-imports/plugins/search/package.json": {
+			"status": "reference",
+			"sha256": "9f9e870264bb5dba4b46eb234d4ec476717ee2103da7b5e981d49abfb0c389a4",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/50-plugin-imports/plugins/search/server.ts": {
+			"status": "complete",
+			"sha256": "304f359f8c26c4350eb58e51284e62838e77d783b66cca2f42f3cb9529ec0472",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/50-plugin-imports/plugins/search/web.ts": {
+			"status": "complete",
+			"sha256": "2196c7dbc6fa5f9ff9ee0e177fc6453ece1543e20da7b3be2ebaba2567baa203",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/50-plugin-imports/user/reach/package.json": {
+			"status": "reference",
+			"sha256": "f14c635aab166a14ec23abe750e354b417e788605113151d0877cb78db8a51a3",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/50-plugin-imports/user/reach/server.ts": {
+			"status": "complete",
+			"sha256": "6a794eef5442b9a88729b3b579c4e53d056c6051320faf095a102d7c086dc76a",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/50-plugin-imports/user/stats/env.d.ts": {
+			"status": "complete",
+			"sha256": "622a6928fbce2f8b8de136cdd24aa605b33c45b69538d40a65e8ead19990a365",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/50-plugin-imports/user/stats/package.json": {
+			"status": "reference",
+			"sha256": "012a62e75f582c07005d71d09e78b0baab56244c768fb5916ff840ebb50771e2",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/50-plugin-imports/user/stats/server.ts": {
+			"status": "complete",
+			"sha256": "45c7a2cca8f15e0094b9f057ea762a826e9ea45cd892103fe11b5732e0088a9e",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/50-plugin-imports/words/package.json": {
+			"status": "reference",
+			"sha256": "3d415f7c450e6d94a5ad8beeec157533f8405a560d8a55427889697c95a806c2",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/50-plugin-imports/words/words.ts": {
+			"status": "complete",
+			"sha256": "bcc7a97579d5bfcbf87c5211c8701523b833426abe03c282044c1a0fcae4bd07",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/51-single-file-plugin/main.ts": {
+			"status": "complete",
+			"sha256": "5d986544d36e45875ce9976b14ce765d76da001bf3f062475f235ece89f46dca",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/51-single-file-plugin/plugins/bad.server.ts": {
+			"status": "complete",
+			"sha256": "4dc60b11bd555d334333c93dd9e123fd463a6579560320aef0e2c30f968fb5c2",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/51-single-file-plugin/plugins/clock.server.ts": {
+			"status": "complete",
+			"sha256": "557e715fa40482d4452629377614634861140a58ce84798b34ec9a6974935b98",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/51-single-file-plugin/plugins/hello.server.ts": {
+			"status": "complete",
+			"sha256": "d3fa24a3bd6a90761da675b507eaa5df1416df50b829582bd38d4b0cdd274c0c",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/51-single-file-plugin/plugins/hello.web.ts": {
+			"status": "complete",
+			"sha256": "ee6a39503e36f1ddc96921800629895c11d2cae55f5843edccc0b457df71551b",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/51-single-file-plugin/plugins/helper.ts": {
+			"status": "complete",
+			"sha256": "41734a00d0e48f5bf0836b778a9dd1f35c6913136e5585f5d27d8fa9eb7fa279",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/52-test-plugin/main.ts": {
+			"status": "complete",
+			"sha256": "f1618817f174e644d95b792766ec8c63df3736ca8fac12981ee24bfe4ab44d73",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/52-test-plugin/plugins/notes/contract.ts": {
+			"status": "complete",
+			"sha256": "e04932cc7dc55a5edf60ea32d929285ed6559f012ba927aef3f7fbbb7ed5284b",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/52-test-plugin/plugins/notes/package.json": {
+			"status": "reference",
+			"sha256": "6cc1594eb33c733e7477bfbe0e38090d05658d3c149fff5558b621f78bb2b759",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/52-test-plugin/plugins/stats/package.json": {
+			"status": "reference",
+			"sha256": "386d8709e1fb8a94b6a039204a90c8013cbdc09e1a9ac848eb7b10f696c4a253",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/52-test-plugin/plugins/stats/worker.ts": {
+			"status": "complete",
+			"sha256": "ce0a2e4305db75bcb510829db175a68f0f4e0ba33cc1117bb51850628652d819",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/53-app/app/principals.ts": {
+			"status": "complete",
+			"sha256": "bc379c6afed56c92585ca90733d15d58a5c621a8bde5b2004ff1394753455ce8",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/53-app/app/v1.ts": {
+			"status": "complete",
+			"sha256": "4ca633f6c00248037d2821020f6bdb88d7d6fa7cc17ff30cf69172e3bd1770f2",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/53-app/app/v1/server.ts": {
+			"status": "complete",
+			"sha256": "66c3662707a49d0735efe2e13ea072c9ffe5519c6c6d7ea1d80b024960da9dd2",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/53-app/client.ts": {
+			"status": "complete",
+			"sha256": "4956abb575df9338c4646e5f67443be92fd3eaea1286c5f503f38e1d7c249c58",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/53-app/main.ts": {
+			"status": "complete",
+			"sha256": "6bb9472bd5b47b8a11b1ebeb4a8c7ced3a54292054b1a4814e8098d9f9183be7",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/53-app/plugins/home/package.json": {
+			"status": "reference",
+			"sha256": "504d0022875bb370feb5ca731ba3cef243f9a5d6b02e89c4bf502e791bbb366d",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/53-app/plugins/home/server.ts": {
+			"status": "complete",
+			"sha256": "b1b9596f8c0d21a1d2059f4b6a7498e2e15064d555b55398258f9dd89f1c3bab",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/53-app/plugins/notes/contract.ts": {
+			"status": "complete",
+			"sha256": "cbf12745ce28fbbf0dd13aa7254b0398f1412f15c67736bf6e7374e3fd737089",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/53-app/plugins/notes/package.json": {
+			"status": "reference",
+			"sha256": "e2f1ef628834200f86ae1c9c85e5dd3aabdb4cd70dedc34e5cc991c9a1695290",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/53-app/plugins/notes/server.ts": {
+			"status": "complete",
+			"sha256": "d13ad60c9b764ff12c7969e369c8356698528be835b6b28d8461d68378bc55ed",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/53-app/plugins/notes/worker.ts": {
+			"status": "complete",
+			"sha256": "ecc617b749767ada47b8011a741e18dbece36691a40f0242534af7acb1ed8797",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/53-app/start.ts": {
+			"status": "complete",
+			"sha256": "8e0058bae9b9de227f39e3b067dcf87d4aba57e3d03e3bc9ca75d8f140bbc1a8",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/53-app/worker.ts": {
+			"status": "complete",
+			"sha256": "5ae3b93c8bea27aa9c1bc58dd3c0ba422b9f99c2e5744dab9aee37e3800f5f17",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/54-app-sessions/main.ts": {
+			"status": "complete",
+			"sha256": "f047f542f47f5dc0a630ddc11c8679f28db52dd53d84ef40847a6b1aa0be2886",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/55-app-export/main.ts": {
+			"status": "complete",
+			"sha256": "06377838455fd55781f8d87ee161f101f1a5310696e8053d23d76fd995c1d8c7",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/56-web/app/principals.ts": {
+			"status": "complete",
+			"sha256": "e1de83df263f22ecfd6e1c6265d271a0638b3c67737e77f17812289b352a786f",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/56-web/app/v1.ts": {
+			"status": "complete",
+			"sha256": "364d95d3d263cdbcae76c90802d31bccc303c3b6de9b6fea8d5f1a2e436ffa99",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/56-web/app/v1/tui.ts": {
+			"status": "complete",
+			"sha256": "bfe8847ada4cb915fec9e957730574e15b01a81c44621f94abbf2b16fe4c5f05",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/56-web/app/v1/web.ts": {
+			"status": "complete",
+			"sha256": "983cfe0fd80245ea369c1e7a0ca02bf7e98fc2ddea22fe4febd31c6389e41d02",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/56-web/headless.ts": {
+			"status": "complete",
+			"sha256": "02fe807c096ce070e3718c0938ed83a52359db30ad7a63872a4441281fc118f7",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/56-web/main.ts": {
+			"status": "complete",
+			"sha256": "95d8bf966273168f24916b160721b3637edac80bf2561ecd45c95bea77e9ce8b",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/56-web/plugins/clock/package.json": {
+			"status": "reference",
+			"sha256": "8c2ae4c715dd8141b75ab57223945e01c4e3ff05ad69b52f7aa3d8e02c6b53ef",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/56-web/plugins/clock/web.ts": {
+			"status": "complete",
+			"sha256": "8083ab585483fef02bc615c2413e3bf798688293b05d3f8d87abd28388c82b12",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/56-web/plugins/notes/package.json": {
+			"status": "reference",
+			"sha256": "147222adda25706adefa77eece2a6301c1e17b80a4c0cd8288287759fa2332ee",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/56-web/plugins/notes/tui.ts": {
+			"status": "complete",
+			"sha256": "aa0e523f0660e2a4a0e143a58980456261b86fcb5b17086bb8a59d50a3909ac6",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/56-web/plugins/notes/web.ts": {
+			"status": "complete",
+			"sha256": "073daa9483df986638113c4aaf10542b12ebd4e4adce00bbe42cc1e8baad6939",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/56-web/start.ts": {
+			"status": "complete",
+			"sha256": "50267b4a964c267181505d0a12ccca6ce7550602874aa5e03e8b0dff3771746e",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/56-web/tui/main.ts": {
+			"status": "complete",
+			"sha256": "14fa65c335945117f867f2be1e3ef1b15615fad92116613a8415cf6cc7a23514",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/56-web/web/main.ts": {
+			"status": "complete",
+			"sha256": "36477098dcebb8f25671c9f9841f836a12297486555514b22254bfa6981fbe85",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/57-tui/main.ts": {
+			"status": "complete",
+			"sha256": "f06ebf2dec3a374ea89ab2568187054d83eb0ffda649a3c15a1c78247e92b6c1",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/57-tui/terminal.ts": {
+			"status": "complete",
+			"sha256": "78e8699c402e76ca0484c721f2be95dbb65b5f9e977b2d64d8cfed9c2e6cb549",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/58-themes/main.ts": {
+			"status": "complete",
+			"sha256": "2ff64365b92cd635458a7a12da8cbb13014ac9237610400b8c3fd25b66ea651d",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/58-themes/plugins/midnight.web.ts": {
+			"status": "complete",
+			"sha256": "1e9f68b0a9508eb3bfec9bf197503512dd3fa1645c5b920d1a63aa0001ab063f",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/58-themes/plugins/solarized/package.json": {
+			"status": "reference",
+			"sha256": "6467e9019599108b312e8cea48edb7925b22df9f58e3ce6889e080d4acb31a9b",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/58-themes/plugins/solarized/theme.ts": {
+			"status": "complete",
+			"sha256": "1755376f4c297bf2b4885a6893d296fd641ac98897f686531d0da92a1e9699fb",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/58-themes/plugins/solarized/tui.ts": {
+			"status": "complete",
+			"sha256": "60b7e588d553bc3dadb7769772d7d5c7b24c50625a9484c42fc06434a6ff4d34",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/58-themes/plugins/solarized/web.ts": {
+			"status": "complete",
+			"sha256": "35df3968150fa2e807ea813dd61fe09ea8fe9650825802b4b04d70338f48337a",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/59-chat/app/principals.ts": {
+			"status": "complete",
+			"sha256": "78ec23f8802928602a376c860d021b68044e0ea0995bf50a8d83729e45167025",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/59-chat/app/v1.ts": {
+			"status": "complete",
+			"sha256": "0c744631319421dc4d38d6070d31852db3553111f59f89de3b61f8e86ae480e2",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/59-chat/app/v1/server.ts": {
+			"status": "complete",
+			"sha256": "8acc9563d42507cfaa348b09423bf975ffd31d25c609b48725c6840bfcd6d15a",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/59-chat/app/v1/worker.ts": {
+			"status": "complete",
+			"sha256": "cee725c8001060f8f69beca4e7860a894067b8b7a626b9ba196d0ecd41f459d2",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/59-chat/main.ts": {
+			"status": "complete",
+			"sha256": "97da07264960393d7990ac1c6fdd4097ef0bb25efd8ac2f259e66b3b3f1f98f1",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/59-chat/plugins/chat/package.json": {
+			"status": "reference",
+			"sha256": "7fa7c0a8f0949378073f69bedaf4c8b7f23146ad046baeabc55f42db3fd5a8f5",
+			"note": "插件清单（JSON 不支持注释）。字段作用见同目录代码文件导读与 packages/chord/test/examples/LEARNING.md。"
+		},
+		"packages/chord/test/examples/59-chat/plugins/chat/server.ts": {
+			"status": "complete",
+			"sha256": "f3ef86e45f589aa26408703c1789113e8a88f2ea169e7bd665709d8e21515392",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/59-chat/plugins/chat/worker.ts": {
+			"status": "complete",
+			"sha256": "00c80a86e9249347ed31959c29f31d5a79b77ca63f676adf1d975051fcc9aa33",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/59-chat/plugins/login.server.ts": {
+			"status": "complete",
+			"sha256": "e5ebe4bd1539b859db511f4ad0e628022591183568ff1b4f06357868df60abfc",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/59-chat/start.ts": {
+			"status": "complete",
+			"sha256": "90882c69a7297f5450af345aae9e1be47caf263cd1ca4ff24646b07c1a8d3fa6",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/59-chat/tui/main.ts": {
+			"status": "complete",
+			"sha256": "7baa2b43cc0efdcd1d02aaacaa802884120504c4eef69ba10a3903ae53f3e788",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/59-chat/web/main.ts": {
+			"status": "complete",
+			"sha256": "5c8a145bda4d542e319cc901bae0e828ca05fc0c2db99a1bd296fa6141452bc1",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/59-chat/web/style.css": {
+			"status": "complete",
+			"sha256": "96d815743c9180dc68af113a0838d8794bf9a2bc22d4af2648d6e866c9530103",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/59-chat/worker.ts": {
+			"status": "complete",
+			"sha256": "48154522b5bd25ce4df74c52a7cc5fa0cb34feb127088077db84cb6b3fa13fdd",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/60-session-sync/main.ts": {
+			"status": "complete",
+			"sha256": "b2479020de8fc39ae4c7e69c0de64392b9c0678f6a2a1d325856cae2e3635762",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/60-session-sync/radius.ts": {
+			"status": "complete",
+			"sha256": "728d39a7e64efc53ca9b659176fcf6799cccef550b6778bd5a8fde553f2abe8d",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/60-session-sync/session.ts": {
+			"status": "complete",
+			"sha256": "250553629f02e1d5ea139ecd131b7ad947053a044c05391f03be3c70444b4fba",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/chord/test/examples/60-session-sync/sync.ts": {
+			"status": "complete",
+			"sha256": "d844495cbdab8fe6d529ce531562dd9cbf11beb6f083a3e6e0211ecbbad8e9c8",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
 		"packages/chord/test/host/host.test.ts": {
 			"status": "complete",
 			"sha256": "596bf4a0437631dc00956f4868303084c3cd409d4320d1efb0bcc2200d3c575d",
@@ -2329,13 +3569,23 @@
 		},
 		"packages/codemode/examples/cloudflare/agent/src/index.ts": {
 			"status": "complete",
-			"sha256": "b5c63a67b183105aaaa3a94cd3811f77d76f8696f7ff526d11f0ef0cf7d7086b",
-			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+			"sha256": "5fb57b9188e8618c2eff43933abb34552b572809dd60335c401e79aeab3b4716",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/codemode/examples/cloudflare/agent/wrangler.jsonc": {
+			"status": "complete",
+			"sha256": "11c4d135662d8cd370f79b263396fea7d71b3c92c12c8117feb90eaeb8f4f8bc",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
 		},
 		"packages/codemode/examples/cloudflare/sandbox/src/index.ts": {
 			"status": "complete",
-			"sha256": "0edc94ad360a1070cd50ab5e900dd8e872e18ee67034392d09ad23e32b26df0c",
-			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+			"sha256": "49b936109c2dcce988ff74d61409f1e03e47c4116220f5ee28d33a275f199cb8",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/codemode/examples/cloudflare/sandbox/wrangler.jsonc": {
+			"status": "complete",
+			"sha256": "0a32da2535a0b3c574f55a10b37ba9302da54b3ced051fd7f41b4a0c4539782a",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
 		},
 		"packages/codemode/src/cloudflare-modules.d.ts": {
 			"status": "complete",
@@ -2421,6 +3671,581 @@
 			"status": "complete",
 			"sha256": "86c9f8b32ea0482e2082cbb8765b3bdec187768da4906133367c9033b4bd2349",
 			"note": "整文件：公共入口/类型/桥协议、配置解析、schema声明子集、名称映射、WASM缓存与worker后端；全文与callee/依赖/交叉复核，5文件73项真实QuickJS离线测试通过。"
+		},
+		"packages/coding-agent/examples/extensions/auto-commit-on-exit.ts": {
+			"status": "complete",
+			"sha256": "c3df2c50b3e79667038e1ad2d297af83fe749c03f50653154f9ca7c1aa6970be",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/bash-spawn-hook.ts": {
+			"status": "complete",
+			"sha256": "0d58264512fa17512c5ce227f0ffbad28ad096a280e2db7ad5dcc487bd23af40",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/bookmark.ts": {
+			"status": "complete",
+			"sha256": "b7dc43eda5878a676630ac49a6ba191ebbf06a743cba4cb96dca15467fd914a3",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/border-status-editor.ts": {
+			"status": "complete",
+			"sha256": "b1b413c051032aa206ec7c5d6bfc07d7a253566592d5933409e16f3d06d396a6",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/built-in-tool-renderer.ts": {
+			"status": "complete",
+			"sha256": "df5234fa08e95e2ffa414fa5d9cdb93c8ee72ddf241ea4bc1c40b270c62de058",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/claude-rules.ts": {
+			"status": "complete",
+			"sha256": "2e3e601b23e32f0abe0ee8f5b2c780e6b1f692fc0a813f283d0a633caca9d1f7",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/commands.ts": {
+			"status": "complete",
+			"sha256": "bb702d942d3330aec354e405ba5663599b2996e493fbf43a41d86a53427b484a",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/confirm-destructive.ts": {
+			"status": "complete",
+			"sha256": "d251107f045cc757e70d4d7b35af4437396e54025d319420515c6be8ebc149f8",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/custom-compaction.ts": {
+			"status": "complete",
+			"sha256": "60ce3050f6dab493016a36a8a0107de79f5b5dd23c8570af0cbfb423dd8631d7",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/custom-footer.ts": {
+			"status": "complete",
+			"sha256": "4aa813b32ea2cdbb6135355f1a3581713adb30e06941aa83bbf2e849fba20636",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/custom-header.ts": {
+			"status": "complete",
+			"sha256": "c6ed07254bdd7d7512448f15b2ee957f93b12a7b1081047989e555358134f458",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/custom-provider-anthropic/.gitignore": {
+			"status": "reference",
+			"sha256": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97",
+			"note": "忽略规则文件，无业务逻辑；同目录代码导读说明其对应的产物/依赖边界。"
+		},
+		"packages/coding-agent/examples/extensions/custom-provider-anthropic/index.ts": {
+			"status": "complete",
+			"sha256": "d903150027ad9b1b9485463f66a4836d30b51a345f7dcbb3ccbc9dc07dca2f29",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/custom-provider-anthropic/package.json": {
+			"status": "reference",
+			"sha256": "0e9e5f13522be4d55279ba7a194e822e920ccc6936a345510b5d79d72786c3e5",
+			"note": "示例扩展清单（JSON 不支持注释）。字段作用见 packages/coding-agent/examples/extensions/LEARNING.md 与同目录代码导读。"
+		},
+		"packages/coding-agent/examples/extensions/custom-provider-gitlab-duo/.gitignore": {
+			"status": "reference",
+			"sha256": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97",
+			"note": "忽略规则文件，无业务逻辑；同目录代码导读说明其对应的产物/依赖边界。"
+		},
+		"packages/coding-agent/examples/extensions/custom-provider-gitlab-duo/index.ts": {
+			"status": "complete",
+			"sha256": "b164890d169770587312a175f932ffffc7118d4212c93121bb40dd2ef2d3b6fe",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/custom-provider-gitlab-duo/package.json": {
+			"status": "reference",
+			"sha256": "34c942801b9b0f4c815aff47f5e8e6896fa221442a8fb54d667e88a4802b5edb",
+			"note": "示例扩展清单（JSON 不支持注释）。字段作用见 packages/coding-agent/examples/extensions/LEARNING.md 与同目录代码导读。"
+		},
+		"packages/coding-agent/examples/extensions/custom-provider-gitlab-duo/test.ts": {
+			"status": "complete",
+			"sha256": "180864ca3c22565378bbe4b0eae56a9b304c0a6d6a62420fa20603fe7830b664",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/debug-provider.ts": {
+			"status": "complete",
+			"sha256": "49644bb74ff411b3bbefe2b69bb44f5359190a93a0734d78a59a95d715607d94",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/dirty-repo-guard.ts": {
+			"status": "complete",
+			"sha256": "d6f69e4b57ad77ca1fb431a9c0aa7ea452db840fc5140cd61041b3625e6c7935",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/doom-overlay/.gitignore": {
+			"status": "reference",
+			"sha256": "b26aa26693c610d46d9c8b387b28d20dc5196a73b979f5522e24dd689aab7bc8",
+			"note": "忽略规则文件，无业务逻辑；同目录代码导读说明其对应的产物/依赖边界。"
+		},
+		"packages/coding-agent/examples/extensions/doom-overlay/doom-component.ts": {
+			"status": "complete",
+			"sha256": "43076e0754aed88a08e8e25c5bfe1bff1a7173b0b73a81be4c0319f7f18d2baa",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/doom-overlay/doom-engine.ts": {
+			"status": "complete",
+			"sha256": "5f2a0d4f90b3e63a767a9b1d0f92f68845e9235a2aae6c52ef71a6f513b0de9d",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/doom-overlay/doom-keys.ts": {
+			"status": "complete",
+			"sha256": "efd4ce740841bcb1e1f64bce070528f4cc23ca2e64afa50e23e78ee622cbb21d",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/doom-overlay/doom/build.sh": {
+			"status": "complete",
+			"sha256": "bfea9035dd2b664e165cb50c68ef4d2d98adbf6ca418aa63cfd7fc0cd34c15c4",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/doom-overlay/doom/build/doom.js": {
+			"status": "reference",
+			"sha256": "c3147cf4881c88b4210c017c26828f52aff83f0c4db27d7dad3fe6cda9ade1fb",
+			"note": "Emscripten 生成产物，不手改。构建输入与命令见同目录 build.sh、doomgeneric_pi.c 导读。"
+		},
+		"packages/coding-agent/examples/extensions/doom-overlay/doom/doomgeneric_pi.c": {
+			"status": "complete",
+			"sha256": "eed4909f57c22aee5722f035f6a981861cdca0713e689c640664f82c8dfcd1bb",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/doom-overlay/index.ts": {
+			"status": "complete",
+			"sha256": "3a102d07babae2811c07801289d77a5d03fd3a7316ee1b1a65a2bc0d1e66546c",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/doom-overlay/wad-finder.ts": {
+			"status": "complete",
+			"sha256": "eabaf1a89207133cf60de4ddd05166e46be999c3f54691b61ed6acb2bf2f52a6",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/dynamic-resources/dynamic.json": {
+			"status": "reference",
+			"sha256": "2bf0164779b4ea3c2572f33b1e979c427a4839193998fda19bfc5cba2a4692c5",
+			"note": "示例资源清单（JSON 不支持注释）。作用见同目录代码导读。"
+		},
+		"packages/coding-agent/examples/extensions/dynamic-resources/index.ts": {
+			"status": "complete",
+			"sha256": "1754baaa515e4a0dfa4c88090154dd6a743f61da2b96fa4eeb483ae45d24c8d1",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/dynamic-tools.ts": {
+			"status": "complete",
+			"sha256": "33eebe34da7c0b812d689a0bd649101cbc6e27dc90ccf5c6f17858be4520f7d0",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/entry-renderer.ts": {
+			"status": "complete",
+			"sha256": "a132acd8c25f4c5b56f5ef1f32c1ccc8c4e881984a39d641a4c0c3f0fb741b50",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/event-bus.ts": {
+			"status": "complete",
+			"sha256": "ed4fd75f3012e1b67163c9d82e7590478bb88b14c94a3ca5b1023c57e4378a01",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/file-trigger.ts": {
+			"status": "complete",
+			"sha256": "02b0a2ff4da5dfc78cdab31c05e36d55aa1e84150192cdb8bd3c4d385cbfa2ad",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/git-checkpoint.ts": {
+			"status": "complete",
+			"sha256": "d80669b6ea0ad6208bebe53c19c8d788378b4c18150bd0bda3364ee1266de6d4",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/git-merge-and-resolve.ts": {
+			"status": "complete",
+			"sha256": "ae4a6502aa0ff61b15ea575cd72a5ab909d60d1e322d753c7e62332351e1fa53",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/github-issue-autocomplete.ts": {
+			"status": "complete",
+			"sha256": "2cf928ea3a3a6b56a05d7400efdcc026867bb3e8c99a73d69d61cc5c2c1a54c5",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/gondolin/.gitignore": {
+			"status": "reference",
+			"sha256": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97",
+			"note": "忽略规则文件，无业务逻辑；同目录代码导读说明其对应的产物/依赖边界。"
+		},
+		"packages/coding-agent/examples/extensions/gondolin/index.ts": {
+			"status": "complete",
+			"sha256": "fc3ce88ef5f7933805094f99290a89536436b5d3f5e407958e6d10b10649b4a8",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/gondolin/package.json": {
+			"status": "reference",
+			"sha256": "550bfb2f33316248365ecfa64c2ba70b5a32b9d0d812e774bb0c73f8c304ef57",
+			"note": "示例扩展清单（JSON 不支持注释）。字段作用见 packages/coding-agent/examples/extensions/LEARNING.md 与同目录代码导读。"
+		},
+		"packages/coding-agent/examples/extensions/handoff.ts": {
+			"status": "complete",
+			"sha256": "6410b2a38194704dd950252f6f3b4d5d3dad42fbd6b66ff2b80e4773a521ab23",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/hello.ts": {
+			"status": "complete",
+			"sha256": "3fc8207463c474b6cd5c06f28aaf988febf9d36657e88c4835df41729a6c9062",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/hidden-thinking-label.ts": {
+			"status": "complete",
+			"sha256": "930fcf189e2f74bbcac71765f77d1c3c915fcb38ef2a44f8f098c97210380c15",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/inline-bash.ts": {
+			"status": "complete",
+			"sha256": "ba82d95cdef055ea1a1593b81c9d8030ada350e2dd2fdf0a712327645f69590a",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/input-transform-streaming.ts": {
+			"status": "complete",
+			"sha256": "e386e29f602c62649585c42e6c9b80d12e4c44876af982ade9b9988007467fff",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/input-transform.ts": {
+			"status": "complete",
+			"sha256": "c68032a515cc9b1b1d7d2c1428527720e0ebc53629042c77a3de9f5b9cd7c469",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/interactive-shell.ts": {
+			"status": "complete",
+			"sha256": "695a00774fd7db174141c54939232dae2175c600d7c8c641f3e196804889eb1b",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/jev-router.ts": {
+			"status": "complete",
+			"sha256": "72f7b6bcb06979b0106f933a9d02dbcffce98b2d29f82148e73f187678a30025",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/mac-system-theme.ts": {
+			"status": "complete",
+			"sha256": "77dbe8837376851912d3f857e6dd6f47f4d8045c1abe640061500f250224fd17",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/message-renderer.ts": {
+			"status": "complete",
+			"sha256": "03eb73ab3389c8c0e33bf20c48ff89084ffc8d2211dc0bf65319cf8cdd24085d",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/minimal-mode.ts": {
+			"status": "complete",
+			"sha256": "0a495653acb9f0ce8c4405a9693760ed7c5f9c9f51195632f140a849935fb6cf",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/modal-editor.ts": {
+			"status": "complete",
+			"sha256": "0f7da43f443f78ef9ea26ea8167980ddaca2434731176a70ec187dac4b846841",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/model-status.ts": {
+			"status": "complete",
+			"sha256": "a5064ff5ef6903ff20ba2d971003faa8aa3fe6099f55257f574c3c8d5cb39e96",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/notify.ts": {
+			"status": "complete",
+			"sha256": "43191b63e233a014f1d0161052ee7a4c7cf118d44939c05823957e0a50646460",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/overlay-qa-tests.ts": {
+			"status": "complete",
+			"sha256": "d9dfea91694cac635cb7d53dc951006d267ee2813d75effc1bef743e6acf8617",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/overlay-test.ts": {
+			"status": "complete",
+			"sha256": "ec15cc39a82acfa3d59a0280294d0ff85b4bcf7aad6d22fec6321f4cd50b635f",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/permission-gate.ts": {
+			"status": "complete",
+			"sha256": "c728f29f74350025fa52f29eaeb537c41e203815727982a3f1ac3a30b82b7f2c",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/pirate.ts": {
+			"status": "complete",
+			"sha256": "85187eeaf67e9c778b773cb4a999e90c6647eb7740e374d55e047a6acd9b6786",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/plan-mode/index.ts": {
+			"status": "complete",
+			"sha256": "6d9043e0d9cc8a8d7a63192e4873db3a33318c2b1f9f58fe4f7bdfe43566e8bb",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/plan-mode/utils.ts": {
+			"status": "complete",
+			"sha256": "b784ca7fa4feaf0d44d430e0cad6d1a5d645d6da7db7dca238849cdeef98cc5a",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/preset.ts": {
+			"status": "complete",
+			"sha256": "8f8093d17c839608c2145b2aa3c96bc959044d4356051d85798d07e6c2f282fc",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/project-trust.ts": {
+			"status": "complete",
+			"sha256": "52167c58fbced3b9f683126a4ebafa2b2e39c92e8068d76fed928eb57fafd194",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/prompt-customizer.ts": {
+			"status": "complete",
+			"sha256": "5a3385f9a1a403696a46396f02c2163b1d6476726da5549188753883b8956f1d",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/protected-paths.ts": {
+			"status": "complete",
+			"sha256": "deb1b54734eb4d444aea7c635b0e509262dbbe4b9e74e9266d33b6914a50178a",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/provider-payload.ts": {
+			"status": "complete",
+			"sha256": "64131448864aab9c7a26de7fa5b14591db2f2087d8724248d4ae643c8245805f",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/qna.ts": {
+			"status": "complete",
+			"sha256": "f0f4f16b67ccf40269607f917533fa11467aaf269f9e6ee52f1775008d44d3b9",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/question.ts": {
+			"status": "complete",
+			"sha256": "61a816d4aab593e5fc121a0362b344d2b4d77966dd1d2f14f7eb07ca5ebc0d76",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/questionnaire.ts": {
+			"status": "complete",
+			"sha256": "2ce7884323406b80df6e35a7236787eb80fc4e3787c57a87b7495a09e93e13b5",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/rainbow-editor.ts": {
+			"status": "complete",
+			"sha256": "95ed56c23dc247c60ccc55b15b7c6ec737b32191f6065e730e2547486c08cd64",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/reload-runtime.ts": {
+			"status": "complete",
+			"sha256": "55843bca7b9c8e4d0263fc62f0389b0c558d84ed5a49dafcbc553c8f0c6384b1",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/rpc-demo.ts": {
+			"status": "complete",
+			"sha256": "a3683a52ab5ff5dc44eb5468b5b23cbf0b8847c1bef3be85a898e4c331e2924d",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/send-user-message.ts": {
+			"status": "complete",
+			"sha256": "8d235758e958f3b3474341b6eb00f40c574299e8f8ac7e77e2dfc810607f67fb",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/session-name.ts": {
+			"status": "complete",
+			"sha256": "4021cd80b110dab826d3120acdc2f58f28c2a3ae840a90326062d6c188b0ec11",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/shutdown-command.ts": {
+			"status": "complete",
+			"sha256": "c55b92dcbef335919b4d33524397aced40220018b587b50f08178f10122d2800",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/snake.ts": {
+			"status": "complete",
+			"sha256": "a347bf1f140d4ca04e83c96e2310c0845fa68fd1fb341129e96b5bb9fb6225ff",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/space-invaders.ts": {
+			"status": "complete",
+			"sha256": "0f9c5622eaef35ac90b30c36b8b06d154d5a588e4ea0ce1f9a1bfcfe71573c27",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/ssh.ts": {
+			"status": "complete",
+			"sha256": "330846a341a9622f20fa365524c04f1907306ccaa610a5a86567e38495859f7c",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/status-line.ts": {
+			"status": "complete",
+			"sha256": "427448c61408d6f13c2b2bd57b031603c6de2b79a75dc0c5c46c84a2589ef9c2",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/structured-output.ts": {
+			"status": "complete",
+			"sha256": "75d7e090ef48d936baa8011ed2c01c9a2ae3a469c6b288d71a756924947f6cd4",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/subagent/agents.ts": {
+			"status": "complete",
+			"sha256": "c20443f3020db5263a5d53c00e925e607bc03b4930dce84c400df1f0200681d0",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/subagent/index.ts": {
+			"status": "complete",
+			"sha256": "9ee3e3e4bee420d5f932ec5f34138eea2a1b3e62090c8cea7cabeafdf415c5c2",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/summarize.ts": {
+			"status": "complete",
+			"sha256": "8a466fd384b4907cc1ac25d79ed24db8c0bd7e8b599b6fda1d95f4f7dd0780b1",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/system-prompt-header.ts": {
+			"status": "complete",
+			"sha256": "a68cbdee1fd4937199129f9858a363807f780d1f914b17a1dd3782d4da5ab836",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/tic-tac-toe.ts": {
+			"status": "complete",
+			"sha256": "4237e680522345857834b57f9d3eb7415dc7ccb50d4f62d3a942ed5c8a3aa135",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/timed-confirm.ts": {
+			"status": "complete",
+			"sha256": "cb4aeb54c974134743e8a27fc2d798be4016fea31483ee821cb8d57ad8ff6dad",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/titlebar-spinner.ts": {
+			"status": "complete",
+			"sha256": "13f0886d8b393a3ed6838049ad784322c41d40d1bede26bbfbb1fe25ebd9d00b",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/todo.ts": {
+			"status": "complete",
+			"sha256": "30d8e26494b76b3a0717924fb0225b8a469c9e431ecfcbc2da245482324fe006",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/tool-override.ts": {
+			"status": "complete",
+			"sha256": "fa5a04e10d0410a2b45bd152f1f3107a8533a92a16e02720583067771d5e370d",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/tools.ts": {
+			"status": "complete",
+			"sha256": "e5c31ce27643cee8be9ca765543fb868f263b01220009c9ba9b2d6e6b3616df1",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/trigger-compact.ts": {
+			"status": "complete",
+			"sha256": "4603ed5a518e64986d869ec73928580a81bcf86125d57951b336cca497d38be2",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/truncated-tool.ts": {
+			"status": "complete",
+			"sha256": "6990f4ff4ab35a11c734ec82b4f4bd361f02124d16ae42892daf73e6969c41c1",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/widget-placement.ts": {
+			"status": "complete",
+			"sha256": "47e21dd4ed369410f0b633bb539d904508b6dba955030f7ca2d332b20e5cf23d",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/with-deps/.gitignore": {
+			"status": "reference",
+			"sha256": "4ce942c666ccf201c7c35b72b66e24e0b5515c1bc39754f3bcc2f61bfd1c464b",
+			"note": "忽略规则文件，无业务逻辑；同目录代码导读说明其对应的产物/依赖边界。"
+		},
+		"packages/coding-agent/examples/extensions/with-deps/index.ts": {
+			"status": "complete",
+			"sha256": "cfd6fb19ac7135dd671549b27c526d98211801c971e8b41f68e70c2768db8fe5",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/with-deps/package.json": {
+			"status": "reference",
+			"sha256": "dacbcbf070faca037ed1bf63add96d9afb42681cac518bcac9b1911fcdb78dbc",
+			"note": "示例扩展清单（JSON 不支持注释）。字段作用见 packages/coding-agent/examples/extensions/LEARNING.md 与同目录代码导读。"
+		},
+		"packages/coding-agent/examples/extensions/working-indicator.ts": {
+			"status": "complete",
+			"sha256": "2002d23aefbfb89598cc79851822f89f62ff52a757b38be78bd987cb43f693bb",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/extensions/working-message-test.ts": {
+			"status": "complete",
+			"sha256": "46e9666d859363ef515943c3f2a6bdd7f0ff6a40a34ff411da6d3a8f4b238182",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/rpc-client.ts": {
+			"status": "complete",
+			"sha256": "93e68a8afaf55f2eb412b91a8e2e312f631655ba2f6b23e703b4967e4971ad68",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/rpc-extension-ui.ts": {
+			"status": "complete",
+			"sha256": "3b041f2fb614c5c0371d731d7a03dac86b81f83c11ef80d1fd31119db7491630",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/sdk/01-minimal.ts": {
+			"status": "complete",
+			"sha256": "9a2e602b2b0795e324b241b398e20464464bf38a760dcc7ec61dfbd155a0a8f6",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/sdk/02-custom-model.ts": {
+			"status": "complete",
+			"sha256": "baa60096dc6ce4c47f9617591f29b7998c13b4b5d9ed272064397067cd373b5c",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/sdk/03-custom-prompt.ts": {
+			"status": "complete",
+			"sha256": "0ac2979a8cefeedf1eb8ee06fb4b433524e1659c5be0fb060d30f86e80a8dfc0",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/sdk/04-skills.ts": {
+			"status": "complete",
+			"sha256": "43510b16e5cd46b0e91de2b79e9502f50cb2b81a6f70282f8793ee5d8230ca34",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/sdk/05-tools.ts": {
+			"status": "complete",
+			"sha256": "06dbc2a673c99aceba989896f5ebba975c542e31a602020541f2efb1a6fd9995",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/sdk/06-extensions.ts": {
+			"status": "complete",
+			"sha256": "30a7b970bad8db95fb7917385f22a508583ff7b1beb389fd1d0fc54818f9d6af",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/sdk/07-context-files.ts": {
+			"status": "complete",
+			"sha256": "582878e3d5e304955e49e31319dd04519f41ef40bf254dc4b5585348fb2e81e9",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/sdk/08-prompt-templates.ts": {
+			"status": "complete",
+			"sha256": "2e434412ec62d52ba137d2c7a2117229cf9c39b51c81d523e4289ec28a72acce",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/sdk/09-api-keys-and-oauth.ts": {
+			"status": "complete",
+			"sha256": "ca5ca7ebe4f26730c3d2a5cf36b8a81e3b0feb30638b8d240e8722e3f0ac39e5",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/sdk/10-settings.ts": {
+			"status": "complete",
+			"sha256": "c2faaa559404a4e367f5845d026a45f4cdf7a5c781e14adc8cf94da0672b408e",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/sdk/11-sessions.ts": {
+			"status": "complete",
+			"sha256": "36436b4a3685d53c07243916367778dfc816209239f437c6771c865cd9cde371",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/sdk/12-full-control.ts": {
+			"status": "complete",
+			"sha256": "3e6be68a5e71eea857f391faf220519dae27d3d4cdbc7f1c30306e0345384303",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/sdk/13-session-runtime.ts": {
+			"status": "complete",
+			"sha256": "f9d48a060e85fda283a04447977e17f911a235c7f2fc07fb9bc16921978be3cc",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/sdk/14-codemode-mcp.ts": {
+			"status": "complete",
+			"sha256": "55ca5b4743257d678b1392b13f479c4d55a5ce3da897c9495990d645c1385b7f",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/coding-agent/examples/tsconfig.json": {
+			"status": "complete",
+			"sha256": "11f28c67320fcf4ccc1c0f1b301d75fe6e78c241bae26612cbcc1d555239aa5d",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
 		},
 		"packages/coding-agent/src/bun/cli.ts": {
 			"status": "complete",
@@ -4362,6 +6187,196 @@
 			"sha256": "ddebf843121e1da1a06b50d0d193ce400323639c8443e19e2f5e2828041d3739",
 			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
 		},
+		"packages/durable/test/examples/00-conversation.ts": {
+			"status": "complete",
+			"sha256": "4035b6368fca8fb6308e38d63b486c3ffc6fb9509b5ad16a635532dc57556c07",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/01-documents.ts": {
+			"status": "complete",
+			"sha256": "7200781b6164a0393cbd43812731b40df21af2efea1df98de57f0e54250f4412",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/02-forks.ts": {
+			"status": "complete",
+			"sha256": "1a6a4a2eadc0f9201c267757a72d1d166ae7bfce1286e65b4919930a54739882",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/03-owned-conversations.ts": {
+			"status": "complete",
+			"sha256": "fd0289b1215f3c81803595451f6ec771c9b8c685f0c878e3d0e10aae2523af5a",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/04-watches.ts": {
+			"status": "complete",
+			"sha256": "1aca509b70c0d750c6c65bf6482c24db533aac78135f4b861192a03e424f8664",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/05-harness.ts": {
+			"status": "complete",
+			"sha256": "bc7dc005cd5c3df13ba1d65a0ef5cf32cc39a35fb716d2567c3859f490bf86fd",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/06-configuration.ts": {
+			"status": "complete",
+			"sha256": "109ca8cd638fa898f43b8679ecce50a1b255829fe9fe2a149dc58d770068ec6a",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/07-harness-conversations.ts": {
+			"status": "complete",
+			"sha256": "8e8c4785c30308fdf82a232c529f86f461b8f8bfd2d131f5eddf4efc2940853d",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/08-context.ts": {
+			"status": "complete",
+			"sha256": "c354694c2834817a622703891c3861d8491a85ba92ab4d36a81c17b212182689",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/09-registry-reload.ts": {
+			"status": "complete",
+			"sha256": "40fdd503b49a51db75cf539de83443e40843a4578473b4d7056e0f9e821c1d0f",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/10-extension-state.ts": {
+			"status": "complete",
+			"sha256": "a2f667819a34afc03e23fc476f490355c89660f11e6158451363fa7211ad2c3b",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/11-tasks.ts": {
+			"status": "complete",
+			"sha256": "1776cda097d2d7fb9e1523c8c7296ae69bd5792dbb1a62c6ef29ecaecaeb2ec2",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/12-recovery.ts": {
+			"status": "complete",
+			"sha256": "b79dbef6d30ae34ff1de04685dd313743623681a419d63b6aa74c44d650c94e1",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/13-chat.ts": {
+			"status": "complete",
+			"sha256": "558edfab3d67107974b1d52ddbabcc033d35a92e63b59dd80009be083b59d207",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/14-system-prompt.ts": {
+			"status": "complete",
+			"sha256": "d26cfd05aab434286bdc7461381ed26e533acb12516ce299249fd07122832a36",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/15-real-model.ts": {
+			"status": "complete",
+			"sha256": "664784d0de70f3d976c12aeb06dfe4020608372db473081246d04b1ddd23b10b",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/16-coding-tools.ts": {
+			"status": "complete",
+			"sha256": "cec12d101a8918bc0ec4c6e9568d05327f98e8291eb800ca1e2e9e493ee3f541",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/17-print.ts": {
+			"status": "complete",
+			"sha256": "00c0a4d2320b03fef42d5ece24d1f4344cc803c5defb7e78749bf3565955542b",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/18-json.ts": {
+			"status": "complete",
+			"sha256": "cdef6d66cd2edb9daa926a440b4c1d4b272ab60de49697f3e7bbfe9202c7f290",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/19-inbox.ts": {
+			"status": "complete",
+			"sha256": "7a64e96921b7ffd69eff1bac65c5d9fe5b6d6fd68388e3423aef2d471bc53524",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/20-late-join.ts": {
+			"status": "complete",
+			"sha256": "14e6e4f836405a7b980ef476bb63bb7ad75152654d0bec3c81fdf9efc4e48cca",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/21-subagent-foreground.ts": {
+			"status": "complete",
+			"sha256": "df4b5a4b6a02349f21c89175b0ffdcdf6f916bb0f04a1aba2d05bad791761bf7",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/22-subagent-background.ts": {
+			"status": "complete",
+			"sha256": "b06d3b8118c6b3138ac381ce2944dae82a382edae84734cf3e54762ae285baea",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/23-child-tasks.ts": {
+			"status": "complete",
+			"sha256": "2c69497c394f169327f94cdca2d3c49b547ae6eb236ea4068fb4589367e88b91",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/24-compaction.ts": {
+			"status": "complete",
+			"sha256": "2a92d6f4cb324ec68ea28f270d57a409dda4ca30799d899e2ab0dacefcde1484",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/25-coding-agent.ts": {
+			"status": "complete",
+			"sha256": "b794792d18fd60ec36105114b69e946f8b6e6cbb45ca6a32842ee44375b406cc",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/26-plan-mode.ts": {
+			"status": "complete",
+			"sha256": "ecb7da36f679340bef59a5165c18c413c10f251cc7db44fd768a2e210c352439",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/27-reviewer.ts": {
+			"status": "complete",
+			"sha256": "b6911d52772d9229e7869145325d541ceb4336c9bc239c504e57f580fcfdec2f",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/28-sandbox-per-conversation.ts": {
+			"status": "complete",
+			"sha256": "947785ac5d6588a2887eaa3b7d7836d4825aac8af86a89a533253c59939273a0",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/29-tool-override.ts": {
+			"status": "complete",
+			"sha256": "e7f11eb098dbd4dd149932aade072cf0aa4d8c0670711604d7d0833148d9974c",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/30-reload-and-restart.ts": {
+			"status": "complete",
+			"sha256": "48be3ba5ad45ff8ea26c661f0077ce73711993e5aef5ccf80ed348e7b58c62c2",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/31-transcript.ts": {
+			"status": "complete",
+			"sha256": "d2091b7a34d62586eac107d155a2e7c8333487123cdc569d38dfaa2cf72a922e",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/32-tests-after-edits.ts": {
+			"status": "complete",
+			"sha256": "3c66ec9dff9c79791e2c68e4eefe4314e99e7a1d8c89b18dd719b6cd3b35d569",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/33-turn-limit-and-continue.ts": {
+			"status": "complete",
+			"sha256": "dd267c9e91a7347746efa5704773e620c8f40d0e774513821acc4be02298992a",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/34-submit-in-commit.ts": {
+			"status": "complete",
+			"sha256": "5159b1336f8048113e9df31e78f3a72619da23baf490b7290e765054dead52ed",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/35-durable-on-the-store.ts": {
+			"status": "complete",
+			"sha256": "5cc6e4eda5f2e7929af0a915aaad38c00a07e6e02afceb6aa733ab88c8885771",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/36-durable-views.ts": {
+			"status": "complete",
+			"sha256": "9bad9583a9d3e8f5cf8b69e9c964c003277ba7e02037a3b5130b53a8b57d84ad",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"packages/durable/test/examples/37-harness-registry.ts": {
+			"status": "complete",
+			"sha256": "7b6dda258a222203f6e491bed3015bbce016c27451c375ffd54dab1b4800cb5b",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
 		"packages/durable/test/harness-tools.test.ts": {
 			"status": "complete",
 			"sha256": "64eb4629630903f3db5cf245c11acba83570fa4021bbb8251ea5664713283dd3",
@@ -5602,10 +7617,75 @@
 			"sha256": "97e9aa789add462dc5aaecd78c82a6b780a9e3cae5b47b0e5cd7c287b8e009cd",
 			"note": "整文件：历史键位/缩小/技能补全/SIGWINCH回归/主题helper或ANSI换行；逐句断言/语法和实际callee全文核对，5指定离线文件37通过，信号/复制均mock，无真实终端或剪贴板。"
 		},
+		"pi-test.bat": {
+			"status": "complete",
+			"sha256": "f81ebeafd6cf29f5d2b6ff2662c0e99935412bd72e4ee9f3ece7d937e65358c4",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"pi-test.ps1": {
+			"status": "complete",
+			"sha256": "a8bc87a5a79c25f22a951f6a459800839ee8e098bee971ee9f1c19b5ba6cb700",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"pi-test.sh": {
+			"status": "complete",
+			"sha256": "8037536d39ed5ccd5ef4ab5ea82e330c2f2b2b2aa8f029c45c4abf4115d14eab",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/agent-treeshake-smoke-entry.ts": {
+			"status": "complete",
+			"sha256": "c44688117c3f07c17add90de6b4d511517cb5b6167a0a1ac856e57f3d3474111",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/auto-pi.sh": {
+			"status": "complete",
+			"sha256": "f17201a607e5cf68c0a16897b9cc19d3e0d40bed43c40adba64539d7a8a9f61d",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
 		"scripts/biome-check.mjs": {
 			"status": "complete",
 			"sha256": "c2782bed8590fecce600fea9acc8b0be4ff9ba1e980f3c6ba5d1c7976b7d7076",
 			"note": "整文件：平台选择、原生启动器覆盖/WASM静态加载、顺序glob、内存插件/文件、safeFixes与格式/诊断/清理；本机Biome类型与实现及全文/交叉复核，统一check实际运行native，WASM分支未在本机强制执行。"
+		},
+		"scripts/browser-smoke-entry.ts": {
+			"status": "complete",
+			"sha256": "06c7c45fc667e0da62943b8c1caa542bfa1ad69140d5560323d020fbfaa7676b",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/build-binaries.sh": {
+			"status": "complete",
+			"sha256": "54ad1794d369149084419b1e7ef6f1442d2e6c320487511701eb3a7c352e2d59",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/build-coding-agent-bundle.mjs": {
+			"status": "complete",
+			"sha256": "9fe9e327e4f4665d154714cfc8da58faa1be1ed7343039234a45836dcea670ed",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/check-browser-smoke.mjs": {
+			"status": "complete",
+			"sha256": "1a47650e8d65771a41818accaaeaad498a5c15ecd7e2d69b53a5acb8b8ed7b8b",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/check-entry-graphs.mjs": {
+			"status": "complete",
+			"sha256": "dfe43125953b6f1c25af513a03a63e5a83bd33d2a5ad4f97ba276982b6c5695c",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/check-lockfile-commit.mjs": {
+			"status": "complete",
+			"sha256": "142d919bec7b9c8b114c7fc20c7b822a6936631a78261a8d83513f00dd92cc90",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/check-model-catalog-compat.mjs": {
+			"status": "complete",
+			"sha256": "f2332439f9ef0285054ec70265583531f53fb92ef7b2082f8b9db40efd10a701",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/check-package-install.mjs": {
+			"status": "complete",
+			"sha256": "0f16ebd762ec34b8c0cd406d6d3deab8f8bea5cf77207198c907a6f161b67e25",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
 		},
 		"scripts/check-pinned-deps.mjs": {
 			"status": "complete",
@@ -5632,15 +7712,250 @@
 			"sha256": "79b26d77fec2cba1f7167309a2efc9491c6765ffc4a202eeb6729f81fd7aabdf",
 			"note": "整文件：递归非声明TS、固定说明符/ImportTypeNode、noResolve合成项目/FS覆盖及AST定位；本机TS7类型/实现与原/成稿/交叉核对，两个临时目录实际入口14条Node断言通过，未运行fixture导入代码。"
 		},
+		"scripts/coding-agent-smoke.mjs": {
+			"status": "complete",
+			"sha256": "9f477613e2047402a4ec748a4d1833f67c269c8c68dac371a6e07507293da8b3",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/coding-agent-smoke.test.mjs": {
+			"status": "complete",
+			"sha256": "1e3f597300be89a9a7c1d89d03b25914c1e0bbb635f54eecf1237ca0bdc5007a",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/cost.ts": {
+			"status": "complete",
+			"sha256": "0caf80ec8b15a41575b06ab048bf8f37659fb739541909ca62ef5eff1dad1984",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/create-source-archive.sh": {
+			"status": "complete",
+			"sha256": "32762cc59e4c64e8297351a5927eb3b71ea467abe35adc3e6b5c8e5562dd0162",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/diff-model-catalog.mjs": {
+			"status": "complete",
+			"sha256": "f82d7f52ec7358b6b35e3f1d8ea3c504bc6b0ea2fad95895ea4c624927570239",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/durable-browser-smoke-entry.ts": {
+			"status": "complete",
+			"sha256": "c39730b29cd5c1724fdc40f66023538c729d446a382c0c2481abc396a2dad2b0",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/edit-tool-stats.mjs": {
+			"status": "complete",
+			"sha256": "b041c458166af2c73bd035588ce01409c677a25d54036f0665fb80be1b219a19",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/generate-coding-agent-install-lock.mjs": {
+			"status": "complete",
+			"sha256": "92a30dc38089646fc7355378ec95a96869dee781010e69a5864f03a824d6226e",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/generate-thinking-capabilities.mjs": {
+			"status": "complete",
+			"sha256": "2258e3e25eff69790bfd84d33131e7447e4bff7cbc316050132e44a8d1cb199a",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/issues/.gitignore": {
+			"status": "reference",
+			"sha256": "c5049c183f87267ff36ee98b52517e1f78670639f3a060baa89d4093a555f59b",
+			"note": "忽略规则文件，无业务逻辑；同目录代码导读说明其对应的产物/依赖边界。"
+		},
+		"scripts/issues/github.ts": {
+			"status": "complete",
+			"sha256": "8a726157496e24b6ea53f3622ae4ff5cf529be6bedd03ba4acbb3598370cb8ba",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/issues/main.ts": {
+			"status": "complete",
+			"sha256": "c1342729f77c098f4e7c8b554da57e25eb40d066a7a51fd1af2dce33baec91d6",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/issues/register.mjs": {
+			"status": "complete",
+			"sha256": "c7941e92bb6d31867a2d95204d53b07a94d54062c57ef76f24f06202631d0912",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/issues/run.sh": {
+			"status": "complete",
+			"sha256": "c44e26ab4c498c2fdd487f7115394a9cdb247b9a2f26ff901aa0db7c6c9cb2fa",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/issues/source-hooks.mjs": {
+			"status": "complete",
+			"sha256": "d9efcf61da449294ba4164a3d7e873dc54d9fb9be7be4f41dd5de4d07c2bea4f",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/issues/triage.ts": {
+			"status": "complete",
+			"sha256": "93cd36223d475a81722f75f701d87642a32e8be1df7f6f3313289fafa5b8b56b",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/issues/ui.html": {
+			"status": "complete",
+			"sha256": "816f03f9fd09f9c72c98194c57b32dc67def0a53c7954db98496c09e733b49fd",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/local-package-install.mjs": {
+			"status": "complete",
+			"sha256": "a94aa891cb97a0709b181ec38d3c4a35d078b95262eb2af287a4de5c0c0258d0",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/local-package-install.test.mjs": {
+			"status": "complete",
+			"sha256": "47cf7afd3b7c51625cb84b312d0c965a1043023e51100c826f7d35357cc1951a",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/local-release.mjs": {
+			"status": "complete",
+			"sha256": "f89ef57cab8fc308df0f3908d730394128e170f1b81429bd0a485a4ad5dd3c35",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/model-catalog-minimum-version.mjs": {
+			"status": "complete",
+			"sha256": "3707040e7228c78e695fe4ec1e3ddcb1421174d0544ab080571cbfbf572c964f",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/model-catalog-protocol.test.ts": {
+			"status": "complete",
+			"sha256": "06bb307f859d8bd39c1965b088eaad2aec1a2127e9ba28e4eeb96852978f2b2c",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/model-catalog-protocol.ts": {
+			"status": "complete",
+			"sha256": "87232dac4a7c590d7d4680ea8d49ca3ae08be55f6e71b50f369054453f925728",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/npm-audit.mjs": {
+			"status": "complete",
+			"sha256": "47f296ecaba7c7cd9aefa1a1ccaf9f94ce8a12417066a42e2e79d39fb741d7b0",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/npm-command.mjs": {
+			"status": "complete",
+			"sha256": "59f078a984cd5c4e9db1a519466f09d353c14e31e21e83d5672c97d63e45dcef",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/pack-packages.mjs": {
+			"status": "complete",
+			"sha256": "b61f2f67c78cb1568df44382d15217661b1ee122ba651a732e2927bdbc74382a",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/package-artifact-cli.test.mjs": {
+			"status": "complete",
+			"sha256": "97b919a7612d7beb887929a5afe5a5700e550c2946428553a086d60aa69341f6",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/package-artifacts.mjs": {
+			"status": "complete",
+			"sha256": "9289b9c3bb3fbcca9d44cf42268a16564be49d60d09627e214c54663056d1127",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/package-artifacts.test.mjs": {
+			"status": "complete",
+			"sha256": "f2eb124f982ced4edab271136464a8678ee328000b61d48a621c5dac88f5cf0f",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/package-files.mjs": {
+			"status": "complete",
+			"sha256": "69d8ab58a25d7990fe81e7ec3996c6fed46dda8597070006c2328395dcb23976",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/package-files.test.mjs": {
+			"status": "complete",
+			"sha256": "1ce801496964f7831e85d7b26456c6ed093b86ea0940f1fa348648565ffb6779",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
 		"scripts/package-workspaces.mjs": {
 			"status": "complete",
 			"sha256": "875db9d4456fee94162d7c1be8e36837701263d30ae29aa7edd0d1948b2df968",
 			"note": "整文件：递归目录/package.json存在性、Dirent不跟软链、固定跳过名/继续嵌套/字符串排序及默认参数；原成稿/callee与交叉全文复核，既有依赖检查8项隔离临时目录测试通过，不解析workspaces或安装发布。"
 		},
+		"scripts/preview-packages.mjs": {
+			"status": "complete",
+			"sha256": "e1d45f659c412b64a70aa3033131968ddcce30f1b54d5b062f4fb4068850a576",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/preview-packages.test.mjs": {
+			"status": "complete",
+			"sha256": "dd175404be00c78603dcacdc82d09eed0213b09c279ff38eb17079f49b5c4ffb",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/profile-coding-agent-node.mjs": {
+			"status": "complete",
+			"sha256": "d10148267f784b3a2966e081ee9b5c7e95d8b4a9b5f22b053cfa77e6617453c1",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/publish-model-catalog.mjs": {
+			"status": "complete",
+			"sha256": "b9101404c0f1bb0c7509036526a7d094a3152f33c01cdcb4b09afd566c7d6a7d",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/publish-model-catalog.test.mjs": {
+			"status": "complete",
+			"sha256": "be306a3ec00687e6708cdd1d0d6b7144c76a3496c0bae713361feeabc80c30e4",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/publish-release-announcement.mjs": {
+			"status": "complete",
+			"sha256": "ec0eec87fda775f7d2f832fff252a051db0f5237ac73c3669ef683ac4111c701",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/publish-release-announcement.test.mjs": {
+			"status": "complete",
+			"sha256": "823820a7ef110fe9a20e6ae2f9c5d7dfe0296a3accaccdc5dd161bd9a290a025",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/publish.mjs": {
+			"status": "complete",
+			"sha256": "4145809b0fefc615ae627249963e3f3cdd7e89566cbd0f03321461a0f10b636f",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/read-tool-stats.mjs": {
+			"status": "complete",
+			"sha256": "bcdedf93733a857c6688de6854c3926cd65fb0e74d4abaee846c8c42303ce6a7",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/release-notes.mjs": {
+			"status": "complete",
+			"sha256": "4e9fc14b0cf5c029e048d39658f9d05fbc64467d37080fa041f46b6c0f10415e",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
 		"scripts/release-packages.mjs": {
 			"status": "complete",
 			"sha256": "f6ea998773e6d3224aa5a1ba443bd6048758c4d2eed8417f7aed9ae5084adc05",
 			"note": "整文件：排序目录/同步JSON浅展开/同名directory覆盖/private严格true/字段投影与异常；原成稿/callee与交叉全文复核，既有依赖检查8项隔离临时目录测试通过，无发布执行。"
+		},
+		"scripts/release.mjs": {
+			"status": "complete",
+			"sha256": "3b4e04512bd0a52163f08ae70f62cf8b4ae8b8e6f4228613627d8ac8aded743c",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/repro-5893-wsl-bash.mjs": {
+			"status": "complete",
+			"sha256": "c3784de0688d96807c9479f8a5c138a9e055e8fc76173c754e8e6270cbf37d36",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/session-context-stats.mjs": {
+			"status": "complete",
+			"sha256": "42a3ffe718c069871cc84f920597791a36221d7cf644ae98346ded1cc3eb634f",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/session-transcripts.ts": {
+			"status": "complete",
+			"sha256": "9e9c6f1f7da93c226dc8f82003d2a4709de10c7d91eb151a36aac8f9e1b11dfc",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/smoke-test-codemode-binary.mjs": {
+			"status": "complete",
+			"sha256": "2ac2ba5cdba8b8e23bef24c554febe9237807177b638ad475109275a78be49bf",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/stats.ts": {
+			"status": "complete",
+			"sha256": "d04c126e93601199dd50866a4a20911a09253fbb8727a9bd96fe92668a2aabc5",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
 		},
 		"scripts/study-status.mjs": {
 			"status": "complete",
@@ -5651,6 +7966,46 @@
 			"status": "complete",
 			"sha256": "84489912c3b1283146a8175ffeaf154cace48a6b58144621b20ff81d10032702",
 			"note": "整文件：工作区同步版本、内部精确依赖及 version.ts 的生成来源；本轮未运行写入脚本。"
+		},
+		"scripts/sync-versions.test.mjs": {
+			"status": "complete",
+			"sha256": "c60a2811ee9acafaf8ddb92b863baefc66a80ede74be275661e78f8de268c652",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/tool-stats.ts": {
+			"status": "complete",
+			"sha256": "ac71f9257005fcf60fb639066ef1fb23a758b34aee11b7ce7aed359a81447798",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/update-model-catalog-pin.mjs": {
+			"status": "complete",
+			"sha256": "44ec2f13ecb7e112de09cdc31b1f10bf4fc5f3b85a9db134037045d5de3bee11",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/update-model-catalog-pin.test.mjs": {
+			"status": "complete",
+			"sha256": "f0bc7bec131c8948cadda1250ccc7746cd9adfb00fc0e00ee48b423c9a3cecaa",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/update-source-imports-to-ts.sh": {
+			"status": "complete",
+			"sha256": "0f942564ecee3d8ab15e67427a3f4e74ec20f252053fc23abcaab29e05b76201",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"scripts/use-local-packages.mjs": {
+			"status": "complete",
+			"sha256": "30a67d26dc599dfde278b4ef1f76a72e76baab0d6deec57562d43e2c40897a25",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"test.sh": {
+			"status": "complete",
+			"sha256": "4ccfbd627c7217d797b74b425826ee669f6d2f672ca613aae8811a50cc6f3c1f",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
+		},
+		"vitest.base.ts": {
+			"status": "complete",
+			"sha256": "d572e670fdf50bcfddbd5b3bb745f8a302771e590b2dba73e1b444795c11eab3",
+			"note": "整文件：示例/脚本学习注释逐行补充，文件导读、真实签名示例与逐行说明复核；注释之外未改代码。"
 		}
 	}
 }

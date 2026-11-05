@@ -1,3 +1,10 @@
+// 文件导读
+// 所属：packages/codemode/examples/cloudflare/sandbox，Cloudflare 沙箱 Worker 部署配置。
+// 作用：声明仅通过 Durable Object 绑定访问的沙箱 Worker，关闭公开 URL，并设置每请求 CPU 额度。
+// 上下游：wrangler deploy 读取本文件；agent 的 wrangler.jsonc 用 script_name 引用本 Worker；实现见同目录 src/index.ts。
+// 能力：name/main/compatibility_date 定义 Worker；workers_dev/preview_urls 关闭公开入口；migrations 登记 CodemodeSandbox；limits.cpu_ms 设每请求 CPU 额度。
+// 示例：先在 sandbox 目录运行 `wrangler deploy`，再部署 agent；两边的 Worker 名称必须一致。
+// 阅读顺序：先读 src/index.ts 的导出与 fetch，再对照本文件的绑定边界和限制。
 {
 	// schema 用于配置提示；Worker 的名字须与客户端绑定的 script_name 一致。
 	"$schema": "node_modules/wrangler/config-schema.json",

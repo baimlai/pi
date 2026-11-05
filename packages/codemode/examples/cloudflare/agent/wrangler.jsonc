@@ -1,3 +1,10 @@
+// 文件导读
+// 所属：packages/codemode/examples/cloudflare/agent，Cloudflare Worker 部署配置。
+// 作用：声明 agent Worker 的入口、兼容日期、Durable Object 绑定与迁移；运行逻辑在同目录 src/index.ts。
+// 上下游：wrangler deploy 读取本文件；SESSION 绑定本 Worker 的 Session 类，CODEMODE_SANDBOX 通过 script_name 指向独立沙箱 Worker。
+// 能力：name/main/compatibility_date 定义 Worker；durable_objects.bindings 注入两个绑定；migrations 创建 Session 的 SQLite 存储类。
+// 示例：在 agent 目录运行 `wrangler deploy`；部署前先部署 sandbox Worker，且其 name 与这里的 script_name 一致。
+// 阅读顺序：先读 src/index.ts 的 Env 与 fetch，再对照本文件的绑定、迁移和注释。
 {
 	// 本地 schema 为编辑器提供配置提示，不会在运行时替工具检查参数。
 	"$schema": "node_modules/wrangler/config-schema.json",

@@ -1,5 +1,24 @@
 #!/usr/bin/env node
 // 这个手工复现只适用于Windows进程，通过指定的WSL启动器执行bash工具，检查变量展开是否保留；本轮不执行真实shell。
+
+// 文件导读：GitHub issue #5893 的 Windows/WSL bash 手工复现脚本。
+// 所属：仓库根 scripts/，不是自动测试，不在 npm scripts 或 CI 中运行；只供维护者在 Windows 主机上手工执行。
+// 作用：用 coding-agent 的 bash 工具通过 `C:\Windows\System32\bash.exe` 执行两条命令，检查子 bash 是否保留
+//   `${name}` 这类变量展开，而不是被 JS 模板或参数处理提前消费。
+// 上游：`node scripts/repro-5893-wsl-bash.mjs`，必须在 Windows PowerShell/CMD 中运行；WSL 内部（Node 平台为 linux）
+//   会主动拒绝，macOS/Linux 同样拒绝。
+// 下游：导入 `packages/coding-agent/src/core/tools/bash.ts` 的 createBashTool；每次 execute 启动真实 bash 进程。
+// 前置条件：已启用 WSL，且固定启动器路径存在；缺失时脚本报错，不会尝试安装或自动寻找其他 bash。
+// 输出与退出码：每条用例成功时打印归一化后的输出；任何断言失败或前置检查失败都抛错，Node 退出码 1。
+// 副作用：启动子进程执行 shell 命令（仅 echo/for/seq，无文件写入）；不会修改仓库。
+// 能力清单：
+//   - getTextOutput(result)：从工具结果中提取 text 块并用换行连接。
+//   - runCase(label, command, expectedOutput)：运行一条命令并做去尾空白后的完整字符串比较。
+//   - 顶部检查：平台与启动器存在性。
+// 典型运行与预期：
+//   示例（仅 Windows）`node scripts/repro-5893-wsl-bash.mjs`；成功时最后打印
+//   `issue #5893 WSL bash repro passed`。
+// 阅读顺序：先看常量 shellPath 与三个展开表达式，再看 runCase 的断言方式，最后看两条命令用例。
 import { existsSync } from "node:fs";
 import { createBashTool } from "../packages/coding-agent/src/core/tools/bash.ts";
 

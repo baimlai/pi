@@ -1,3 +1,17 @@
+// 文件导读
+// 所属：packages/durable/test/examples 的 30-reload-and-restart.ts，Durable 示例系列第 30 个，演示“扩展热替换与重开”。
+// 演示内容：versioned 扩展的 version 工具先被门闩挂住；运行中把注册表里的同名扩展从 v1 换成 v2，旧调用仍返回 v1，
+// 下一次调用返回 v2。随后关闭 Harness，用同一 sqlite 文件和空注册表重开：会话仍保存扩展名 versioned，
+// 但未安装代码时解析不出 version 工具；安装 v3 后工具重新出现。
+// 上游入口：node 直接运行本文件；固定 faux 响应，无网络；sqlite 文件在临时目录中。
+// 下游依赖：Durable 的 Harness/defineExtension/defineTool/createRegistry，Node sqlite 存储，pi-schema 参数。
+// 能力清单：loadVersioned 闭包工厂；started/gate 两个同步点；lastResult 读取工具文本；热替换；
+// 两轮 open；重开后 before/after install 工具查询。
+// 典型顺序：定义版本化扩展 -> 配置 faux -> 首次打开并建根会话 -> 提交并等工具开始 -> 安装 v2 -> 放行 v1 ->
+// 第二次调用验证 v2 -> 关闭 -> 空注册表重开 -> 查看工具 -> 安装 v3 -> 查看工具 -> 清理。
+// 前置条件：无需 API key；没有真正启动第二个 OS 进程，重开只是新的 Harness 连接同一 sqlite 文件。
+// 预期输出：热替换期间的调用为 v1，下一次为 v2；重开后未安装时工具列表为空，安装后为 [version]。
+// 阅读顺序：先看 loadVersioned 如何用闭包捕获版本，再看门闩与热替换顺序，最后看重开前后的名字解析。
 // 演示同名扩展热替换与重开恢复：进行中的回调保留旧闭包，持久配置只保存名字。
 // Reload an extension while a call runs, then restart the process. Running work finishes on the code it started
 // with; stored choices are names, so they survive a restart and bind to whatever code the new process installs.
@@ -8,11 +22,13 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { BACKGROUND_CONTEXT } from "@earendil-works/chord/context";
+// import type 只提供编译期类型；ToolResultEntry.is 才是运行时记录判别。
 import type { ToolResultMessage } from "@earendil-works/pi-ai";
 import { createModels } from "@earendil-works/pi-ai/models";
 import { fauxAssistantMessage, fauxProvider, fauxToolCall } from "@earendil-works/pi-ai/providers/faux";
 import { obj } from "@earendil-works/pi-schema";
 import { createRegistry, defineExtension, defineTool, Harness, ToolResultEntry } from "../../src/index.ts";
+// sqlite 存储让关闭后的第二轮 Harness 读取同一份任务、条目与配置；路径由临时目录拼接。
 import { openNodeSqliteStorage } from "../../src/storage/sqlite/node.ts";
 
 // 此例用 SQLite 文件模拟关闭后重开；没有真的启动第二个 OS 进程，异常向顶层传播。
@@ -74,8 +90,8 @@ const open = async (registry: ReturnType<typeof createRegistry>) =>
 let registry = createRegistry();
 // 安装 v1 实现。
 registry.install(loadVersioned("v1"));
-// 打开首次 Harness，连接临时数据库。
-// 以新注册表重开同一数据库，恢复已保存配置。
+// 第一次打开 Harness，连接临时数据库；下面第二轮会用同一路径重开，
+// 从而观察持久配置与注册表代码的分离。
 let harness = await open(registry);
 // 创建根会话；扩展对象在 configure 流程中被保存为名字，不保存闭包代码。
 let root = await harness.root(context, {
@@ -140,5 +156,5 @@ registry.install(loadVersioned("v3"));
 console.log("after install:", await tools());
 
 await harness.close(context);
-// 最后删除 SQLite 临时目录；没有 finally，前面失败时不会自动清理。
+// 删除 SQLite 临时目录；示例没有 finally，前面失败时不会自动清理。
 await rm(directory, { recursive: true, force: true });

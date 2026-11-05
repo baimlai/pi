@@ -1,8 +1,22 @@
 #!/usr/bin/env node
+// 文件导读
+// 所属：仓库根 scripts/ 的思考能力快照生成器，被 diff-model-catalog.mjs 的 --thinking 模式调用。
+// 职责：读取一份模型目录 JSON，按当前工作区的 getSupportedThinkingLevels 规则计算每个模型的生效思考级别，
+//   记录与级别同名的原生值映射，按 provider 写出紧凑 JSON 快照。
+// 上游：diff-model-catalog.mjs（两侧 worktree 各运行一次）；也可手动执行。
+// 下游：读取目录 JSON 与 packages/ai/src/models.ts 的实现；写 <output-dir>/providers/<provider>.json。
+// 输入：位置参数 <catalog-path> <output-dir>；目录形状为 provider → modelId → model 对象。
+// 输出：无 stdout；成功时退出码 0。缺参数/读盘/解析失败以未捕获异常退出（默认退出码 1）。
+// 副作用：递归创建输出目录、覆盖同名 provider JSON；不清理旧文件、不联网、不调用模型。
+// 幂等性：同一输入与同一实现产生相同文件。
+// 示例：
+//   node scripts/generate-thinking-capabilities.mjs .artifacts/model-catalog/models.json /tmp/thinking
+// 建议阅读顺序：参数校验 → 目录遍历 → getSupportedThinkingLevels → thinkingLevelMap 过滤 → 写文件。
 // 将聊天目录转成有效思考能力快照。输入是目录 JSON/输出目录，副作用为 mkdir 和写 JSON；不会调用模型。
 
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+// 从 TypeScript 源直接导入依赖 Node 的类型剥离；这是判断“支持哪些级别”的唯一规则来源。
 import { getSupportedThinkingLevels } from "../packages/ai/src/models.ts";
 
 // 数组解构取两个位置参数；slice(2) 跳过 Node 可执行文件和脚本路径。

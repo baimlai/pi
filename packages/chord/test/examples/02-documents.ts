@@ -1,6 +1,42 @@
 // Documents and transactions: an object's in-memory JSON state, written atomically.
 // Run from packages/chord:
 //   node --conditions=source --experimental-strip-types test/examples/02-documents.ts
+// 文件导读
+// 所属包与示例系列：packages/chord/test/examples，Chord v2 示例 02，对应 slice 1（in-memory documents 与事务）。
+// 演示什么：对象内的内存 JSON 状态。单例文档每个对象一份；keyed 文档按字符串键区分，读取不存在的键不会创建。
+//   一次 self.tx 可以同时修改多份文档，回调里的草稿在提交前不对外可见；回调抛错或提交失败则全部回滚。
+//   演示还包括草稿自增、opt 可选字段、事务外读取、keys 迭代，以及 retire 的重置/删除语义。
+// 上游/下游：文件顶部命令启动；下游使用 src/documents 的 defineState、src/host 的 createHost/defineFacet、
+//   src/contracts 的 schema 构造器。示例无持久化、无网络，关闭宿主即丢弃状态。
+// 能力清单（按演示的机制）：
+// - defineState(name, { schema, version, initial })：单例文档；initial 只在首次结果时按 schema 检查。
+// - defineState(..., { keyed: true })：按字符串键的文档；键只在草稿发生变化时创建记录。
+// - self.state(handle)：取得文档句柄；句柄的 value 可观察，change/retire 进入对象事务队列。
+// - self.tx(fn, ctx)：一个事务覆盖多份文档；草稿修改原子提交，回调返回值在提交成功后交给调用方。
+// - tx.draft(handle[, key])：取单例或 keyed 草稿；draft.next++ 先取旧值再自增；返回普通值而非草稿引用。
+// - 事务外读取：单例 store.todos.value；keyed notes.get(key, ctx) 缺失时返回 undefined；keys(ctx) 异步迭代键。
+// - retire：单例重置为 initial()；keyed 按键删除；clear 中多个独立事务不构成整体原子操作。
+// - opt(str())：字段可省略，不会自动补默认值；语法上与必填字段区分。
+// 典型运行顺序：load -> get Store -> 带备注添加第一项（返回 id 1）-> 无备注添加第二项 -> 读 todos 与第一项备注 ->
+//   clear（重置单例并逐键删除备注）-> 读空待办与 (none) -> 关闭宿主。
+// 示例（符合真实签名）：
+//   const Todos = defineState("todos", { schema: obj({ items: arr(obj({ id: int(), text: str() })), next: int() }), version: 1, initial: () => ({ items: [], next: 1 }) });
+//   const Notes = defineState("notes", { schema: obj({ body: str() }), version: 1, initial: () => ({ body: "" }), keyed: true });
+//   const id = await self.tx(async (tx) => {
+//     const draft = await tx.draft(todos);
+//     const id = draft.next++;
+//     draft.items.push({ id, text });
+//     (await tx.draft(notes, String(id))).body = note;
+//     return id;
+//   }, ctx);
+// 运行方式与环境：在 packages/chord 下执行文件顶部命令；无环境变量、无网络；瞬时完成。
+// 预期输出：
+//   todos: [ { id: 1, text: 'buy milk' }, { id: 2, text: 'call Anna' } ]
+//   note of 1 -> the oat one
+//   after clear: { items: [], next: 1 } (none)
+// 对应测试与文档：packages/chord/test/documents/documents.test.ts、handles.test.ts、transaction.test.ts、
+//   keyed-slot.test.ts、slot.test.ts；slices.md 的 slice 1；design.md 的 §9。
+// 建议阅读顺序：先看 Todos/Notes 两个定义与 Store 契约，再看工厂里的两个句柄和 add 事务，随后看 note/clear 的读取与退休。
 import { BACKGROUND_CONTEXT } from "../../src/context/index.ts";
 import { arr, int, local, method, obj, opt, str } from "../../src/contracts/index.ts";
 import { defineState } from "../../src/documents/index.ts";

@@ -1,15 +1,31 @@
+// 文件导读
+// 所属：packages/durable/test/examples 的 28-sandbox-per-conversation.ts，Durable 示例系列第 28 个，
+// 演示“每个会话一个执行环境”。
+// 演示内容：应用用会话文档 Sandbox 记录每个会话的目录；Harness 的 env 工厂在每次工具调用前读取已提交文档，
+// 用该路径创建 NodeExecutionEnv。Alice 与 Bob 各有一个独立临时目录，各自写同名 note.txt，最后从磁盘分别读回内容。
+// 上游入口：node 直接运行本文件；固定 faux 响应，无 API key；write/read 是真实文件 IO。
+// 下游依赖：Durable 的 Harness/defineDoc/createConversation/init/已提交读取器，CodingTools，NodeExecutionEnv。
+// 能力清单：Sandbox 文档（latest/initial）；note 工具调用工厂；env 异步工厂；conversationFor 创建目录并写文档；
+// 两次提交与真实 readFile 对照。
+// 典型顺序：定义 Sandbox 文档 -> 配置 faux 响应 -> 安装 CodingTools 并打开 Harness -> 为 alice/bob 各建会话与目录 ->
+// 分别提交写入 -> 读取两个 note.txt -> 关闭与清理。
+// 前置条件：无需网络；这里的 sandbox 只是不同 cwd，不是容器或权限隔离；绝对路径访问未被限制。
+// 预期输出：两行内容，分别为 alice 与 bob 的 note.txt 文本。
+// 阅读顺序：先看 Sandbox 的 fork/initial 语义，再看 env 工厂如何只读已提交文档，然后看 conversationFor 的创建事务。
 // 以会话文档映射执行目录：展示每会话环境选择，不把不同目录误认为操作系统级沙箱。
 // One sandbox per conversation: the app records each conversation's sandbox in its own document, and the Harness
 // environment function looks it up for every tool call. Here a sandbox is a directory; a hosted product would return
 // an ExecutionEnv that runs inside the conversation's container.
 // Run from packages/durable:
 //   node --conditions=source --experimental-strip-types test/examples/28-sandbox-per-conversation.ts
+// mkdtemp/readFile/rm 操作真实文件系统；示例结束前显式删除两个临时目录，没有 finally 兜底。
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { BACKGROUND_CONTEXT } from "@earendil-works/chord/context";
 import { createModels } from "@earendil-works/pi-ai/models";
 import { fauxAssistantMessage, fauxProvider, fauxToolCall } from "@earendil-works/pi-ai/providers/faux";
+// NodeExecutionEnv 只把相对路径解析到给定 cwd；它不提供容器、用户或网络隔离。
 import { NodeExecutionEnv } from "../../src/env/node.ts";
 import { createRegistry, defineDoc, Harness, MemoryStorage } from "../../src/index.ts";
 import { CodingTools } from "../../src/tools/index.ts";

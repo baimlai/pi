@@ -1,7 +1,25 @@
+/* 文件导读
+   所属：packages/chord/test/examples/59-chat/web，chat 页面的样式表（通过 web/main.ts 的 `import "./style.css"` 引入）。
+   作用：定义 body/main/nav/消息列表/图片/链接的基础排版；颜色只引用 CSS 自定义属性。
+   上游：esbuild 构建浏览器基础包时把 CSS 抽出为独立文件，页面脚本按 base 的 css URL 注入 <link>。
+   下游：src/web/themes.ts 的主题跟随器把当前主题颜色写到 :root：`--bg`、`--fg`、`--accent`、`--muted` 等
+   来自主题 colors 的每个基础角色（变量名即 `--` + 角色名），插件还可通过 theme.web 提供额外变量。
+   能力：定义 body/main/nav/消息列表/图片/链接的基础排版，并引用主题写入的 CSS 变量。
+   示例：页面加载后 body 使用 `--bg`/`--fg`，选中的频道按钮使用 `--accent`。
+   阅读顺序：body 的整体配色与字体 → main 的宽度 → 选中标签的颜色 → 列表/图片/链接。
+   注意：这里没有暗色媒体查询；切换深浅模式时主题跟随器改写 :root 变量，页面即时变化。 */
+
 /* The chat's look: the active theme's colours (the kit writes them on :root). */
+/* body 去除默认边距；背景/前景来自主题变量。字体为系统 UI 字体，15px 是示例的固定选择。
+   若主题未写入变量，var() 没有提供回退值，这里会得到透明的背景与默认文字色。 */
 body { margin: 0; font: 15px system-ui, sans-serif; background: var(--bg); color: var(--fg); }
+/* 内容区最宽 40rem 并水平居中，避免聊天在大屏上过宽；1rem 的上下留白。 */
 main { max-width: 40rem; margin: 1rem auto; }
+/* 选中的频道按钮使用主题强调色；aria-pressed 由 React 按当前频道设置。 */
 nav button[aria-pressed="true"] { color: var(--accent); }
+/* 消息列表去掉默认项目符号和缩进。 */
 ul { list-style: none; padding: 0; }
+/* 内联图片单独成行，最大宽度 16rem，与上一条消息留出间距。 */
 li img { display: block; max-width: 16rem; margin-top: 0.25rem; }
+/* 附件链接使用强调色，与正文区分。 */
 a { color: var(--accent); }

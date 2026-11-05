@@ -1,3 +1,16 @@
+// 文件导读
+// 所属：packages/durable/test/examples 的 29-tool-override.ts，Durable 示例系列第 29 个，演示“同名工具覆盖与包装”。
+// 演示内容：基础扩展 CodingTools 提供 bash；Venv 扩展用同名 bash 替换它，并把每条命令前缀设为 source .venv/bin/activate；
+// Timing 扩展用 wrapTool 包装最终胜出的 bash，记录每次调用耗时。普通会话与追加 Venv 的会话各跑一次 echo 探针，
+// 对比 VIRTUAL_ENV 是否被激活脚本设置；timings 长度说明包装对两种会话都生效。
+// 上游入口：node 直接运行本文件；固定 faux 响应，无网络；bash 与激活脚本是真实宿主执行。
+// 下游依赖：Durable 的 Harness/defineExtension/wrapTool/ToolResultEntry/createBashTool/NodeExecutionEnv。
+// 能力清单：Venv 同名覆盖；Timing 包装与 try/finally 计时；最小 activate 脚本；probe 脚本；两个会话；probeBash 读取结果。
+// 典型顺序：定义两个扩展 -> 创建项目与 activate -> 配置 faux -> 安装扩展并打开 Harness -> 建普通与 python 会话 ->
+// 各跑探针 -> 打印环境与计时次数 -> 清理。
+// 前置条件：无需网络与 API key；bash 在临时目录中执行，activate 只设置一个环境变量。
+// 预期输出：plain 会话的 VIRTUAL_ENV 为空；python 会话为 <project>/.venv；两次探针都进入计时，timings.length 为 2。
+// 阅读顺序：先看同名扩展的替换顺序，再看 wrapTool 如何装饰胜出工具，最后看两个会话与探针输出。
 // 演示同名工具覆盖与后置包装：使用最小激活脚本和假模型，命令执行仍有真实副作用。
 // Replace a tool for some conversations, and decorate whichever tool wins: a bash that runs inside a Python
 // virtualenv, and a wrapper that times every bash call.
@@ -7,9 +20,11 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { BACKGROUND_CONTEXT } from "@earendil-works/chord/context";
+// import type 只提供编译期类型；ToolResultEntry.is 在运行时判断记录种类。
 import type { ToolResultMessage } from "@earendil-works/pi-ai";
 import { createModels } from "@earendil-works/pi-ai/models";
 import { fauxAssistantMessage, fauxProvider, fauxToolCall } from "@earendil-works/pi-ai/providers/faux";
+// NodeExecutionEnv 在给定 cwd 执行真实 shell；commandPrefix 由 bash 工具拼接，不是环境构造器执行的。
 import { NodeExecutionEnv } from "../../src/env/node.ts";
 import {
 	type Conversation,
@@ -20,6 +35,7 @@ import {
 	ToolResultEntry,
 	wrapTool,
 } from "../../src/index.ts";
+// CodingTools 提供默认 bash；createBashTool 允许创建带 commandPrefix 的同名替代工具。
 import { CodingTools, createBashTool } from "../../src/tools/index.ts";
 
 // 顶层 await 顺序执行；假模型无网络，bash 和临时激活脚本仍是真实宿主操作。
@@ -44,6 +60,7 @@ const Timing = defineExtension({
 	wraps: [
 		// 包装工厂接收最终胜出的 bash，返回保留原字段的新定义；对象展开 ...bash 复制工具字段。
 		// wrapTool 仅按 name 定位，故无论 Venv 是否胜出都计时，未执行底层工具。
+		// wrapTool 的第二个参数在解析阶段用最终胜出的 bash 定义调用，返回新的工具定义；这里只构造定义，不执行命令。
 		wrapTool(createBashTool(), (bash) => ({
 			...bash,
 			// 执行回调接收原 args/api/context，返回底层结果；失败继续抛出，但 finally 仍记耗时。
@@ -138,7 +155,7 @@ console.log("python conversation:", (await probeBash(python)).replace(project, "
 // 打印包装器实际记录次数，不在此断言耗时值。
 console.log("timed bash calls:", timings.length);
 
-// 关闭 Harness。
+// 关闭 Harness 与所管理任务；之后删除临时项目目录。
 await harness.close(context);
-// 删除真实临时目录；本例无 finally，失败时不保证运行到这里。
+// 递归删除真实临时目录；示例没有 finally，异常路径不会自动执行到这里。
 await rm(project, { recursive: true, force: true });

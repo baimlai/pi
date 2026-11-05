@@ -1,3 +1,35 @@
+// 文件导读
+// 所属：packages/durable 的 test/examples 系列第 14 个示例，演示系统提示词 section 的渲染、包装、会话指令与增量更新。
+// 演示内容：coding 扩展提供 preamble（tag:false）和 cwd 段；agents-md 扩展提供 AGENTS.md 文本；terse 扩展用 wrapSection
+//   给 preamble 追加 "Be terse."；根会话与一个移除了 agents-md、带 instructions 的独立会话各提交一次；最后修改根会话
+//   cwd 再提交，观察转录里新增的 system 条目只包含变化的 cwd 段。
+// 上游入口：从 packages/durable 目录直接运行；下游调用 defineExtension/section/wrapSection、HarnessOptions.env、
+//   NodeExecutionEnv、Harness.open/root/createConversation、Conversation.submit/wait/configure/entries、SystemEntry.is。
+//   使用 faux provider，无网络请求；MemoryStorage 不持久化。
+// 能力清单（按演示机制）：
+// - section(key, render, {tag:false})：render 返回 string 或 undefined；默认包成 <key>，tag:false 原样发送。
+// - wrapSection(key, wrapper)：按 key 包装已生效的段；只在包装扩展被选中时应用，可复用原 render。
+// - HarnessOptions.env(target, context)：每次准备请求时构建执行环境；section 通过 input.env 读取。
+// - NodeExecutionEnv({cwd})：真实 Node 文件/进程环境；本示例只用 cwd 渲染，不读写文件。
+// - AgentChange.extensions: {remove} / instructions / cwd：会话级选择、指令文本与工作目录。
+// - SystemEntry + Conversation.entries：读取已追加的 pi.system 消息，观察提示词差异。
+// 典型运行顺序：注册 faux/响应 → 定义三个扩展并安装 → 定义 env 工厂 → open → root(/repo) → 创建 subagent →
+//   两次 submit/wait → 打印系统消息 → configure 根 cwd → 再提交 → 打印差异 → close。
+// 示例（真实运行命令）：
+//   cd packages/durable
+//   node --conditions=source --experimental-strip-types test/examples/14-system-prompt.ts
+// 预期输出结构（timestamp 每次运行不同）：
+//   root system prompt: 一条 SystemMessage，sections 为
+//     preamble: 'You are a coding agent. Be terse.'
+//     cwd: '<cwd>\n/repo\n</cwd>'
+//     agents_md: '<agents_md>\nRun npm run check after changes.\n</agents_md>'
+//   subagent system prompt: 相同的 preamble/cwd，然后是
+//     instructions: '<instructions>\nOnly read; never edit files.\n</instructions>'
+//   root system entries after cwd change: 两条 system 消息；第二条只有
+//     sections: { cwd: '<cwd>\n/repo/packages\n</cwd>' }
+// 阅读顺序：先看三个扩展各自的 section/wraps，再看 env 工厂与 root/subagent 的 agent 选择，随后看 systemEntries 的
+//   读取与反转，最后对比 cwd 修改前后的两条 system 消息。
+// 前置条件：只需仓库依赖，无环境变量；本示例不执行工具，因此 /repo 路径不需要真实存在。
 // 用三个固定响应演示提示词片段、扩展包装、子会话独立指令和 cwd 变化。
 // 脚本只打印记录，不断言完整提示词；顶层异步错误直接向外传播。
 // System prompt sections and per-conversation instructions.

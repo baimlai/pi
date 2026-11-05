@@ -3,6 +3,48 @@
 // its next value arrives as a root replacement (it heals on a later change).
 // Run from packages/chord:
 //   node --conditions=source --experimental-strip-types test/examples/04-watches.ts
+// 文件导读
+// 所属包与示例系列：packages/chord/test/examples，Chord v2 示例 04，对应 slice 1（watches，design §11/§12）。
+// 演示什么：观察一个状态成员从获取时的当前值开始，按提交顺序异步收到增量。监听器不重叠；忙的监听器会把期间的变化
+//   折叠进下一次调用（最新值 + 自上次以来的 ops）。派生计算抛错产生 failed 通知，观察保持打开；恢复后的第一条值
+//   以根替换（"r"）到达。取消上下文结束单个观察，释放引用结束经该引用创建的全部观察，退休单例发布根替换。
+// 上游/下游：文件顶部命令启动；下游使用 src/context 的 withCancel、src/documents 的 defineState、src/host 的
+//   createHost/defineFacet、src/contracts 的 local/method/schema。示例全在进程内运行，无网络。
+// 能力清单（按演示的机制）：
+// - watchable.watch(ctx)：原子取得当前值并开始缓冲；返回带 value/start/closed 的观察句柄。
+// - start(listener)：监听器收到 { kind: "value", value, ops } 或 { kind: "failed", error }；异步、有序、不重叠。
+// - ops：从上一值到新值的增量（"s" set，"r" 根替换）；观察者据此更新副本。
+// - 折叠：慢监听器忙碌期间的多个提交合并为一次调用，值是最新值，ops 是折叠后的变化。
+// - 派生失败：half 在奇数时抛错，onError 按失败阶段报告一次 derive_failed；观察不结束，恢复时根替换。
+// - withCancel(context)：派生子上下文；cancel() 使该观察以 aborted 结束。
+// - counter.release()：释放引用，结束经该引用创建的全部观察（kind: "ended"）。
+// - retire：单例重置为 initial()，观察者收到根替换，不结束观察。
+// 典型运行顺序：load -> get Counter -> 建立 count/double/half/slow 四个观察 -> bump 三次（观察异步打印）->
+//   reset -> cancel 子上下文 -> 读 double 的结束原因 -> 释放 counter -> 读 count 的结束原因 -> close。
+// 示例（符合真实签名）：
+//   const watch = await counter.count.watch(context);
+//   console.log(watch.value); // 获取时的快照
+//   watch.start(async (call) => {
+//     if (call.kind === "value") console.log(call.value, call.ops);
+//   });
+//   const { context: cancellable, cancel } = withCancel(context);
+//   const doubled = await counter.double.watch(cancellable);
+//   console.log(await doubled.closed); // { kind: "aborted" }
+// 运行方式与环境：在 packages/chord 下执行文件顶部命令；无环境变量、无网络；约 0.15 秒完成。
+// 预期输出（监听器异步执行，行的先后可能因调度略有不同）：
+//   acquired: { n: 0 }
+//   reported: example.counter.half: Error: 1 has no half
+//   count frame: { n: 1 } [["s",["n"],1]]
+//   slow frame: { n: 1 } [["s",["n"],1]]
+//   double frame: 2 [["r",2]]
+//   half failed: 1 has no half
+//   …随后 n=2 恢复、n=3 再失败、reset 后各观察收到 { n: 0 } 的根替换…
+//   double watch: { kind: 'aborted' }
+//   count watch: { kind: 'ended' }
+// 对应测试与文档：packages/chord/test/state/watchable.test.ts、batch.test.ts、derive.test.ts；
+//   packages/chord/test/host/follow.test.ts；slices.md 的 slice 1；design.md 的 §11/§12。
+// 建议阅读顺序：先看 Count/Counter 与工厂里的 double/half 派生，再看四个 watch 与监听器，最后按 bump、reset、
+//   cancel、release 理解结束原因。
 import { BACKGROUND_CONTEXT, withCancel } from "../../src/context/index.ts";
 import { int, local, method, obj } from "../../src/contracts/index.ts";
 import { defineState } from "../../src/documents/index.ts";

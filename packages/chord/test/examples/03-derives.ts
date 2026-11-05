@@ -1,6 +1,40 @@
 // Derives: values computed from documents and from other objects' members, recomputed only when needed.
 // Run from packages/chord:
 //   node --conditions=source --experimental-strip-types test/examples/03-derives.ts
+// 文件导读
+// 所属包与示例系列：packages/chord/test/examples，Chord v2 示例 03，对应 slice 1（derives，design §12）。
+// 演示什么：派生值是纯同步计算：self.derive(sources, compute) 显式声明源，只在需要时计算；没有观察者时提交只标记
+//   派生变脏，读取 value 才计算。源可以是本对象的文档，也可以是 self.get 得到的另一个对象的成员。mapShared 按
+//   元素对象身份缓存映射结果，因此追加一条备注只重新映射新对象，已有标题保持不变。
+// 上游/下游：文件顶部命令启动；下游使用 src/documents 的 defineState、src/host 的 createHost/defineFacet、
+//   src/state 的 mapShared、src/contracts 的 local/method/schema。示例全在进程内运行，无网络。
+// 能力清单（按演示的机制）：
+// - self.derive([source, …], compute)：同步、纯计算；源数组的元素可以是文档句柄或其他成员。
+// - 惰性求值：无人观察时提交只标脏；读取派生值触发计算，未变化的源不会重复映射。
+// - mapShared(fn)：WeakMap 按输入对象缓存结果；相同备注对象得到同一个标题字符串，派生差异更小。
+// - 跨对象派生：Badge 通过 self.get(Notes, {}) 声明依赖，再以 notes.count 为源组合 label。
+// - 文档写入：add 在 change 事务里向草稿 push；提交后才对外可见。
+// - 依赖未就绪时：工厂只声明依赖，激活等待依赖 live，不在工厂里同步读取值。
+// 典型运行顺序：load -> get Notes -> get Badge(mario)（声明并等待依赖）-> 追加两项 -> 首次读取 titles（计算两次）->
+//   追加第三项（只计算新标题）-> 再读 titles -> 读 badge.label -> close。
+// 示例（符合真实签名）：
+//   const title = mapShared((note: { text: string }) => note.text.slice(0, 12));
+//   titles: self.derive([notes], ([n]) => title(n.list)),
+//   count: self.derive([notes], ([n]) => n.list.length),
+//   const badge = self.get(Notes, {}); // 依赖另一个对象
+//   label: self.derive([badge.count], ([count]) => `${user}: ${count} notes`)
+// 运行方式与环境：在 packages/chord 下执行文件顶部命令；无环境变量、无网络；瞬时完成。
+// 预期输出（标题只打印首次映射的那几条）：
+//   title computed for: buy milk and bread
+//   title computed for: call Anna
+//   titles: [ 'buy milk and', 'call Anna' ]
+//   title computed for: water plants
+//   titles: [ 'buy milk and', 'call Anna', 'water plants' ]
+//   badge: mario: 3 notes
+// 对应测试与文档：packages/chord/test/state/derive.test.ts；packages/chord/test/host/dependencies.test.ts、
+//   members.test.ts；slices.md 的 slice 1；design.md 的 §12。
+// 建议阅读顺序：先看 NotesDoc 与 Notes/Badge 契约，再看 Notes 工厂里的 mapShared 与两个 derive，
+//   随后看 Badge 的 self.get 依赖，最后按两次 titles 读取理解惰性与缓存。
 import { BACKGROUND_CONTEXT } from "../../src/context/index.ts";
 import { arr, int, local, method, obj, str } from "../../src/contracts/index.ts";
 import { defineState } from "../../src/documents/index.ts";

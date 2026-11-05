@@ -1,3 +1,10 @@
+// 文件导读
+// 所属：packages/coding-agent/examples，扩展示例的独立 TypeScript 配置。
+// 作用：把示例导入映射到工作区源码，使扩展示例按运行时看到的模块形状通过类型检查；不参与打包。
+// 上下游：extends 根 tsconfig.json；根 npm run check 用 tsc --noEmit -p 本文件读取；include 覆盖 extensions、声明文件和 subagent 回归测试。
+// 能力：paths 映射工作区包与示例契约；include/exclude 选择检查范围；compilerOptions 继承根配置。
+// 示例：在仓库根运行 `npm run check`，其中包含对本配置的 tsc 检查。
+// 阅读顺序：先读下方英文说明和 paths，再读 include/exclude。
 // Type-checks the example extensions against the modules extensions see at run time (core/extensions/virtual-modules.ts):
 // "@earendil-works/pi-ai" is the extension view, which adds TypeBox's Type, Static and TSchema to the compat entry (the
 // view imports "@earendil-works/pi-ai/compat", so that path stays the package's own).

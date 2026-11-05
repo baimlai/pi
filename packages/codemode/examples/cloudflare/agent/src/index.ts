@@ -3,6 +3,36 @@
 //
 //   curl -X POST http://localhost:8787 --data 'const n = await tools.count({ add: 2 }); text("n=" + n); return n'
 // 这个示例的工具在会话对象内执行，用户脚本交给另一个已部署的 Worker；导入类型不会启动 RPC。
+//
+// 文件导读
+//
+// 所属：packages/codemode/examples/cloudflare/agent，Cloudflare 双层部署示例的调用侧。上游由
+// wrangler 从本目录部署（配置见同目录 wrangler.jsonc）；运行时由 HTTP POST 进入 fetch，下游
+// 通过 SESSION 绑定调用本 Worker 的 Session Durable Object，再用 CODEMODE_SANDBOX 绑定把脚本
+// 交给单独部署的 pi-codemode-sandbox Worker 执行。
+//
+// 演示什么：工具实现留在会话对象内，只有脚本在独立 Worker 中运行，因此脚本无法直接拿到宿主
+// 工具函数，只能通过 RPC 调用它们。此处使用 portable 入口，因当前 Worker 不包含 QuickJS
+// WebAssembly；真正的沙箱类在 sandbox Worker 中。wrangler.jsonc 的 script_name 决定“另一个
+// isolate”，若省略它而绑定本 Worker 导出的类，脚本会跑在会话线程上。
+//
+// 能力清单：
+// - Env：SESSION 与 CODEMODE_SANDBOX 两个 Durable Object 命名空间绑定。
+// - Session.runCodemode(code)：定义 count 工具、创建 RemoteCodemodeSandbox、执行并关闭。
+// - default.fetch：只接受 POST，固定使用名为 demo 的会话，把结果编码成 JSON。
+//
+// 典型运行顺序与预期输出：
+//   1. 先部署 sandbox Worker（名称必须是 pi-codemode-sandbox），再部署本 agent Worker。
+//   2. 本地或用 curl POST 一段脚本正文；非 POST 返回 405 和 "POST a script"。
+//   3. 成功返回脚本执行结果的 JSON；脚本自身失败通常仍是 HTTP 200，JSON 中带 ok:false。
+//   4. 计数只存在于 Session 实例内存中，实例重建后归零；没有写 Durable Object storage。
+//   5. 请求/绑定/RPC 异常没有被 fetch 捕获，会按平台默认错误响应处理。
+//
+// 示例（真实签名）：
+//   curl -X POST http://localhost:8787 --data 'const n = await tools.count({ add: 2 }); text("n=" + n); return n'
+//   脚本是异步函数体；tools.count 由本文件的 runCodemode 注入。
+//
+// 建议阅读顺序：先看 Env 的两个绑定，再看 runCodemode 的工具与远端沙箱，最后看 fetch 的路由。
 import type { CodemodeSandboxDurableObject } from "@earendil-works/pi-codemode/cloudflare";
 // The portable entry has no QuickJS module: the WebAssembly lives only in the sandbox Worker.
 import { type CodemodeTool, RemoteCodemodeSandbox } from "@earendil-works/pi-codemode/portable";

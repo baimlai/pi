@@ -5,6 +5,47 @@
  *     npx -y @modelcontextprotocol/server-filesystem .
  *
  * The arguments are the command that starts a stdio MCP server.
+ *
+ * 文件导读
+ *
+ * 所属：packages/agent/examples/mcp-codemode，pi-agent-core 的手工集成示例；配套文件 tools.ts
+ * 提供 MCP 与 codemode 适配器。上游由 `node packages/agent/examples/mcp-codemode/main.ts
+ * <MCP 服务器命令> [参数...]` 运行，需先构建工作区，并通过 ANTHROPIC_API_KEY 提供凭证；下游
+ * 启动一个 stdio MCP 服务器，把它的工具和 codemode 工具装配进 Agent，再向 Anthropic 发一次
+ * 真实请求。示例命令使用 `npx -y @modelcontextprotocol/server-filesystem .`，会把当前目录作为
+ * 文件系统服务器可访问的根；这会启动外部进程、调用付费模型，并可能让模型读写该目录。
+ *
+ * 演示什么：两类工具并存。模型可以直接调用每个 MCP 工具，也可以调用 codemode 工具写一段
+ * JavaScript，在沙箱里通过 `tools.<name>(args)` 批量调用它们；嵌套调用结果只把脚本输出和返回
+ * 值交回模型，不逐条进入上下文。createNestedToolRunner 让脚本内部的调用仍经过 Agent 的参数
+ * 校验与前后钩子。
+ *
+ * 能力清单（按调用顺序）：
+ * - process.argv 解析：第一项是服务器命令，其余原样作为参数；缺失命令打印用法并以 1 退出。
+ * - createModels / setProvider / getModel：构造模型集合，查找 claude-sonnet-4-6。
+ * - McpClient + StdioTransport：连接外部 MCP 服务器并完成握手。
+ * - Agent({ initialState, streamFn })：用 models.streamSimple 作为流函数。
+ * - createMcpTools(client, "mcp")：把服务器工具适配成 AgentTool。
+ * - createCodemodeTool(tools, createNestedToolRunner(agent))：增加脚本工具。
+ * - agent.subscribe：文字增量写 stdout，工具开始打印名称。
+ * - agent.prompt：发起真实模型/工具循环。
+ * - client.close：在 finally 中关闭 MCP 传输。
+ *
+ * 典型运行顺序与预期输出：
+ *   1. 构建后带 API key 运行；StdioTransport 启动命令，连接失败会在 try 之前拒绝。
+ *   2. Agent 收到提示，模型可能直接调用 MCP 工具，或写 codemode 脚本批量调用。
+ *   3. stdout 出现流式回答，工具开始时打印 `[工具名]`；结束后补换行。
+ *   4. finally 关闭连接；脚本正常结束时退出码 0，连接或模型错误会让顶层 await 拒绝并打印堆栈。
+ *   5. 不写会话文件；所有状态只在本次进程内。
+ *
+ * 示例（真实签名）：
+ *   const [command, ...args] = process.argv.slice(2);
+ *   const client = new McpClient({ name: "pi-agent-example", version: "1.0.0" });
+ *   await client.connect(new StdioTransport({ command, args }));
+ *   command/args 不做 shell 解析，含空格的参数应作为一个 argv 项传入。
+ *
+ * 建议阅读顺序：先看参数与模型构造，再看 MCP 连接，随后看 Agent 与工具装配，最后看事件订阅、
+ * prompt 和 finally 清理；再读 tools.ts 了解适配器细节。
  */
 
 // 这是会真正请求模型和启动外部MCP命令的手工示例：命令行提供服务启动方式，模块顶层直接执行整个流程。

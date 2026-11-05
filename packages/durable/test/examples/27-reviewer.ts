@@ -1,3 +1,17 @@
+// 文件导读
+// 所属：packages/durable/test/examples 的 27-reviewer.ts，Durable 示例系列第 27 个，演示“独立审查会话”。
+// 演示内容：主会话使用 big 模型但不发输入；另建一个 ownerless 审查会话，选择 small 模型、CodingTools 与 Reviewer
+// 两个扩展、唯一 read 工具和独立 worktree 目录。Reviewer 的 GenerationTask onYield 钩子在回答不含结束标记时追加
+// “再检查一遍”的继续输入，直到回答包含 No further findings。最后按时间正序打印审查会话的输入与发现。
+// 上游入口：node 直接运行本文件；固定 faux 响应，无 API key；read 工具会真实读取临时目录中的 user.ts。
+// 下游依赖：Durable 的 Harness/defineExtension/hook/GenerationTask/section/AssistantEntry/createReadTool/NodeExecutionEnv。
+// 能力清单：textOf 纯函数；Reviewer 扩展与 onYield 循环；DONE 标记；临时 worktree 与夹具；两个假模型；
+// createConversation 的完整 agent 配置；agent 查询；entries 分页与反序打印。
+// 典型顺序：定义扩展 -> 写夹具 -> 配置 faux -> 安装扩展并打开 Harness -> 创建 root 与 reviewer ->
+// 打印解析后的 agent -> 提交审查并等待循环结束 -> 打印记录 -> 清理。
+// 前置条件：无需网络；不执行 git worktree，也不做真实代码审查；read 只读夹具。
+// 预期输出：reviewer 的模型 small、扩展名顺序、工具名 [read]、cwd 匹配 true；随后一条初始输入、一条继续输入与两条审查发现。
+// 阅读顺序：先看 textOf 与 Reviewer 的 onYield，再看 createConversation 的配置字段，最后看记录如何按正序打印。
 // 演示独立审查会话的模型、角色、只读工具和回答后续查；使用固定 faux 响应，不进行真实代码审查。
 // A reviewer agent next to the main one: a cheaper model, a review role and loop, read-only tools, and its own
 // checkout of the project.
@@ -7,9 +21,11 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { BACKGROUND_CONTEXT } from "@earendil-works/chord/context";
+// import type 只提供编译期类型，擦除后不产生运行时导入；AssistantEntry.is 才是运行时记录判别。
 import type { AssistantMessage } from "@earendil-works/pi-ai";
 import { createModels } from "@earendil-works/pi-ai/models";
 import { fauxAssistantMessage, fauxProvider, fauxToolCall } from "@earendil-works/pi-ai/providers/faux";
+// NodeExecutionEnv 负责真实文件读取；cwd 只决定解析相对路径的目录，不是权限沙箱。
 import { NodeExecutionEnv } from "../../src/env/node.ts";
 import {
 	AssistantEntry,
@@ -21,6 +37,7 @@ import {
 	MemoryStorage,
 	section,
 } from "../../src/index.ts";
+// CodingTools 提供完整编码工具；createReadTool 创建独立的只读工具实例，供 reviewer 的 tools 白名单使用。
 import { CodingTools, createReadTool } from "../../src/tools/index.ts";
 
 // 顶层步骤按 await 顺序执行，失败直接传播；假模型不会访问供应商，但 read 会读取临时夹具。
@@ -141,7 +158,7 @@ for (const entry of [...page.items].reverse()) {
 	}
 }
 
-// 关闭调度及会话资源。
+// 关闭 Harness 管理的任务与会话资源；之后才删除 worktree 目录。
 await harness.close(context);
-// 删除本例创建的临时审查目录；没有 finally，因此异常路径不保证清理。
+// 递归删除临时审查目录；示例没有 finally，异常路径不会自动执行到这里。
 await rm(worktree, { recursive: true, force: true });

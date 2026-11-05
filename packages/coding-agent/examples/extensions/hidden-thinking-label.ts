@@ -1,3 +1,14 @@
+// 文件导读
+// 所属：packages/coding-agent/examples/extensions 的扩展示例；用 `pi --extension examples/extensions/hidden-thinking-label.ts` 加载。
+// 演示内容：用 ctx.ui.setHiddenThinkingLabel 自定义“思考块被隐藏”时显示的标题；支持 /thinking-label 设置和空参数恢复。
+// 上下游：session_start 应用内存 label；命令修改 label 并立即调用 UI；setHiddenThinkingLabel 只影响折叠占位显示，不改 thinking 内容/档位。无模型请求、无文件 I/O。
+// 能力清单：DEFAULT_LABEL、applyLabel、session_start、/thinking-label 的设置/恢复分支。
+// 典型运行顺序：加载 -> session_start 应用 Pondering... -> Ctrl+T 隐藏思考 -> 请求产生 reasoning -> 折叠标题显示；/thinking-label Calculating -> 立即更新；/thinking-label -> 恢复宿主默认并改写内存值。
+// 示例（真实签名）：
+//   /thinking-label Calculating
+//   /thinking-label
+// 阅读顺序：先看 DEFAULT_LABEL 与 applyLabel，再看 session_start，最后看命令的两个分支。
+// 前置与副作用：仅交互式 UI 能看到效果；RPC 模式 setHiddenThinkingLabel 是空实现。DEFAULT_LABEL 是扩展自己的文字，不保证等于宿主默认标题；空参数调用 setHiddenThinkingLabel() 恢复宿主默认，但闭包 label 同时被设为 DEFAULT_LABEL，下一次 session_start 又会应用它，所以恢复只在当前会话内有效。通知文案说 reset to Pondering...，实际当前显示可能是宿主默认。label 只在扩展实例内保存，重载后回到 DEFAULT_LABEL。setHiddenThinkingLabel 不会修改模型思考内容或思考档位；空字符串在 API 中合法，但命令会把空白参数当恢复，无法设置空标题。
 /**
  * Hidden Thinking Label Extension
  *
@@ -18,6 +29,7 @@
  *   /thinking-label          Reset to the default label
  */
 
+// import type 只引入类型；ExtensionAPI 标注入口，ExtensionContext 标注 applyLabel。
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 
 // 扩展自己的初始文字；不保证等于宿主内置折叠标题。

@@ -1,6 +1,40 @@
 /**
  * Adapters that give a pi-agent-core `Agent` MCP tools and a codemode tool, using
  * `@earendil-works/pi-mcp` and `@earendil-works/pi-codemode`. See main.ts for how they fit together.
+ *
+ * 文件导读
+ *
+ * 所属：packages/agent/examples/mcp-codemode，配套 main.ts 的适配层。上游由 main.ts 导入；下游
+ * 使用 pi-agent-core 的 runToolCall（复用 Agent 的工具管线）、pi-mcp 的 McpClient/toLlmContent、
+ * pi-codemode 的 CodemodeSandbox/renderDeclarations，以及 pi-schema 的 obj/str 构造参数 schema。
+ *
+ * 演示什么：把远端 MCP 工具转换成 AgentTool，再额外生成一个 codemode 工具。模型直接调用 MCP
+ * 工具时，execute 把参数和取消信号交给 MCP 服务器；调用 codemode 时，沙箱执行模型写的
+ * JavaScript，脚本里的 `tools.<name>(args)` 通过 createNestedToolRunner 回到 Agent 的
+ * runToolCall，因此参数校验与 beforeToolCall/afterToolCall 钩子仍然生效。适配器只做数据形状
+ * 转换，不额外执行业务级 schema 校验。
+ *
+ * 能力清单（导出项）：
+ * - toToolName(prefix, name)：生成符合提供商限制的工具名；不检测重名碰撞。
+ * - textOf(result)：把 AgentToolResult 的 text 块按换行拼接。
+ * - createMcpTools(client, prefix)：列出 MCP 工具并逐个适配，保留原工具名给远端调用。
+ * - createNestedToolRunner(agent)：返回供脚本内部调用的函数，走 runToolCall 管线。
+ * - CODEMODE_TOOL_NAME：固定为 "codemode"，用于过滤同名工具避免递归。
+ * - createCodemodeTool(tools, runTool)：生成 AgentTool，执行时才创建沙箱。
+ *
+ * 典型运行顺序：没有独立入口。main.ts 先连接 MCP，再调用 createMcpTools；随后用
+ * createNestedToolRunner(agent) 构造运行器并调用 createCodemodeTool；只有模型真正调用工具的
+ * execute 时才会访问外部服务器或启动沙箱。本文件不读环境变量、不写磁盘；副作用来自远端工具
+ * 和脚本执行，失败通常映射为 isError 结果，但沙箱构造/关闭等宿主异常仍可能让 execute 拒绝。
+ *
+ * 示例（真实签名）：
+ *   const mcpTools = await createMcpTools(client, "mcp");
+ *   const codemode = createCodemodeTool(mcpTools, createNestedToolRunner(agent));
+ *   agent.state.tools = [...mcpTools, codemode];
+ *   工具名如 mcp_read_file；codemode 的脚本可以 `await tools.mcp_read_file({...})`。
+ *
+ * 建议阅读顺序：先看两个纯函数（toToolName、textOf），再看 createMcpTools 的映射与错误结果，
+ * 随后看 createNestedToolRunner 如何复用 Agent 管线，最后看 createCodemodeTool 的沙箱生命周期。
  */
 
 // 本文件在Agent、MCP远程工具与QuickJS脚本之间适配数据；只创建适配器时不请求模型，调用execute才可能执行远端副作用。
@@ -23,6 +57,11 @@ import { type McpClient, toLlmContent } from "@earendil-works/pi-mcp";
 import { obj, str } from "@earendil-works/pi-schema";
 
 /** Provider tool names are limited to 64 characters of `[A-Za-z0-9_-]`. */
+// 作用：把服务器工具名规范成模型提供商可接受的名称。输入 prefix 与 name；输出加前缀、替换
+// 非法字符并截断到 64 个字符的字符串；无副作用、无 I/O。
+// 流程：先拼 `${prefix}_${name}`，再用正则把不在 [A-Za-z0-9_-] 的字符逐个换成下划线，最后
+// slice(0, 64)。错误路径：没有显式错误；两个不同原名规范化后可能重名，本函数不做去重或检测。
+// 示例：("mcp", "read.file") => "mcp_read_file"；超长名字在第 64 个 UTF-16 码元处截断。
 // 接前缀和原工具名，返回加前缀、替换非法字符、截断后的字符串；无I/O。例前缀mcp、名read.file得到mcp_read_file。
 // 此处不检查改名后的碰撞：两个原名经替换或截断后可能相同，不能把规范化当作唯一ID分配。
 function toToolName(prefix: string, name: string): string {
@@ -30,6 +69,10 @@ function toToolName(prefix: string, name: string): string {
 	return `${prefix}_${name}`.replace(/[^A-Za-z0-9_-]/g, "_").slice(0, 64);
 }
 
+// 作用：从 AgentToolResult 中取出模型可读的纯文本。输入 result；输出按原顺序用 \n 连接的
+// 文本块内容，没有文本块时返回空串；不修改原数组，也不包含图片、结构化结果或 details。
+// 流程：filter + 类型谓词筛出 TextContent，map 取 text，再 join。错误路径：无；非文本块被跳过。
+// 示例：content 为 [{type:"text",text:"a"},{type:"image",...},{type:"text",text:"b"}] 时返回 "a\nb"。
 // 接工具结果，按原顺序提取text块，用换行拼成字符串；无文本则空串，不改原数组，也不包含图片/结构化结果。例两块a、b得到a换行b。
 // AgentToolResult<unknown>表示details类型未知；content仍有明确块联合，不需通过unknown形状检查才能读取它。
 function textOf(result: AgentToolResult<unknown>): string {
@@ -48,6 +91,13 @@ function textOf(result: AgentToolResult<unknown>): string {
  * output schema declare it as `outputSchema` and return `structuredContent`, which codemode scripts
  * receive instead of the text.
  */
+// 作用：把已连接 MCP 服务器的每个工具映射成 pi-agent-core 的 AgentTool。输入 client（已完成
+// 握手）与 prefix（模型可见名称前缀）；输出 Promise<AgentTool[]>；副作用是调用 client.listTools()
+// 发起 MCP 列表请求，之后每次 execute 还会调用远端工具。
+// 流程：await listTools 后 map；每个 AgentTool 用规范化名称、保留原工具名给 MCP、浅复制并补全
+// 对象参数 schema；execute 把参数与取消信号传给 callTool，把进度转成 onUpdate，最后转换内容、
+// 补默认错误文本并返回 isError。错误路径：列表或协议失败会让本函数拒绝，不返回部分数组；
+// 工具级失败通常作为 isError 结果返回而不是抛出。示例：见文件导读。
 // 从已连接的client列出服务器工具并返回AgentTool数组Promise；prefix用于模型可见改名，execute闭包保留原名给MCP。
 // 例如远端read.file变mcp_read_file，模型调用后仍发tools/call的read.file。这里只列工具；调用/取消/进度在之后execute时发生。
 // 列表/协议错误会拒绝；工具isError结果通常正常返回并标错。as只适配静态类型，MCP客户端不按输入/输出schema做完整业务验证。
@@ -119,6 +169,12 @@ export async function createMcpTools(client: McpClient, prefix: string): Promise
  * the agent's `beforeToolCall`/`afterToolCall` hooks apply as for calls the model makes. Calling
  * `tool.execute()` directly also works when the agent has no hooks.
  */
+// 作用：给 codemode 脚本提供一个“像模型一样调用工具”的函数，使嵌套调用复用 Agent 的工具管线。
+// 输入是 Agent；输出是 (name, args, signal) => Promise<AgentToolCallOutcome> 的闭包；创建时不执行
+// 工具，也没有 I/O。每次调用会读取 Agent 当前消息与工具，构造 id 为 nested-N 的 toolCall，交给
+// runToolCall 做参数准备/验证、前置钩子、execute、后置钩子。错误路径：找不到 assistant 消息时
+// 同步抛错；参数错误、被钩子阻止或工具失败通常转成 isError:true 的 outcome，但钩子与远端执行
+// 仍可能已产生副作用。示例：脚本里的 tools.mcp_read_file(...) 最终会走到这里。
 // 接Agent返回异步调用闭包；每次按最新state找最近assistant和当前工具，经runToolCall执行并返回最终outcome。
 // 例如脚本请求mcp_read时分配nested-1；下次nested-2。计数属于这个闭包，不是全局ID，也不自动向Agent消息/事件添加嵌套结果。
 // 没有assistant会同步throw；参数错误、阻止或工具失败通常由runToolCall转isError:true，钩子和远端执行仍可能有副作用。
@@ -176,6 +232,15 @@ const codemodeParameters = obj(
  * calls `tools`. Nested results stay out of the model context; only the script's output and
  * return value come back.
  */
+// 作用：生成名为 codemode 的 AgentTool，让模型写 JavaScript 在沙箱里调用其它工具。输入 tools
+// （可调用工具快照）与 runTool（嵌套调用管线）；输出 AgentTool<typeof codemodeParameters>；创建
+// 阶段只生成包装与声明，不启动沙箱，也无 I/O。
+// 流程：过滤掉同名 codemode 防递归；把每个 AgentTool 投影成 CodemodeTool（description、
+// inputSchema、outputSchema、execute）；execute 内新建 120 秒超时的 CodemodeSandbox，运行
+// params.code，合并脚本输出与返回值，失败时追加错误文本，最后在 finally 中 close。
+// 错误路径：脚本失败通常返回 ok:false 并映射成 isError；沙箱构造、execute 入口或 close 的宿主
+// 异常仍可能让整个 execute 拒绝。脚本内的工具调用结果不会自动进入模型上下文，只有输出/返回值
+// 由外层工具返回。示例：code 为 `return await tools.mcp_read_file({ path: "a.txt" })`。
 // 接工具只读数组和调用管线，返回codemode的AgentTool；先生成脚本工具包装和声明，执行时才新建沙箱、跑code、拼结果并关闭。
 // 例如code为return await tools.mcp_count({})时，只把脚本输出/返回值交外层Agent，内部工具结果不单独入消息历史。
 // readonly只是TS禁止经该数组增删，工具对象仍共享。脚本失败通常变isError；沙箱构造、执行入口或close异常仍可使execute拒绝，工具副作用不会回滚。

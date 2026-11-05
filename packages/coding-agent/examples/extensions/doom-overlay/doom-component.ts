@@ -5,14 +5,56 @@
  * Height is calculated from width to maintain DOOM's aspect ratio.
  */
 
+/**
+ * 文件导读（doom-overlay 的 TUI 组件与渲染）
+ *
+ * 所属与用途：本文件属于 `doom-overlay` 示例，实现覆盖层组件：定时推进 DOOM、把 RGBA 帧
+ * 转成带 24 位颜色的半块字符、处理键盘输入，并在退出时关闭定时器。它不加载 WASM、不查找 WAD。
+ *
+ * 上游如何进入：`index.ts` 的 `/doom-overlay` handler 通过 `ctx.ui.custom(...)` 创建
+ * `DoomOverlayComponent`；TUI 负责调用 `render`、`handleInput`、`invalidate` 和 `dispose`。
+ * 下游依赖：`DoomEngine`（tick、帧缓冲、pushKey）与 `doom-keys.ts`（按键映射），
+ * 以及 pi-tui 的 `Component`/`TUI`/`isKeyRelease`。
+ *
+ * 能力清单：
+ * - `renderHalfBlock`：纯函数，把 RGBA 帧最近邻采样成 ANSI 半块字符串行。
+ * - `DoomOverlayComponent`：实现 `Component`，含构造、游戏循环、输入处理、渲染与清理。
+ * - `wantsKeyRelease = true`：请求 TUI 把按键松开事件也送来，以支持按住移动。
+ *
+ * 典型运行顺序：构造（可选模拟 Pause 恢复）-> 启动 35 FPS 定时器 -> TUI 反复调用 render ->
+ * 按键进入 handleInput -> 按 Q 或 WASM 抛错时 dispose + onExit -> TUI 关闭覆盖层。
+ *
+ * 示例（真实构造，需要已初始化的引擎）：
+ *   const component = new DoomOverlayComponent(tui, engine, () => done(undefined), false);
+ *   const lines = component.render(80); // 25 行图像 + 1 行页脚
+ * 真实使用时不要手写构造，`ctx.ui.custom` 会管理生命周期。
+ *
+ * 建议阅读顺序：先看 `renderHalfBlock` 的颜色/采样，再看类字段与构造，随后是循环、输入、渲染。
+ *
+ * 边界：渲染高度只由宽度和最小 10 行决定，组件不知道终端实际高度；覆盖层的 `maxHeight`
+ * 可能裁剪显示。`renderHalfBlock` 不做尺寸/长度校验，帧数据必须与 width/height 匹配。
+ */
+
 import type { Component } from "@earendil-works/pi-tui";
 import { isKeyRelease, type TUI } from "@earendil-works/pi-tui";
 import type { DoomEngine } from "./doom-engine.ts";
 import { DoomKeys, mapKeyToDoom } from "./doom-keys.ts";
 
-// 把 RGBA 帧缩放成终端半块字符行，输入源尺寸和目标列/行数，返回带 ANSI 颜色的 string[]。
-// 每格采样上下两个像素，用前景/背景色绘制 ▀，忽略 alpha；纯计算且不写终端。
-// 例：目标2列1行得到一条含2个半块的字符串，外加颜色控制序列；尺寸未在这里校验。
+/**
+ * 把 RGBA 帧最近邻采样成终端半块字符行。
+ *
+ * 输入：`rgba`（按 R/G/B/A 排列的字节）、源宽高、目标列数与目标行数。
+ * 输出：`targetRows` 个字符串，每个字符串含 `targetCols` 个半块字符和 ANSI 颜色序列。
+ * 副作用：无；不写终端、不修改输入数组。实际绘制由 TUI 读取返回值完成。
+ * 错误路径：无显式校验。若 `rgba` 长度小于 `width*height*4`，越界索引得到 undefined，
+ * 由 `?? 0` 兜底成黑色；若源尺寸或目标尺寸为 0，循环可能不执行，或索引落在 0，
+ * 同样不会抛错。
+ * 主要流程：按目标行列遍历 -> 每格映射到源图上下两个像素 -> 读取 RGB（忽略 alpha） ->
+ * 用 `▀` 的上半像素前景色和下半像素背景色拼接 ANSI -> 行末重置颜色。
+ *
+ * 示例：`renderHalfBlock(rgba, 640, 400, 2, 1)` 返回一个字符串（1 行），其中包含 2 个 `▀`
+ * 和每个半块的前景/背景色控制序列；不会返回换行符。
+ */
 function renderHalfBlock(
 	// Uint8Array 按 R/G/B/A 顺序存字节；TS 类型不核对长度与尺寸是否匹配。
 	rgba: Uint8Array,
@@ -66,15 +108,24 @@ function renderHalfBlock(
 			line += `\x1b[38;2;${r1};${g1};${b1}m\x1b[48;2;${r2};${g2};${b2}m▀`;
 		}
 		line += "\x1b[0m";
-		// 完成当前行后加入结果。
-		// 以 ANSI 暗色追加页脚并恢复样式。
+		// 完成当前行后加入结果；这里只处理图像本身，页脚由 render 另外追加。
 		lines.push(line);
 	}
 	// 返回各行；实际终端绘制由 TUI 完成。
 	return lines;
 }
 
-// implements 让 TS 检查 Component 所需方法；实例负责定时推进、输入转译与帧渲染。
+/**
+ * 覆盖层组件：把 DOOM 引擎接入 Pi 的 TUI 生命周期。
+ *
+ * 职责：保存引擎与 TUI 引用；按 35 FPS 推进引擎并请求重绘；把输入翻译后交给引擎；
+ * 在退出或异常时停止定时器并通知调用方。不负责引擎初始化和覆盖层布局。
+ *
+ * 错误处理：只有定时回调中的同步异常会被捕获并当作退出；`handleInput` 与 `render`
+ * 内的异常由 TUI 调用方处理。
+ * 示例：`new DoomOverlayComponent(tui, engine, () => done(undefined), true)` 会先模拟一次
+ * Pause 键恢复游戏，再开始循环。
+ */
 export class DoomOverlayComponent implements Component {
 	// 保存外部引擎引用，dispose 不销毁它，方便下次恢复。
 	private engine: DoomEngine;
@@ -89,8 +140,18 @@ export class DoomOverlayComponent implements Component {
 	// 允许 TUI 把 Kitty 松开事件交给本组件；否则默认会被上层过滤。
 	wantsKeyRelease = true;
 
-	// 输入 TUI、已准备的引擎、退出回调和可选恢复标记；保存引用，必要时切换暂停，再启动定时循环。
-	// 构造立即产生定时器副作用；例：resume=true 时模拟一次 Pause 按下/松开，以恢复上次暂停的游戏。
+	/**
+	 * 创建组件并启动游戏循环。
+	 *
+	 * 输入：`tui`（用于请求重绘）、已初始化但通常处于暂停状态的 `engine`、
+	 * 无参退出回调 `onExit`、可选的 `resume`（默认 false）。
+	 * 输出：实例。副作用：立即注册 35 FPS 定时器；`resume=true` 时还向引擎推入一次
+	 * Pause 按下/松开（DOOM 的 Pause 是切换键，因此可解除上次暂停）。
+	 * 错误路径：构造函数不初始化引擎，因此不会因 WASM 加载失败而抛错；`pushKey` 的同步异常
+	 * 会直接向上抛。
+	 * 示例：`new DoomOverlayComponent(tui, engine, () => done(undefined))` 不会恢复暂停，
+	 * 适合第一次打开游戏的场景。
+	 */
 	constructor(tui: TUI, engine: DoomEngine, onExit: () => void, resume = false) {
 		// 保存 TUI。
 		this.tui = tui;
@@ -112,8 +173,18 @@ export class DoomOverlayComponent implements Component {
 		this.startGameLoop();
 	}
 
-	// 无参数和返回值，启动约35次/秒定时推进并请求重绘；异常视作退出并清定时器。
-	// 例：引擎菜单触发 WASM 异常时关闭覆盖层；该方法未防止重复启动，正常只由构造调用一次。
+	/**
+	 * 启动约 35 FPS 的推进/重绘循环。
+	 *
+	 * 输入/输出：无参数、无返回值。
+	 * 副作用：设置 `this.interval`；每 1000/35 毫秒调用一次 `engine.tick()` 与 `tui.requestRender()`。
+	 * 错误路径：定时回调内的任意同步异常都被捕获，随后 `dispose()` 并调用 `onExit()`；
+	 * 异常对象被丢弃，不区分 WASM 退出与渲染错误。
+	 * 流程：setInterval -> try tick+requestRender -> catch 清理并退出。
+	 * 注意：方法本身不防止重复调用；正常只由构造函数调用一次。定时器不保证精确的 35 FPS，
+	 * 终端或事件循环繁忙时会延迟。
+	 * 示例：`component.startGameLoop()` 后约 28.6ms 执行第一次 tick（真实计时由事件循环决定）。
+	 */
 	private startGameLoop(): void {
 		// setInterval 返回句柄保存在实例，回调箭头函数保留当前 this。
 		this.interval = setInterval(() => {
@@ -126,19 +197,27 @@ export class DoomOverlayComponent implements Component {
 				// 不检查错误种类，所有同步异常都按退出处理。
 			} catch {
 				// WASM error (e.g., exit via DOOM menu) - treat as quit
-				// 先停止后续定时调用。
-				// 清理定时器，引擎仍留在外部缓存。
+				// 先停止后续定时调用；引擎本身仍留在 index.ts 的缓存中，下次可恢复。
 				this.dispose();
-				// 通知调用方结束覆盖层。
-				// 完成覆盖层的外部退出回调。
+				// 通知调用方结束覆盖层（handler 中的 await 随之返回）。
 				this.onExit();
 			}
 			// 间隔以毫秒给出；事件循环调度不保证精确35FPS。
 		}, 1000 / 35);
 	}
 
-	// 输入终端原始字符串，无返回；Q按下会发暂停并退出，其余键映射成 C 键码事件。
-	// 例：w 排入向上按下，Kitty 的 w 松开排入对应松开；未识别输入忽略。
+	/**
+	 * 处理 TUI 交付的一段键盘输入。
+	 *
+	 * 输入：`data`，原始终端字符串，可能是普通字符、转义序列或 Kitty 协议序列。
+	 * 输出：无。副作用：向引擎按键队列推入事件；Q 会先推入 Pause 再停止循环并退出。
+	 * 错误路径：不抛错；无法映射的输入直接忽略。Q 的识别只匹配裸 `"q"`/`"Q"` 的按下，
+	 * 不处理 Kitty 编码的 q，因此某些终端下 Q 可能不会退出。
+	 * 流程：Q 按下 -> 暂停并退出；否则映射键码 -> 根据 `isKeyRelease` 决定按下/松开 ->
+	 * 逐个 `pushKey`。
+	 * 示例：`handleInput("w")` 推入一次 KEY_UPARROW 按下；`handleInput("\x1b[119;...u")`
+	 * 若被识别为松开，则推入松开事件。该函数不返回实际的 key 数组。
+	 */
 	handleInput(data: string): void {
 		// Q to pause and exit (but not on release)
 		// 只把非松开事件的裸 q/Q 当退出；这里没有通用 Kitty q 解析。
@@ -168,8 +247,18 @@ export class DoomOverlayComponent implements Component {
 		}
 	}
 
-	// 输入可用终端列宽，返回带颜色帧和页脚的行数组；会读取帧并分配缩放输出，不写终端。
-	// 按3.2比例计算高且至少10行；例：width=64时图像20行，再加1行页脚，没有按终端高度再次裁剪。
+	/**
+	 * 生成当前帧的终端行。
+	 *
+	 * 输入：`width`，TUI 分配的终端列数（正整数预期）。
+	 * 输出：`height` 行图像 + 1 行页脚，每行是含 ANSI 序列的字符串。
+	 * 副作用：读取引擎当前帧并分配新数组/字符串；不直接写终端。
+	 * 错误路径：不抛错；宽度很小（小于 10*3.2）时图像高度仍取 10 行，页脚可能被截断。
+	 * 流程：按 640:200 的终端比例算高 -> 至少 10 行 -> 取 RGBA 帧 -> 半块渲染 ->
+	 * 追加暗色页脚 -> 返回。
+	 * 示例：`render(80)` 返回约 25 行图像（floor(80/3.2)=25）加 1 行页脚；
+	 * 实际显示是否被覆盖层的 maxHeight 裁剪由 TUI 决定。
+	 */
 	render(width: number): string[] {
 		// DOOM renders at 640x400 (1.6:1 ratio)
 		// With half-block characters, each terminal row = 2 pixels
@@ -198,11 +287,24 @@ export class DoomOverlayComponent implements Component {
 		return lines;
 	}
 
-	// 无缓存需要失效，空实现满足 Component 接口；无输入、返回或副作用。
+	/**
+	 * 让 TUI 知道组件缓存失效。
+	 *
+	 * 输入/输出：无参数、无返回值。
+	 * 副作用：无。本组件不缓存渲染结果，每帧都从引擎读取，因此不需要清理。
+	 * 示例：TUI 调用 `invalidate()` 后仍会正常调用 `render(width)`；不会改变游戏状态。
+	 */
 	invalidate(): void {}
 
-	// 无参数、无返回，清定时器且把句柄重置为空；重复调用安全，不释放共享引擎。
-	// 例：退出覆盖层后游戏暂停留存，下次新建组件使用同一引擎。
+	/**
+	 * 停止游戏循环。
+	 *
+	 * 输入/输出：无参数、无返回值。
+	 * 副作用：清除定时器并把句柄设为 null；可重复调用。不会销毁或释放共享的 DOOM 引擎，
+	 * 因此引擎状态（暂停位置）保留给下一次覆盖层使用。
+	 * 错误路径：无。
+	 * 示例：`component.dispose(); component.dispose();` 第二次是空操作。
+	 */
 	dispose(): void {
 		// 只有持有定时器句柄时清理。
 		if (this.interval) {

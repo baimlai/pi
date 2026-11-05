@@ -1,7 +1,19 @@
+// 文件导读
+// 所属：packages/coding-agent/examples/extensions 的扩展示例；用 `pi -e ./hello.ts` 加载。
+// 演示内容：最小自定义工具 hello，展示 TypeBox 参数 schema、defineTool 包装和 registerTool 注册。
+// 上下游：扩展加载时 registerTool；模型调用 execute；返回 content/details。无文件 I/O、无模型请求。
+// 能力清单：helloTool 定义、execute 问候、默认导出注册。
+// 典型运行顺序：加载 -> 注册 hello -> 模型看到工具 -> 调用 hello({name}) -> 返回 "Hello, <name>!"。
+// 示例（真实签名）：
+//   pi -e ./examples/extensions/hello.ts
+//   // 模型调用 hello({ name: "Ada" }) 得到 "Hello, Ada!"
+// 阅读顺序：先看 defineTool 的 schema，再看 execute 的返回形状，最后看 registerTool。
+// 前置与副作用：本文件从 @earendil-works/pi-ai 导入 Type，但当前 pi-ai 公共入口没有 Type 导出（packages/ai/src/index.ts 不导出它，dynamic-tools 示例从 "typebox" 导入）；examples/extensions 又被根 tsconfig 排除，npm run check 不会检查这里。若运行时出现 missing export，应改为从 typebox 导入 Type。execute 只拼接字符串，不会失败；注册后工具在整个会话中可用。
 /**
  * Hello Tool - Minimal custom tool example
  */
 
+// 注意导入来源：Type 应由 typebox 提供；当前 pi-ai 入口没有该导出。
 import { Type } from "@earendil-works/pi-ai";
 import { defineTool, type ExtensionAPI } from "@earendil-works/pi-coding-agent";
 

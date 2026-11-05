@@ -1,6 +1,51 @@
 // Errors: what Chord refuses and how a caller tells the cases apart (`ChordError` with `code` and `reason`).
 // Run from packages/chord:
 //   node --conditions=source --experimental-strip-types test/examples/05-errors.ts
+// 文件导读
+// 所属包与示例系列：packages/chord/test/examples，Chord v2 示例 05，对应 slice 1（错误分类；readyTimeout 相关行为
+//   在后续失败/恢复 slice 中展开）。
+// 演示什么：Chord 会拒绝哪些操作，以及调用方如何用 isChordError 区分。示例覆盖参数错误、参数对象错误、依赖环、
+//   实现声明不符、契约版本不匹配、工厂抛错、引用释放和宿主关闭；每次失败都经 attempt 打印 code/reason/message。
+//   同时演示激活失败会作为后台报告进入 onError，而 load 仍能完成（每个对象先有 live 或 failed 的首次结果）。
+// 上游/下游：文件顶部命令启动；下游使用 src/contracts 的 local/method/schema、src/data 的 isChordError、
+//   src/host 的 createHost/defineFacet/HostError、src/state 的 constant。示例全在进程内运行，无网络。
+// 能力清单（按演示的机制）：
+// - isChordError(error, code?)：运行时先验 instanceof，再按需比较固定 code；用于安全读取 code/reason/message。
+// - invalid/args：方法参数类型错误或出现未知字段；检查发生在对象入口，错误消息带 args/<字段>。
+// - invalid/params：get 的 params 不匹配 schema；对象不会被创建。
+// - invalid/cycle：同宿主激活链回到自身；消息给出完整环，链上对象都以 broken 结束。
+// - unavailable：实现包含契约未声明的成员，或工厂抛错；消息说明具体对象与原因。
+// - contract_mismatch：另一份同名声明（v2）与服务中的 v1 版本/结构不匹配；get 在 readyTimeout 内等待匹配者，
+//   超时后以该原因拒绝。
+// - released：使用已释放的引用；released/closed：宿主关闭后的 get。
+// - onError：activation_failed 等后台报告与调用侧拒绝分开；@ts-expect-error 展示编译期检查与运行时校验的差别。
+// 典型运行顺序：load（Ping/Pong 环与空参数对象先有首次结果）-> 环 get -> 正常 get Echo -> 错误参数/未知字段 ->
+//   错误 params -> Sloppy 多余成员 -> EchoV2 契约不匹配（等待 100ms）-> Broken 工厂抛错 -> release 后调用 ->
+//   close 后 get。
+// 示例（符合真实签名）：
+//   if (isChordError(error, "invalid")) console.log(error.code, error.reason, error.message);
+//   await echo.echo({ text: "hi" }, context);
+//   await host.get(EchoV2, { id: 1 }, context, { readyTimeout: 100 });
+//   echo.release();
+// 运行方式与环境：在 packages/chord 下执行文件顶部命令；无环境变量、无网络；约 0.1 秒完成（契约不匹配的等待）。
+// 预期输出：
+//   reported: example.pong failed broken
+//   reported: example.ping failed broken
+//   get in a cycle: invalid/cycle - dependency cycle: example.ping → example.pong → example.ping
+//   wrong argument: invalid/args - args/text: expected string, got integer
+//   unknown field: invalid/args - args/extra: unknown field
+//   bad params: invalid/params - params/id: expected integer, got string
+//   reported: example.sloppy(1) failed broken
+//   unknown member: unavailable - example.sloppy(1): extra: not a member
+//   contract mismatch: contract_mismatch - example.echo v2 does not match the served v1
+//   reported: example.broken(1) failed broken
+//   throwing factory: unavailable - example.broken(1): broken: missing configuration
+//   released reference: released - example.echo: released
+//   get after close: released/closed - the host is closed
+// 对应测试与文档：packages/chord/test/host/attempt.test.ts、host.test.ts、dependencies.test.ts、reference.test.ts；
+//   packages/chord/test/data/（错误构造与匹配）；slices.md 的 slice 1；design.md 的 §5/§6/§7。
+// 建议阅读顺序：先看 attempt 与 Echo/依赖环定义，再看 facet 中三个工厂与 onError 分支，
+//   最后按输出顺序读参数、身份、契约与生命周期错误。
 import { BACKGROUND_CONTEXT } from "../../src/context/index.ts";
 import { int, local, method, obj, str } from "../../src/contracts/index.ts";
 import { isChordError } from "../../src/data/index.ts";

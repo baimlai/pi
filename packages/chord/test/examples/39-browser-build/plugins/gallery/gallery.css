@@ -1,8 +1,22 @@
+/*
+文件导读
+所属：packages/chord/test/examples/39-browser-build/plugins/gallery，gallery 插件的样式表。
+作用：演示浏览器构建如何把 import 的 CSS 收集成构建结果里的唯一 css 文件（name 由内容哈希命名，text 是样式文本）；
+gallery/web.ts 的 `import "./gallery.css"` 是副作用导入，CSS 不会在 JavaScript 运行时执行。
+上游：gallery/web.ts；下游：无。输出：随脚本一起交给页面，由页面插入 <style> 或作为样式表提供。
+能力：提供 `.gallery` 的网格布局和 `.gallery img` 的 64px 宽度限制两条规则。
+示例：把图片放进 `class="gallery"` 的容器，子项之间间距 8px，图片宽度不超过 64px。
+本文件只有两条规则，没有变量、媒体查询或资源引用；数值单位是 px。
+建议阅读顺序：先读 gallery/web.ts 的 CSS 导入，再看 39/main.ts 第 2 步打印的 css.name 与首行。
+*/
+
+/* 网格容器：未设置列模板，默认按单列排列；子项间距 8px。 */
 .gallery {
 	display: grid;
 	gap: 8px;
 }
 
+/* 把画廊中的图片限制为 64px 宽，避免原始资源尺寸撑破网格。 */
 .gallery img {
 	width: 64px;
 }

@@ -1,3 +1,17 @@
+// 文件导读
+// 所属：packages/durable/test/examples 的 25-coding-agent.ts，Durable 示例系列第 25 个，演示“编码代理的 cwd、提示词与动态设置”。
+// 演示内容：安装内置 CodingTools 与自定义提示词扩展；假模型按脚本调用 bash pwd；宿主的 env 工厂按会话 cwd
+// 创建 NodeExecutionEnv，因此工具执行真实 shell。随后会话 cwd 切到 app 子目录、用户设置关闭并行工具，
+// 第二次请求同样真实执行 pwd 并输出新目录。
+// 上游入口：node 直接运行本文件；使用脚本化 faux 模型，不需要 API key；会创建并删除系统临时目录。
+// 下游依赖：Durable 的 Harness/defineExtension/section/CodingTools/NodeExecutionEnv/ToolResultEntry，pi-ai 的 faux provider。
+// 能力清单：Coding 扩展的两段系统提示；CodingTools 内置工具；HarnessSettings 的 getter；env 工厂；
+// pwd 脚本；lastBashOutput 读取工具结果；configure 切换 cwd；实时修改 userSettings。
+// 典型顺序：创建 workspace/app -> 声明并安装扩展 -> 定义动态设置与环境工厂 -> 配置 faux 响应 -> 打开 Harness/根会话 ->
+// 第一次 pwd -> configure cwd 并关闭并行 -> 第二次 pwd -> 关闭并删除目录。
+// 前置条件与副作用：无需网络；bash 与目录操作是真实宿主 IO，进程权限内会执行 pwd 和读取工作目录。
+// 预期输出：两行 "bash ran in:"，第一行是 workspace，第二行是 workspace/app。
+// 阅读顺序：先看扩展与提示词分段，再看设置 getter 与环境工厂，然后看 lastBashOutput 如何按类型令牌取结果，最后看两次运行。
 // 演示会话 cwd 与动态设置：假模型按脚本请求工具，但 bash 的 pwd 和临时目录操作是真实宿主 IO。
 // A small coding agent: the built-in coding tools, a prompt that knows the working directory, settings backed by the
 // app's settings file, and an environment that follows the conversation's directory.
@@ -7,9 +21,11 @@ import { mkdir, mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { BACKGROUND_CONTEXT } from "@earendil-works/chord/context";
+// import type 只在开发时提供类型，擦除后没有运行时绑定；下面用 ToolResultEntry.is 做运行时条目判别。
 import type { ToolResultMessage } from "@earendil-works/pi-ai";
 import { createModels } from "@earendil-works/pi-ai/models";
 import { fauxAssistantMessage, fauxProvider, fauxToolCall } from "@earendil-works/pi-ai/providers/faux";
+// NodeExecutionEnv 是宿主侧执行环境适配器：文件与 shell 操作作用于传入的 cwd，不改变进程自身的 cwd。
 import { NodeExecutionEnv } from "../../src/env/node.ts";
 import {
 	createRegistry,
@@ -20,6 +36,7 @@ import {
 	section,
 	ToolResultEntry,
 } from "../../src/index.ts";
+// 内置编码工具扩展（读、写、编辑、bash 等）；安装后由模型按工具声明调用。
 import { CodingTools } from "../../src/tools/index.ts";
 
 // 本示例顶层按顺序执行；await 等待异步完成，失败会向模块调用者传播，没有 try/finally 兜底清理。
@@ -54,7 +71,7 @@ registry.install(Coding);
 // Harness read see the current file; nothing is copied or stored.
 // 用普通可变对象模拟应用持续更新的设置文件；示例没有监听真实 settings.json。
 const userSettings = { parallelTools: true, maxRetries: 3 };
-// : HarnessSettings 只在开发时检查字段类型，不会运行时读取设置文件。
+// 类型注解 HarnessSettings 只在开发时检查字段形状；示例不会在运行时读取设置文件。
 const settings: HarnessSettings = {
 	// getter 在每次读取时计算当前工具执行方式；无参数，返回并行或顺序字符串，无额外 IO。
 	// 例如 parallelTools 改成 false 后，下一次读取返回 sequential。
@@ -116,7 +133,7 @@ userSettings.parallelTools = false;
 await (await root.submit({ type: "input", content: "And now?" }, context)).wait(context);
 console.log("bash ran in:", await lastBashOutput());
 
-// 等待关闭 Harness 与所管理任务，之后才删除项目目录。
+// 等待 Harness 管理的任务停止并关闭存储；之后才安全删除磁盘上的 workspace。
 await harness.close(context);
-// 递归删除本示例创建的临时目录；force 允许路径已经不存在。
+// 递归删除本示例创建的临时目录；force 让重复运行或已被删除的路径不报错。
 await rm(workspace, { recursive: true, force: true });

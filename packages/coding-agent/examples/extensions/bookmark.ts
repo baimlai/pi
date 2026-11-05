@@ -1,3 +1,17 @@
+// 文件导读
+// 所属：packages/coding-agent/examples/extensions 的扩展示例；用 `pi -e ./bookmark.ts` 加载。
+// 演示内容：用 pi.setLabel 给会话条目写持久化标签，并在 /tree 等导航界面显示；/bookmark 标记最新的助手消息，/unbookmark 清除最近一个有效标签。
+// 上下游：命令由宿主斜杠命令入口调用，读取 ctx.sessionManager.getEntries()/getLabel()，通过 pi.setLabel() 追加标签变更并使用 ctx.ui.notify 提示；不调用模型、不写业务文件。
+// 能力清单：
+// - 默认导出 (pi: ExtensionAPI) => void：注册两个命令，加载时不读取会话。
+// - /bookmark [label]：倒序找最新 assistant 消息并设置标签；无参数时用 `bookmark-<毫秒时间戳>`。
+// - /unbookmark：从最新条目向前找 getLabel 非空的条目，清除该标签。
+// 典型运行顺序：加载 -> 对话产生助手消息 -> 输入 /bookmark parser -> 标签写入会话日志并在树视图显示 -> /unbookmark 移除最近标签。
+// 示例（真实签名）：
+//   /bookmark parser
+//   // 等价于 pi.setLabel(entry.id, "parser")，entry 为最新 assistant 消息条目
+// 阅读顺序：先看两个 registerCommand 的 description/handler，再看倒序查找和 setLabel/getLabel 的配对。
+// 前置与副作用：标签是追加到会话日志的变更记录，会持久化并在恢复/分叉后仍可按条目查询；不会修改助手正文。命令在无 UI 的模式下仍可执行，notify 可能不可见。标签名称由用户输入原样保存（去除首尾空白），可以包含空格。
 /**
  * Entry bookmarking example.
  *
@@ -25,6 +39,7 @@ export default function (pi: ExtensionAPI) {
 			// 读取会话全部条目，并非仅当前分支；可包含消息以外的记录。
 			const entries = ctx.sessionManager.getEntries();
 			// 倒序遍历以先找到最新的助手条目。
+			// 倒序只是优先最新；如果最新助手消息没有正文，仍会标记它，因为这里不检查 content。
 			for (let i = entries.length - 1; i >= 0; i--) {
 				// 读取本轮数组元素。
 				const entry = entries[i];
@@ -33,6 +48,7 @@ export default function (pi: ExtensionAPI) {
 					// 给 entry.id 写标签；标签不是修改助手正文。
 					pi.setLabel(entry.id, label);
 					// 提示当前写入的标签。
+					// notify 的第二个参数限定 info/warning/error；这里用 info 表示成功。
 					ctx.ui.notify(`Bookmarked as: ${label}`, "info");
 					// 命中后立即结束，不再标记其他助手消息。
 					return;

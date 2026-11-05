@@ -1,3 +1,30 @@
+// 文件导读
+// 所属：packages/durable 的 test/examples 系列第 15 个示例，演示真实 OpenAI 模型的流式回答与 LiveDoc 观察。
+// 演示内容：仅在 OPENAI_API_KEY 存在时注册 openai provider，用 faux 之外的工厂读取环境认证；创建根会话并选择真实模型；
+//   观察内置 pi.live 文档，把 generation 已提交的文本增量按前缀去重写到 stdout；提交写诗请求并等待结算；最后从最终
+//   AssistantEntry 补齐可能未作为 partial 提交的尾部文本。
+// 上游入口：从 packages/durable 目录手动运行；下游调用 openaiProvider、createModels.setProvider、Harness.open/root、
+//   Harness.watchDoc(LiveDoc)、WatchHandle.start/stop、Conversation.submit、Submission.wait、Conversation.commit/tx.entry。
+//   会产生真实网络请求与费用；异常直接传播，且没有 finally，失败时不保证关闭 Harness。
+// 能力清单（按演示机制）：
+// - process.env.OPENAI_API_KEY：只判断是否为 undefined；空字符串仍进入真实分支，认证错误可能发生。
+// - openaiProvider()：读取环境变量并注册 openai provider；模型请求由 Harness 统一发起。
+// - LiveDoc：内置实时文档；生成期间按节流提交部分文本，watch 只看到已提交值，不是每个网络分片。
+// - watchDoc/start/stop：观察回调接收 value/failed 帧；本示例只处理 value，并在最终读取前 stop。
+// - printText：保存已打印前缀，只输出新后缀；文本变短或前缀变化时忽略，属于显示策略而非数据校验。
+// - submit(...).wait(context)：受理输入并等待 done/unanswered；未回答时打印 reason/detail，不设置非零退出码。
+// - AssistantEntry 读取：从最终条目取首个文本块，补齐节流窗口可能遗漏的结尾。
+// 典型运行顺序：检查环境变量 → 注册 provider 与扩展 → open → root(agent=openai/gpt-6-sol, high) → watchDoc(LiveDoc) →
+//   start 观察 → resume → submit 写诗请求 → wait → stop → 从 AssistantEntry 补尾部 → close。
+// 示例（真实命令行；会联网并计费）：
+//   cd packages/durable
+//   OPENAI_API_KEY=sk-... node --conditions=source --experimental-strip-types test/examples/15-real-model.ts
+// 无变量时实际输出：skipped: OPENAI_API_KEY is not set
+// 有变量时输出以 "answer: " 开头、随后是流式文本，最后换行；具体内容取决于模型响应，本注释未运行该分支。
+// 阅读顺序：先看环境变量分支与 openaiProvider，再看 LiveDoc 观察回调里的可选链与类型收窄，随后看 printText 的前缀去重，
+//   最后看结算后从 AssistantEntry 补尾部。
+// 前置条件：有效的 OPENAI_API_KEY、可访问 OpenAI 的网络与账户额度；示例没有超时/重试配置，错误会直接拒绝。
+// 这是手动示例，没有配套自动化测试；可对照 04-watches.ts（watch 语义）与 13-chat.ts（faux 版本）。
 // 真实网络示例：仅在环境变量存在时注册 OpenAI、生成诗歌并跟踪已提交的文本增量。
 // 这里只说明代码，不运行它；缺 key 才跳过，空字符串仍会进入 else，认证错误仍可能发生。
 // A real model: stream an answer from OpenAI.

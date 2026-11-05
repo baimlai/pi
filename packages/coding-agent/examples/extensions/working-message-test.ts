@@ -1,6 +1,35 @@
 // 这是供人工观察的扩展示例，不是自动断言测试；检查工作提示在 loader 重建后是否仍使用自定义配置。
 
 /**
+ * 文件导读
+ *
+ * 所属：packages/coding-agent/examples/extensions 的扩展示例系列，主题是工作提示的持久性。
+ * 上游：宿主通过 `pi --extension examples/extensions/working-message-test.ts` 加载；
+ * session_start 时设置文字和指示器。下游：ctx.ui.setWorkingMessage() 与
+ * ctx.ui.setWorkingIndicator() 只改 UI 配置，不启动 Agent、不写文件、不发网络请求。
+ *
+ * 演示的机制：loader 可能在轮次之间重建，本示例用于人工确认重建后自定义工作文字没有
+ * 退回默认的灰色 "Working..."。文件里没有断言，是否通过要靠观察。
+ *
+ * 能力清单：
+ * - CUSTOM_MESSAGE：带 ANSI 棕色的 "Working... (custom)" 字符串。
+ * - CUSTOM_INDICATOR：单帧棕色圆点的 WorkingIndicatorOptions。
+ * - 默认导出：会话启动时应用两项配置。
+ *
+ * 典型运行顺序：加载扩展 -> 连续发送几条消息 -> 每次出现工作行时观察是否为棕色
+ * "Working... (custom)" 和棕色圆点；若变回默认样式，说明配置未跨重建保留。
+ *
+ * 示例（真实签名）：
+ *   ctx.ui.setWorkingMessage("\x1b[38;2;155;86;63mWorking... (custom)\x1b[39m");
+ *   ctx.ui.setWorkingIndicator({ frames: ["\x1b[38;2;155;86;63m●\x1b[39m"] });
+ *   无参数调用 setWorkingMessage() 则会恢复默认。
+ *
+ * 建议阅读顺序：先看两个常量中的转义序列含义，再看 session_start 中两个设置调用。
+ *
+ * 前置条件：交互式 TUI 会话；需要手动观察，不能作为自动化回归测试。
+ */
+
+/**
  * Working Message Persistence Test
  *
  * Sets a custom working message and indicator on session start so you can

@@ -1,3 +1,35 @@
+/**
+ * 文件导读（doom-overlay 的 WAD 查找与下载）
+ *
+ * 所属与用途：本文件属于 `doom-overlay` 示例，负责为 DOOM 引擎提供 WAD 数据文件：
+ * 优先复用已有文件，找不到时从固定 URL 下载共享版 WAD（gzip），校验 IWAD 魔数后写入
+ * 示例目录旁的 `doom1.wad`。它不加载 WASM、不启动游戏。
+ *
+ * 上游如何进入：`doom-overlay/index.ts` 在用户没有传路径时调用 `ensureWadFile()`；
+ * 用户传了路径时绕开本文件。`DoomEngine.init()` 再读取返回的路径。
+ *
+ * 能力清单：
+ * - `findWadFile(customPath?)`：只查找，不下载；返回绝对路径或 null。
+ * - `ensureWadFile()`：查找或下载，返回路径或 null。
+ * - 常量：`BUNDLED_WAD`（缓存位置）、`WAD_URL`（下载源）、`DEFAULT_WAD_PATHS`（默认候选）。
+ *
+ * 典型运行顺序：
+ *   1. `/doom-overlay` 无参数 -> `ensureWadFile()`；
+ *   2. 先查模块旁的 `doom1.wad`，再查 `./doom1.wad`、`./DOOM1.WAD`、`~/doom1.wad`、`~/.doom/doom1.wad`；
+ *   3. 都没有则 `fetch` 下载 -> `gunzipSync` 解压 -> 检查前 4 字节为 `IWAD` -> 写入缓存；
+ *   4. 任一步失败返回 null，命令 handler 显示下载失败通知。
+ *
+ * 示例（真实签名，可能联网并写文件）：
+ *   const path = await ensureWadFile();
+ *   if (!path) console.error("WAD unavailable");
+ * 首次成功运行后，模块目录旁会多出 `doom1.wad`（被 `.gitignore` 忽略）。
+ *
+ * 建议阅读顺序：先看常量与 `findWadFile` 的优先级，再看 `ensureWadFile` 的错误边界。
+ *
+ * 安全/正确性边界：下载内容只校验魔数，不校验哈希或完整目录结构；`fetch` 没有超时和大小上限；
+ * 错误被吞成 null，调用方无法区分网络、解压还是写盘失败。
+ */
+
 import { existsSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,13 +46,24 @@ const WAD_URL = "https://www.gamers.org/pub/idgames/idstuff/doom/doom-1.8.wad.gz
 // 按此顺序寻找相对工作目录和家目录中的候选文件。
 const DEFAULT_WAD_PATHS = ["./doom1.wad", "./DOOM1.WAD", "~/doom1.wad", "~/.doom/doom1.wad"];
 
-// 只查找文件，不下载；可选 customPath 表示只查这一处，成功返回绝对路径，失败返回 null。
-// 先展开开头的 ~，否则先查模块缓存再遍历默认位置；existsSync 只检查存在，不验证 WAD 内容。
-// 例：findWadFile("./game.wad") 返回现有文件的绝对路径；显式路径无效时不会再尝试默认文件。
+/**
+ * 查找可用的 WAD 文件，不下载。
+ *
+ * 输入：可选 `customPath`。非空时只检查这一处；空或省略时按默认优先级查找。
+ * 输出：存在时返回绝对路径，否则返回 null。
+ * 副作用：只读文件系统（`existsSync`）；不写文件、不联网。
+ * 错误路径：不抛错；权限不足等情况下 `existsSync` 返回 false，最终得到 null。
+ * 主要流程：有自定义路径则展开 `~`、绝对化并直接判断 -> 否则先查模块旁缓存
+ * -> 再按顺序遍历默认候选（每个同样展开 `~`）。
+ * 注意：只判断路径存在，不验证是文件还是目录，也不验证 WAD 内容；显式路径无效时不会回退。
+ *
+ * 示例：`findWadFile("./game.wad")` 在文件存在时返回其绝对路径；
+ * `findWadFile("~/.doom/doom1.wad")` 会先把 `~` 替换为 `process.env.HOME`。
+ */
 export function findWadFile(customPath?: string): string | null {
 	// 非空自定义路径优先；空字符串会走默认查找。
 	if (customPath) {
-		// replace 的 /^~/ 只替换开头一个波浪号；HOME 不存在时用空串，resolve 再按 cwd 生成绝对路径。
+		// replace 的 /^~/ 只替换开头一个波浪号；HOME 不存在时用空串，`~/x` 会变成根路径 `/x`。
 		const resolved = resolve(customPath.replace(/^~/, process.env.HOME || ""));
 		// 该路径存在便返回，不区分普通文件与目录。
 		if (existsSync(resolved)) return resolved;
@@ -49,9 +92,20 @@ export function findWadFile(customPath?: string): string | null {
 }
 
 /** Download the shareware WAD if not present. Returns path or null on failure. */
-// 保证默认位置有可用候选：先找现有路径，否则下载、解压、检查前四字节并同步写缓存。
-// 无参数，Promise 最终给路径或 null；网络、解压、写入失败在 try 内被吞为 null，查找阶段在 try 外。
-// 例：已有 doom1.wad 时直接返回路径；首次缺失可能联网写入本目录，调用者必须 await。
+/**
+ * 确保有一个可用 WAD：先查找，缺失时下载并缓存。
+ *
+ * 输入：无。输出：`Promise<string | null>`，成功为绝对路径，失败为 null。
+ * 副作用：可能访问网络（一次 GET）、同步解压、同步写入模块旁的 `doom1.wad`。
+ * 错误路径：HTTP 非 2xx、解压失败、魔数不符、写盘失败都在 try 内捕获并返回 null；
+ * `findWadFile()` 在 try 外，若它本身抛错（正常不会）会向上传播。
+ * 主要流程：先查现有文件 -> fetch -> 检查响应 -> 读完整响应体 -> gunzip -> 校验 `IWAD`
+ * -> 写入缓存 -> 返回路径。
+ * 注意：没有超时、大小限制或重试；并发调用可能同时下载并互相覆盖同一文件。
+ *
+ * 示例：`await ensureWadFile()` 首次运行返回 `/.../doom-overlay/doom1.wad` 并写入该文件；
+ * 再次运行直接返回同一路径，不联网。
+ */
 export async function ensureWadFile(): Promise<string | null> {
 	// Check if already exists
 	// 调用只读查找；这里不检查已存在文件的 IWAD 标头。

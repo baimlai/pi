@@ -2,6 +2,16 @@
 
 分支：`learning/full-chain-study-bay`。日志记录具体完成范围和验证，不把计划写成已经完成。
 
+## 2026-11-06：第五十五批示例与脚本全量注释
+
+第五十五批新增405个完整文件，覆盖 coding-agent 扩展104、Chord 示例190、Durable 示例38、仓库根启动器与 scripts 脚本67、agent/codemode 示例6；另把68个不可注释的插件清单、数据、忽略规则和 doom 生成物标为 reference。计划中的473个示例与脚本路径全部处理。`study-status.mjs`：1,502完整、1,292待处理、150来源/候选、0部分、0需复核，总数2,944。
+
+验证：405个手写文件头检查0缺失；473个路径中469个通过剥离注释的 esbuild 转译比较，4个非JS文件（2 CSS、1 BAT、1 HTML）用语言感知的注释剥离比较，均只增注释；新增/删除行逐行扫描0处非注释差异。`npm run check` 全项通过；Biome首轮格式化8个文件，其中 `37-plugin-imports/plugins/report/server.ts` 的原始单行链式调用被拆行，按注释方式加 `biome-ignore format` 后保留原表达式并通过检查，其余差异为注释排版。
+
+行为风险：示例56和58会读取临时副本源码并做首次字符串替换。注释若在目标代码之前出现相同字面量，替换会命中注释，导致热更新失效并无限等待。已改写56 `plugins/clock/web.ts` 与58 `plugins/solarized/theme.ts` 的说明，移除 `12:00` 和 `#b58900` 字面量；修复后实际运行36、38、50、56通过，58非终端路径通过，终端分支在Node 26.9.0沙箱环境等待终端帧，未定位为注释引起，详见 `session-reports/wave4-e16.md`。20份分组报告与逐组运行/未运行项在 `session-reports/wave4-e01..e20.md`。
+
+本批提交并推送 fork `baimlai/pi` 的 `learning/full-chain-study-bay`；未同步上游 main。
+
 ## 2026-11-05：第五十四批 Chord v1 旧实现全量注释
 
 第五十四批新增22个完整文件，覆盖 `packages/chord/src/old/` 全部手写源码（host、object、connection、remote、reload、manager、contract、state、link、cell、schema、cluster、wire 与导出入口等），共9,559行原有代码。本批另补记2个主题JSON（通过同目录 `LEARNING.md` 说明字段、加载链与修改约束）和2个 Cloudflare codemode 示例入口。覆盖清单现1,130条：1,099完整、31来源/候选、0部分、0需复核；全仓待处理1,763。至此各包手写 `src` 已完成。

@@ -1,6 +1,31 @@
 // 演示通过斜杠命令读取或设置当前会话的显示名称。
 
 /**
+ * 文件导读
+ *
+ * 所属：packages/coding-agent/examples/extensions 的扩展示例系列，主题是会话元数据。
+ * 上游：用户输入 `/session-name [name]` 时宿主调用本命令的 handler；下游只调用
+ * pi.setSessionName()/getSessionName() 和 ctx.ui.notify()，不读写文件，也不调用模型。
+ * 名称最终由会话层持久化并显示在会话选择器中，本扩展不决定具体存储格式。
+ *
+ * 能力清单：
+ * - /session-name <name>：设置当前会话显示名并提示成功。
+ * - /session-name（无参数）：读取并显示当前名称；未设置时提示 "No session name set"。
+ *
+ * 典型运行顺序：加载扩展 -> 输入 /session-name review -> 状态提示 "Session named:
+ * review"；之后输入不带参数的 /session-name，会显示 "Session: review"。
+ *
+ * 示例（真实签名）：
+ *   pi.setSessionName("review");           // 设置；返回 void
+ *   const current = pi.getSessionName();   // 读取；未命名返回 undefined
+ *
+ * 建议阅读顺序：先看 registerCommand 的 handler 签名，再看 name 分支（写）与 else 分支
+ * （读）。
+ *
+ * 前置条件：任意有命令输入的会话模式；没有 UI 时 notify 可能不可见，但设置仍会执行。
+ */
+
+/**
  * Session naming example.
  *
  * Shows setSessionName/getSessionName to give sessions friendly names
