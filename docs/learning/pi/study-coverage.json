@@ -2347,10 +2347,25 @@
 			"sha256": "f97c73f55884b85266e8a6df94dd473ac83ab01c633f290fe2bdbc89608fdc41",
 			"note": "整文件：5例报告提示资格/去重/命令文字与原型假对象、Reflect/this/.call语法及断言边界；原71/稿118全文、实际callee和独立只读审，删新增说明逐字还原，三指定文件12通过，不执行真实报告/安装探测。"
 		},
+		"packages/coding-agent/test/interactive-mode-clone-command.test.ts": {
+			"status": "complete",
+			"sha256": "04ec8ecb5f003088d78a0b367d5eb59154f2892d7ccfdf880baddf4adfac99ab",
+			"note": "整文件：2例当前叶子position:at委托fork、成功清输入和无叶子早退，最小this/双重as/.call/Promise与spy断言；原72/稿126及真实callee全文、独立审，指定两文件7通过。固定fork不造真实会话/文件，未覆盖取消或异常。"
+		},
 		"packages/coding-agent/test/interactive-mode-compaction.test.ts": {
 			"status": "complete",
 			"sha256": "d338551503e9e3dd0c558818b58440146f5a646424079809385ca261fa085088",
 			"note": "整文件：6例压缩/分支摘要费用、转换顺序与身份Map、压缩结束/turn_start/abort/刷新steer，逐字段断言与TS语法；原283/稿510及所有相关callee全文、独立审，单文件6通过。费用深匹配非引用身份证明，void后台不等完成、active标题未造真实Agent，必有result可undefined与usage?区别已解释。"
+		},
+		"packages/coding-agent/test/interactive-mode-extension-changelog.test.ts": {
+			"status": "complete",
+			"sha256": "7f8b19bc8f661e9569fb04acdb30f9192e4dfdb587e37d6c0f7c202f866f1026",
+			"note": "整文件：4例首次版本记录/升级日志/非空会话跳过/来源门禁、来源键和异步内存设置、模板快照与断言边界；原139/稿236及真实callee全文、自审和root独立审，单文件4通过，仅自建tmp包文件，未执行扩展或用户设置I/O；同包单项返回不独立证明seenKeys。"
+		},
+		"packages/coding-agent/test/interactive-mode-import-command.test.ts": {
+			"status": "complete",
+			"sha256": "58ce4b90a1f37a2ec0c028f552a6d236bb8ce671f12d03732ea5ac4576ddd2d3",
+			"note": "整文件：6例路径双引号/内部单引号/命令边界与确认后导入委托/缺文件错误分类，this/unknown/Promise<never>；原143/稿247、实际callee全文和独立审，单文件6通过，全内存mock，错误类构造不读盘，不覆盖真实导入或缺cwd重试。最终仅一条说明缩进变化，原文精确还原。"
 		},
 		"packages/coding-agent/test/interactive-mode-model-scope.test.ts": {
 			"status": "complete",
@@ -2361,6 +2376,16 @@
 			"status": "complete",
 			"sha256": "b2c5272c1e8021915dbb667a3677325e8118fa221c76d90d7db0a3f85d6c9834",
 			"note": "整文件：3例启动早期文字恢复、无等待者空闲暂存和先取FIFO、void接口实际async Promise/可选调用/this语法；原90/稿152和完整提交/getUserInput实际callee全文、独立审。指定两文件5通过，仅原型内存替身，不运行工具安装或模型。"
+		},
+		"packages/coding-agent/test/interactive-mode-status.test.ts": {
+			"status": "complete",
+			"sha256": "355bc8d56905427ac4def983d5060f3d9131d4b7a173a4884edaa579b4c4038a",
+			"note": "整文件：37例状态合并/工具进度/展开/主题适配/扩展浮层焦点/补全包装/模型登录参数/资源来源路径与quiet规则；原1372/首稿2325作者和root均全文读，实际callee完整核对，7原英语/快照保留，最终2327格式及说明移位全核。单文件37通过，仅3例虚拟TUI启停，其余原型/内存替身，无真实资源扫描/认证/模型。"
+		},
+		"packages/coding-agent/test/interactive-mode-tree-navigation.test.ts": {
+			"status": "complete",
+			"sha256": "ab3cf6b69c8de3f842d16fabe286e435c4c587890fc77a75487729bac4d5ff1f",
+			"note": "整文件：5例dialog/abort等待后忙碌二次检查、保留Escape/状态、先回填取消再导航，内存两节点和真实TreeSelector、mock不改leaf、void回调实际async与非空断言；原144/稿253和callee全文、独立审，指定两文件7通过，不运行真实导航/摘要/TTY；潜在Loader由spy立即dispose。"
 		},
 		"packages/coding-agent/test/llama-extension.test.ts": {
 			"status": "complete",
@@ -3276,6 +3301,11 @@
 			"status": "complete",
 			"sha256": "5d91e9d69c9a0de71036203a130eb4ca2d1f2ded4abbb7c9e93eced45639787d",
 			"note": "整文件：历史键位/缩小/技能补全/SIGWINCH回归/主题helper或ANSI换行；逐句断言/语法和实际callee全文核对，5指定离线文件37通过，信号/复制均mock，无真实终端或剪贴板。"
+		},
+		"packages/tui/test/editor.test.ts": {
+			"status": "complete",
+			"sha256": "a6a29abf95d0002af6defc6dabebe7fbe8f7a592d8b6d948d367d698f6e4f3c1",
+			"note": "整文件：193例历史/文本光标/Unicode折行/删除环/撤销/异步补全/字符跳转/目标偏移/大粘贴注册表，逐函数语句与TS语法；原4410/稿7136由作者与独立审全部连续复读、真实callee/Node类型核对。单文件193通过，仅VirtualTerminal和自建tmp路径，5例MockTimers，无fd/TTY/剪贴板/网络。最终仅三条新说明缩进，删2726新增行精确保留全部925原注释和4410原文字节。"
 		},
 		"packages/tui/test/fixtures/clipboard-reader.cjs": {
 			"status": "complete",

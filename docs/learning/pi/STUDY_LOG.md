@@ -2,6 +2,58 @@
 
 分支：`learning/full-chain-study-bay`。日志记录具体完成范围和验证，不把计划写成已经完成。
 
+## 2026-11-05：完整Editor、交互状态与导入/更新日志测试
+
+第五十二批新增4份完整文件，6,064原行补至9,946行，新增3,880条中文说明，另2行来自状态测试return链格式。累计完整684、待处理2,178、来源或候选82，部分与需复核均0，总数2,944。
+
+- Editor原4,410行补至7,136，新增2,726条说明，覆盖全部193例：历史/草稿、文本与光标、Unicode折行和宽度、删除环/撤销、串行异步补全、字符跳转、目标偏移与大粘贴标记。作者连续12段通读成稿，独立审也连续全文读原/稿和真实Editor、补全器、定时器类型及渲染调度；root另核文件头和全局helper、关键宽度/目标偏移/粘贴边界及严格验证器。收准原英文的对勾宽度预算、ASCII目标偏移不等通用屏幕列、实际render(15)折行预算等说明，不改旧英语或断言。193项全部通过，仅内存VirtualTerminal、一个自建tmp补全目录、五例局部MockTimers及少量短真实定时器，无fd/真实TTY/剪贴板/网络。
+- 交互状态原1,372行补至2,327，新增953条说明，覆盖37例状态合并、托管工具文字/展开、主题适配、浮层/行内焦点、包装工厂、模型和登录参数补全、资源来源与路径、quiet/verbose门禁。作者与root均无断档全文读原/首稿2,325；作者核完整实际callee，root另核关键链。明确start在try外、渲染屏障不是全后台完成、hasOverlay只问可见、mock保存不是落盘、home/Windows路径只是文字、诊断正文是替身等边界。单文件37通过，3例真实TUI调度仅注入内存终端，不创建完整InteractiveMode或扫描资源。
+- 导入原143补至247，104条说明覆盖六例引号/内部单引号/命令边界、确认后假导入和缺文件专门错误。路径提取不是shell解析；手抛错误类不真的查磁盘，Promise<never>的async throw不退出进程，不冒称缺cwd重试/真实导入均验证。作者、root、独立审均全文核原/稿和实际函数/错误构造，6项通过。
+- 扩展更新日志原139补至236，97条说明覆盖首次只记版本、升级显示、非空消息跳过、来源门禁。临时包JSON/日志是真实读写，a.ts/b.ts只元数据，设置排队仅内存；同包仅一项返回不独立证明seenKeys去重，原模板正文完整保留。作者与root全文核原/稿和来源键、日志解析及设置callee，单文件4项通过。
+
+验证结果：
+
+- 四个不同指定测试文件共240项通过，0跳过/过滤。此前第51批两文件7通过不重复计入本批；本阶段六文件合247通过。所有实际命令固定PI_HYPERLINKS=0、两个debug=0；Vitest另给独立tmp agentDir，不改变HOME或调用真实认证、模型、扩展。
+- 首轮全仓检查调整三份新稿，完整diff已核：Editor三条/导入一条新中文缩进；状态return链补括号、柯里化/类型断言排版及部分新注释移位。状态作者把八条易误归属说明移到所属声明前，root全文核此差异，再最终检查仅收拢状态原表达式换行。最终`npm run check`各项通过。没有为检查通过改功能或重跑只受注释位置影响的测试。
+- 相对阶段HEAD `5cd911063`的6份TS/JS完整AST、执行JS、指令及下一非空行一致；921原非中文保留，4,058条中文无异常控制字符，`git diff --check`通过。4,058含Editor原有15条中文，不是新增数；本阶段新增4,043条。Editor全部925原注释（含中/英文）顺序保留，删2,726新增行逐字恢复4,410原行；导入和日志也精确还原。状态原7英语/快照和最终格式差异另核，不冒称去中文后字节与原稿相同。
+- 旧711条显式指纹全部不变，新增4条后保存715份匹配快照。临时源码写入器/生成器删除，保留只读原/稿/校验与测试证据。没有改依赖、锁或生成产物。归档第51–52批6份完成文件和3份维护文档后，继续provider与手工终端程序；推送仍待可写目标，官方origin的403未解决。
+
+实际命令：
+
+```sh
+# packages/tui：1文件193项
+PI_HYPERLINKS=0 PI_TUI_DEBUG=0 PI_TUI_DEBUG_REDRAW=0 node --test test/editor.test.ts
+
+# packages/coding-agent：分别37、6、4项
+PI_HYPERLINKS=0 PI_TUI_DEBUG=0 PI_TUI_DEBUG_REDRAW=0 PI_CODING_AGENT_DIR=/tmp/pi-study-validation-bay/status51-agent node ../../node_modules/vitest/dist/cli.js --run test/interactive-mode-status.test.ts
+
+PI_HYPERLINKS=0 PI_TUI_DEBUG=0 PI_TUI_DEBUG_REDRAW=0 PI_CODING_AGENT_DIR=/tmp/pi-import52-DNHXZZ node ../../node_modules/vitest/dist/cli.js --run test/interactive-mode-import-command.test.ts
+
+PI_HYPERLINKS=0 PI_TUI_DEBUG=0 PI_TUI_DEBUG_REDRAW=0 PI_CODING_AGENT_DIR=/tmp/pi-study-validation-bay/extension-changelog53-agent node ../../node_modules/vitest/dist/cli.js --run test/interactive-mode-extension-changelog.test.ts
+```
+
+## 2026-11-05：克隆命令与树导航等待后的状态复查
+
+第五十一批新增2份完整文件，216原行补至379行，仅加163条中文。累计完整680、待处理2,182、来源或候选82，部分与需复核均0，总数2,944。此批在第四阶段提交`5cd911063`之后继续。
+
+- 克隆两例72补至126行，解释当前叶子、position:at包含目标条目、成功清输入与无叶子早退、最小this/双重as/.call和异步结果。fork完全是假函数，成功提示不是实际创建文件的证明；未测取消/异常，成功未调用本层重画也不等于真实RuntimeHost不重绑。
+- 树导航五例144补至253行。真实内存SessionManager/SettingsManager和非空TreeSelector参与，测试直接await真实async onSelect；注释区分声明void与实际Promise、TS非空断言不做运行校验、叶子id与toolCallId、对话框/abort等待之后再查isCompacting且先于替换Escape/指示器。navigateTree是spy，不改变真实内存叶子，不冒称整个导航事务或真实模型已取消。潜在指示器由spy立即dispose，正常No summary路径不建动画；不调用复制回调。
+- root全文读原/稿与完整命令/选择回调，核内存构造/追加、TreeSelector/List构造、StatusIndicator及消息工厂；独立原/稿全文审和相同callee验证无问题。两文件7项通过，均固定PI_HYPERLINKS=0、debug=0和独立临时agentDir，没有真实会话文件、模型、认证、剪贴板或TTY。
+- `npm run check`全部通过，只给树测试一条箭头函数说明加一tab，差异完整核过。新HEAD之后2份TS/JS完整AST、执行JS、指令及下一非空行一致；3原非中文保留，163中文无异常控制字符，`git diff --check`通过。最终两文件删新说明逐字恢复HEAD。
+- 旧709条显式指纹全部不变，新增2条后保存711份匹配快照；临时写入器/生成器删除，无依赖、锁或生成产物变化。Editor和状态测试长稿仍TMP，导入命令测试进入下一批；阶段推送仍待可写目标。
+
+实际命令（`packages/coding-agent`）：
+
+```sh
+PI_HYPERLINKS=0 PI_TUI_DEBUG=0 PI_TUI_DEBUG_REDRAW=0 PI_CODING_AGENT_DIR=/tmp/pi-study-validation-bay/navigation51-agent node ../../node_modules/vitest/dist/cli.js --run test/interactive-mode-clone-command.test.ts test/interactive-mode-tree-navigation.test.ts
+```
+
+## 2026-11-05：第四阶段已提交，继续长测试与树导航
+
+第四阶段已本地提交`5cd9110639c349e88c6444ffb53589c7c02b111e`，标题`docs: explain model data validation and interactive regressions in Chinese`。归档第49–50批9份完成文件和3份维护文档，共12个明确路径、1,182行增加/1行进度文字替换；源码只增加1,065行说明。正常提交钩子的全检查和额外browser smoke全部通过，无格式调整；提交后工作区干净。709份显式记录与暂存/工作区指纹一致，覆盖678完整/2,184待处理/0需复核。
+
+本阶段6个不同指定测试文件共34项通过、13项按名字未选中。推送仍待可写目标，当前四次阶段提交均在本地学习分支，未把官方origin拒绝的403记为成功。接着继续Editor、交互状态、克隆和树导航测试；未完成稿仅TMP。之后静态差异比较以新HEAD为起点，前一轮9文件报告仍对应`c5e3a28a3`。
+
 ## 2026-11-05：思考诊断、订阅警告与压缩事件测试
 
 第五十批新增3份完整文件，467原行补至824行，仅加357条中文。累计完整678、待处理2,184、来源或候选82，部分与需复核均0，总数2,944。
