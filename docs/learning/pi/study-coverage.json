@@ -2327,6 +2327,16 @@
 			"sha256": "596bf4a0437631dc00956f4868303084c3cd409d4320d1efb0bcc2200d3c575d",
 			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
 		},
+		"packages/codemode/examples/cloudflare/agent/src/index.ts": {
+			"status": "complete",
+			"sha256": "b5c63a67b183105aaaa3a94cd3811f77d76f8696f7ff526d11f0ef0cf7d7086b",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/codemode/examples/cloudflare/sandbox/src/index.ts": {
+			"status": "complete",
+			"sha256": "0edc94ad360a1070cd50ab5e900dd8e872e18ee67034392d09ad23e32b26df0c",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
 		"packages/codemode/src/cloudflare-modules.d.ts": {
 			"status": "complete",
 			"sha256": "9e3f2d3cfcc5b861f61e86a12c2ddc10c39ee5563cf2e37d8c33534d83decf78",
@@ -3451,6 +3461,16 @@
 			"status": "complete",
 			"sha256": "d0dcaf1975c0490db61cf8e9755167d92449688db949051cfcff27a97e9f9d71",
 			"note": "整文件：Radius当前分支JSONL/Gist全历史HTML、尾项schema、渠道返回值/鉴权与上传/gh取消/清理边界；原成稿和callee全文核对并root复读，两指定文件7通过；auth/fetch/gh均未真实调用。"
+		},
+		"packages/coding-agent/src/modes/interactive/theme/dark.json": {
+			"status": "complete",
+			"sha256": "e1f96982f8cb7d2a48eca7db03c9cb282cb1e14a243680cd855638ecd6a251b6",
+			"note": "通过同目录 LEARNING.md 说明字段、加载链与修改约束；JSON 本身不能插入注释。"
+		},
+		"packages/coding-agent/src/modes/interactive/theme/light.json": {
+			"status": "complete",
+			"sha256": "2dee6a4be7f765e7fd7728166b7ebf8c29e4ce313f8ec6b38ae50699e3abc2f3",
+			"note": "通过同目录 LEARNING.md 说明字段、加载链与修改约束；JSON 本身不能插入注释。"
 		},
 		"packages/coding-agent/src/modes/interactive/theme/system-theme.ts": {
 			"status": "complete",

@@ -4,7 +4,7 @@
 
 ## 2026-11-05：第五十四批 Chord v1 旧实现全量注释
 
-第五十四批新增22个完整文件，覆盖 `packages/chord/src/old/` 全部手写源码（host、object、connection、remote、reload、manager、contract、state、link、cell、schema、cluster、wire 与导出入口等），共9,559行原有代码。覆盖清单现1,126条：1,095完整、31来源/候选、0部分、0需复核；全仓待处理1,767。至此各包手写 `src` 已完成，仅剩2个主题JSON和2个 codemode 示例入口。
+第五十四批新增22个完整文件，覆盖 `packages/chord/src/old/` 全部手写源码（host、object、connection、remote、reload、manager、contract、state、link、cell、schema、cluster、wire 与导出入口等），共9,559行原有代码。本批另补记2个主题JSON（通过同目录 `LEARNING.md` 说明字段、加载链与修改约束）和2个 Cloudflare codemode 示例入口。覆盖清单现1,130条：1,099完整、31来源/候选、0部分、0需复核；全仓待处理1,763。至此各包手写 `src` 已完成。
 
 验证：22个文件剥离注释后的 esbuild 转译产物与 HEAD 一致；3个文件仅因 Biome 链式调用排版出现括号/换行差异。`npm run check` 全项通过，Biome `--write` 格式化7个文件；22个文件头检查0缺失；`git diff --check` 通过。各 v1 组定向测试分别通过，未运行完整 v1 矩阵、真实子进程协议或 Windows/Linux 平台锁分支。
 
