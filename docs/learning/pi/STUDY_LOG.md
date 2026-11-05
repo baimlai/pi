@@ -2,6 +2,14 @@
 
 分支：`learning/full-chain-study-bay`。日志记录具体完成范围和验证，不把计划写成已经完成。
 
+## 2026-11-05：第五十四批 Chord v1 旧实现全量注释
+
+第五十四批新增22个完整文件，覆盖 `packages/chord/src/old/` 全部手写源码（host、object、connection、remote、reload、manager、contract、state、link、cell、schema、cluster、wire 与导出入口等），共9,559行原有代码。覆盖清单现1,126条：1,095完整、31来源/候选、0部分、0需复核；全仓待处理1,767。至此各包手写 `src` 已完成，仅剩2个主题JSON和2个 codemode 示例入口。
+
+验证：22个文件剥离注释后的 esbuild 转译产物与 HEAD 一致；3个文件仅因 Biome 链式调用排版出现括号/换行差异。`npm run check` 全项通过，Biome `--write` 格式化7个文件；22个文件头检查0缺失；`git diff --check` 通过。各 v1 组定向测试分别通过，未运行完整 v1 矩阵、真实子进程协议或 Windows/Linux 平台锁分支。
+
+提交并推送 fork `baimlai/pi` 的 `learning/full-chain-study-bay`；未同步上游 main。
+
 ## 2026-11-05：第五十三批全链路注释，Chord/Durable/env/evals/ai 共380文件
 
 第五十三批新增380个完整文件，覆盖 Chord v2 手写 src 254、Durable 手写 src 97、env Rust daemon 16、evals 5、ai 4、核心测试4。覆盖清单由724条增至1,104条：1,073完整、31来源/候选、0部分、0需复核；全仓2,944个源码与配置中待处理1,789，整个仓库仍未全部完成。34个并行代理按不重叠文件集写入，文件头均含模块、职责、上下游、能力清单、示例与阅读顺序。

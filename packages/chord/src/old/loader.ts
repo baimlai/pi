@@ -4,6 +4,36 @@
 // TODO(loader): replace with an isolating, evicting loader. Every reload imports fresh module copies under a new
 // query and the old copies are never evicted (they leak until the process exits). TUI plugins need isolation, which
 // this loader does not provide.
+//
+// 所属包与模块：packages/chord/src/old/loader.ts，Chord v1 的 Node 专用 facet 加载器；由 src/old/node.ts 以
+// `@earendil-works/chord/old/node` 导出，故意不放进 src/old/index.ts，避免浏览器核心加载 node:module。
+//
+// 职责边界：只负责“把模块路径/URL 变成带稳定名字的 Facet 数组”并安装 URL 解析钩子；不调用 facet.setup、
+// 不注册类型、不管理代码版本，也不做模块隔离或缓存回收（见上面的 TODO(loader)）。是否使用 loader、何时
+// load/reload 由 host.ts 决定；加载失败时 Promise 原样拒绝，交给 load/install 的调用方处理。
+//
+// 上游入口：createHost({ loader: nodeLoader }) 保存它，host.load/reload 经 Host.resolve 传入 string|URL 列表调用。
+// 下游依赖：node:module 的 registerHooks、node:url 的 pathToFileURL，以及 host.ts 的 Facet、FacetDefinition、
+// FacetLoader 类型；导入的模块自身执行顶层代码并默认导出 defineFacet 的结果。
+//
+// 能力清单（按导出项）：
+// - nodeLoader：实现 FacetLoader；每批模块获得新的 URL 查询参数，返回顺序与输入一致、名字为稳定 URL 的 Facet。
+// - hook()（内部）：幂等安装进程级 resolve 钩子，把父模块的批次参数传给已登记目录内的子模块。
+// - toUrl()（内部）：把 string 或 URL 统一复制成独立的 URL 对象。
+// - PARAM、roots、generation：查询参数名、已加载目录集合与批次计数，均为模块级状态。
+//
+// 典型调用顺序：createHost 传入 nodeLoader -> host.load(["./facet.ts"]) -> Host.resolve 调 nodeLoader ->
+// 首次 hook() 安装钩子 -> 登记目录 -> 逐个 import -> 返回 Facet 给 host.install 执行 setup。reload 重复同一流程，
+// 每批递增 generation，使入口及其目录内相对导入都拿到新的模块实例。
+//
+// 示例（真实签名；只展示调用顺序，激活行为由 host 与 facet 决定）：
+//   import { createHost } from "@earendil-works/chord/old";
+//   import { nodeLoader } from "@earendil-works/chord/old/node";
+//   const host = createHost({ self: { user: "server" }, loader: nodeLoader });
+//   await host.load(["./facet.ts"]);        // 失败时 Promise 拒绝；成功后可用 host.get(...)
+//
+// 建议阅读顺序：先看 nodeLoader 的签名与返回值，再看 hook 的 resolve 回调（缓存失效的关键），最后看 toUrl
+// 与模块级状态；TODO(loader) 说明了隔离与回收方面的已知边界。
 import { registerHooks } from "node:module";
 import { pathToFileURL } from "node:url";
 import type { Facet, FacetDefinition, FacetLoader } from "./host.ts";
@@ -66,6 +96,7 @@ const toUrl = (module: string | URL): URL =>
  */
 export const nodeLoader: FacetLoader = async (modules) => {
 	// FacetLoader 的类型来自 host.ts：只接收 string | URL；此处未检查调用者任意传入其他值的情况。
+	// 先把解析钩子装好（首次调用才真正注册），否则下面 import 进来的相对子模块仍会命中旧缓存。
 	hook();
 	// ++ 先增加批次，再转字符串，作为该批全部入口/子模块的 URL 参数。
 	const version = String(++generation);

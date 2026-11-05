@@ -1747,6 +1747,116 @@
 			"sha256": "3bbdd07ec882db2e1607865ab6ffe97096f01394bfee803f107b7ef61729db5b",
 			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
 		},
+		"packages/chord/src/old/cell.ts": {
+			"status": "complete",
+			"sha256": "6dae258c638d9c9481a1c340832033d3e82962d99cdf1d6ec1215ebda1e0e82c",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/chord/src/old/cluster.ts": {
+			"status": "complete",
+			"sha256": "758c1897488918817d8be81e43989bca65a484e91b1525a1de082d4413837733",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/chord/src/old/connection.ts": {
+			"status": "complete",
+			"sha256": "0202236bb33b96e6e4c1a045c62ed7cbeb097d6d7b816810be309d9de204c0c6",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/chord/src/old/contract.ts": {
+			"status": "complete",
+			"sha256": "b503d0aa87c9e30813d1dd2f63ea3ce36658b126caa95e5ccdf7aa75f0635877",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/chord/src/old/declare.ts": {
+			"status": "complete",
+			"sha256": "726860608d1548f03a9ce05a87a86dc241f4861e3531f0909b474f790a502b85",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/chord/src/old/errors.ts": {
+			"status": "complete",
+			"sha256": "547df3ddb750d131c35a946b96cef4c231f9c103ade4339fa791b5870ecc404b",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/chord/src/old/host.ts": {
+			"status": "complete",
+			"sha256": "dc41103cdffad4b46b3bd62536965596dac68a4d463adb28ff92035fb7998bdc",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/chord/src/old/index.ts": {
+			"status": "complete",
+			"sha256": "0d6c912b79349e6cef2740c4cf8db04904196a8133a49a6d9eb613491d86f458",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/chord/src/old/link.ts": {
+			"status": "complete",
+			"sha256": "1ee7b62d7a5519e5085c7decca1393cb92982ca09e3279b79609189d8f7e262f",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/chord/src/old/loader.ts": {
+			"status": "complete",
+			"sha256": "9920e94bd002c4dfdae0d31809aa256d4779e46da155e878a576b90127567abd",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/chord/src/old/manager.ts": {
+			"status": "complete",
+			"sha256": "3918b696bb97c09cbb3ca4aa1ace2f1f6d193a8b51e286ec6615ed190beedee3",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/chord/src/old/node.ts": {
+			"status": "complete",
+			"sha256": "4826c5da768ace79c41e59a6848b19b2562087451d12d25c31d0bb62d66df600",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/chord/src/old/object.ts": {
+			"status": "complete",
+			"sha256": "5001b4c5a81ab8533bf86add77df1c5c56143d135777d4ea85d7ae9a8ffa2d82",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/chord/src/old/publish.ts": {
+			"status": "complete",
+			"sha256": "18849d5ab78bfec33c5fa3835fec5477476f761a98bb9e61eaa218444d37d609",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/chord/src/old/registry.ts": {
+			"status": "complete",
+			"sha256": "2b1eee094397b5e681f22cebeb047e544001f4cee366a2f8e41dde4a2d3c0ba9",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/chord/src/old/reload.ts": {
+			"status": "complete",
+			"sha256": "832e645ec187949be6c86a7a9abb03db0e0c61f6f25dbc3b55017f706d1d260c",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/chord/src/old/remote.ts": {
+			"status": "complete",
+			"sha256": "3207f1d5de77196f09856ebd6ad544c669c42e0f49bd7ed571a3b2c9fe727f67",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/chord/src/old/schema.ts": {
+			"status": "complete",
+			"sha256": "66083c3ed5e3b1b76b0b15a1af8ec5fb8bdeddd235c90bc4c49e723097d04995",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/chord/src/old/state.ts": {
+			"status": "complete",
+			"sha256": "6a201edcff03e23a8bbbfdb76a6836c64c3981899167310c22aed36f2d45cace",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/chord/src/old/types.ts": {
+			"status": "complete",
+			"sha256": "5abeb5d15ce19e217ac2812b076d684fdd1249c1dc9f7018fa523e3f5db7c554",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/chord/src/old/websocket.ts": {
+			"status": "complete",
+			"sha256": "d044470d3d86aa60226f7c470290a4df1ecbead9be70ff7af7b260a297123438",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
+		"packages/chord/src/old/wire.ts": {
+			"status": "complete",
+			"sha256": "13902aa2ba964668527815ba2b0025b310726e7c1da3938135069e18a68b1edb",
+			"note": "整文件：并行注释代理逐行补充，函数、例子、类型与调用关系复核。"
+		},
 		"packages/chord/src/output.ts": {
 			"status": "complete",
 			"sha256": "d2a4f67de72c01e75a088305663a4a8732cc734cf6fba52214d528448cfd4857",

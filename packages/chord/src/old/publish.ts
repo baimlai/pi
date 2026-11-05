@@ -7,6 +7,35 @@
 // Solution: a publication first adopts every revision it makes (cells and derivations), then enqueues its
 // notifications. Notifications run in enqueue order, so every observer sees revisions in adoption order.
 // `holdPublications` defers delivery until a multi-step change (a reload commit) is complete.
+//
+// 所属包与模块：packages/chord/src/old/publish.ts，Chord v1 的进程内发布队列，被 cell.ts、object.ts、host.ts、
+// reload.ts 共同使用；它不理解状态、注册表或重载，只保证回调的执行顺序。
+//
+// 职责边界：排序与暂停，仅此而已。发送是同步的，发生在最后一次 enqueue 或 holdPublications 退出的调用栈上；
+// 不捕获回调异常（任务必须自行通过 onError/report 报告），不做异步调度、不持久化、不跨进程。
+// 队列是模块级单例，因此同进程内所有 host 和对象共享同一条观察顺序。
+//
+// 上游入口：cell.ts 在状态修订被采纳后 enqueue 状态通知；object.ts enqueue 形状/状态/监听者通知；
+// host.ts 的 installTables enqueue 注册表变化；reload.ts 用 holdPublications 包住提交阶段的多步安装。
+// 下游：观察者回调（状态订阅、注册表监听、listener 调用）在队列中同步执行；回调里的再次写入会排到队尾。
+//
+// 能力清单：
+// - enqueue(task)：把 task 追加到队尾，并在允许时立即同步 drain；无返回值。
+// - holdPublications(fn)：同步暂停发送，执行 fn 并返回其返回值；退出时恢复并按序发送，支持嵌套。
+// - drain()（内部）：在非暂停、非重入时逐条执行队头任务；任务抛错会中断本轮并复位标志，
+//   剩余任务留在队列里，等下一次 enqueue 再继续。
+//
+// 典型调用顺序：一次写入采纳所有修订 -> enqueue 若干通知 -> drain 同步按序执行；重载提交这种多步变更则先用
+// holdPublications 包住整段安装，退出后统一发送，避免观察者看到中间态。
+//
+// 示例（真实签名）：
+//   holdPublications(() => {
+//     enqueue(() => console.log("a"));
+//     enqueue(() => console.log("b"));
+//   });                     // fn 返回后依次打印 a、b；期间不会发送
+//
+// 建议阅读顺序：先看模块级 queue/held/draining，再看 enqueue 与 drain 的配合，最后看 holdPublications 的
+// 嵌套与异常处理（finally 中恢复发送）。
 
 // (() => void)[] 是无参数、无返回值函数的数组；队列由本进程所有使用此模块的对象共用。
 const queue: (() => void)[] = [];

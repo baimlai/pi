@@ -1,3 +1,52 @@
+/**
+ * Chord v1 的统一错误与清理辅助（packages/chord/src/old/errors.ts）。
+ *
+ * 所属包与功能模块：packages/chord 的 v1 实现（src/old/），不是 v2。本文件定义跨模块共享的错误码词汇、
+ * `ChordError` 类、类型谓词/构造辅助，以及“执行全部清理步骤再汇总错误”的 `runAll`。
+ *
+ * 职责边界：只负责错误对象的表示、分类和清理聚合；不决定调用方是否重试、不记录日志、不把错误包装成协议帧。
+ * `ChordError` 继承原生 Error 并保留 cause；`retryable` 只标记两类“稍后重试可能成功”的错误码。运行时不会
+ * 校验错误码与 reason 的搭配，码表是调用者与测试共同遵守的约定。
+ *
+ * 上游入口：old/index.ts 公开 `ChordError`、`forbidden`、`invalid`、`isChordError` 与错误码类型；object.ts、
+ * host.ts、reload.ts、remote.ts、connection.ts、contract.ts、schema.ts、manager.ts 等直接导入本文件。
+ * 下游依赖：无项目内依赖；只使用 ECMAScript 的 Error/AggregateError/Set。
+ *
+ * 能力清单（按导出项）：
+ * - `CHORD_ERROR_CODES`：合法错误码的只读元组，供类型推导与运行时枚举。
+ * - `ChordErrorCode`：由元组推导出的错误码联合类型。
+ * - `ChordErrorReason`：字符串别名，表示码内的细分原因（如 invalid/args、unavailable/unknown_type）。
+ * - `ChordError`：带 code、reason、retryable、details 的 Error 子类；message 形如 `code/reason: message`。
+ * - `isChordError(error, code?)`：类型谓词；可选地同时要求特定错误码。
+ * - `forbidden(message?)`：构造 forbidden 错误，常用于工厂/方法拒绝 principal。
+ * - `invalid(reason, message, details?)`：构造 invalid 错误，用于作者错误或实现错误。
+ * - `asChordError(error, context)`：保留已有 ChordError；其他异常包装为 unavailable 并保留 cause。
+ * - `runAll(steps, message)`：顺序执行全部清理步骤，等待每步完成；只有一个失败时原样抛出，多个失败用
+ *   AggregateError 汇总。
+ *
+ * 错误码含义（速查）：
+ * - aborted：操作被取消/上下文过期；superseded：代码版本已退役（可重试）；upgrade_conflict：对象正在升级
+ *   或要求更高代码版本（可重试）；upgrade_required：契约/代码需要整体升级。
+ * - contract_mismatch：消费者与提供方契约无法绑定/适配；not_in_variant：远程契约当前变体没有该成员。
+ * - gone：对象/引用永久消失；released：引用被主动释放；not_ready：资源/状态/引用尚未就绪。
+ * - forbidden：权限拒绝；invalid：输入、实现、参数或用法不合法；unavailable：依赖、宿主或激活不可用。
+ *
+ * 典型调用示例（示例，不表示导入时执行）：
+ * ```ts
+ * if (!allowed) throw forbidden("owner only");
+ * try {
+ *   await ref.increment(ctx);
+ * } catch (error) {
+ *   if (isChordError(error, "superseded")) return retryLater();
+ *   throw error;
+ * }
+ * await runAll([() => a.close(), () => b.close()], "cleanup failed");
+ * ```
+ *
+ * 建议阅读顺序：先看 `CHORD_ERROR_CODES`/`ChordErrorCode` 建立错误词汇；再读 `ChordError` 构造器与
+ * `retryable` 集合；然后看 `isChordError`、`forbidden`、`invalid`、`asChordError` 的转换规则；最后读
+ * `runAll` 的顺序执行与聚合语义。`object.ts` 的 `admit`/`call`/`#activate` 是这些错误码的主要产生点。
+ */
 // Chord v1 的统一错误对象及清理辅助函数；这里创建错误，不负责替调用者决定重试。
 /** Error codes callers see (guide table). A refused or aborted reload keeps the code of its cause. */
 export const CHORD_ERROR_CODES = [
