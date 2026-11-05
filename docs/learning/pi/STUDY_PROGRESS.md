@@ -4,6 +4,10 @@
 
 完整目标包括手写源码、测试、示例、构建脚本和其他语言的实现。阶段性完成某个包，不代表其他包已经完成；只解释了文件中的一条调用链，也不算整份文件完成。
 
+## 全链路学习课件
+
+源码注释之外，`modules-chain/` 提供从一条 query 到五个模块的课件，入口是 [modules-chain/README.md](modules-chain/README.md)。维护流程和上游同步步骤见 [.pi/skills/learning-courseware.md](../../../.pi/skills/learning-courseware.md)。课件不改变下面的注释覆盖计数。
+
 ## 注释的完成条件
 
 - 文件开头解释它负责什么、上游如何进入、结果流向哪里。

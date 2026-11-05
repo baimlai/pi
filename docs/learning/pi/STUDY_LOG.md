@@ -2,6 +2,16 @@
 
 分支：`learning/full-chain-study-bay`。日志记录具体完成范围和验证，不把计划写成已经完成。
 
+## 2026-11-06：全链路学习课件与维护 Skill
+
+新增 `docs/learning/pi/modules-chain/` 课件 7,874 行：首页、课程地图、全链路、四条贯穿追踪、五个模块深潜、术语表、排障地图、编写指南；另加 `.pi/skills/learning-courseware.md`。每篇模块含学完能回答、大白话总览、关键概念、运行示例、链路位置、文件/函数路由、函数拆解、自测、练习、常见误解、继续阅读；五个模块页共 4,424 行，其中 M01、M03、M04、M05 超过 800 行。全链路页按 S1-S13 走一条 `pi -p "读取 README.md 前 20 行并总结"`，列出事件序列、数据形状和失败、压缩、多轮分支；traces 按消息、工具调用、上下文、事件四条生命周期展开。
+
+验证：`node docs/learning/pi/modules-chain/build.mjs --check` 为 0 error、71 warning；warning 均为标题锚点在源码多处匹配，`--fix` 取最近一处。另用独立只读脚本逐条核对 558 条 `#L` 链接的标题字面量，0 不匹配；12 篇 Markdown 共 104 张表，列数 0 不匹配。`npm run check` exit 0，Biome 未改文件。生成单文件 `index.html` 1,544.0 KiB，登记 12 页、401 个搜索段、741 个源码芯片；修复了搜索索引把下划线替换成空格的问题，`agent_settled`、`context_edit` 等标识符现在可搜。M01 与 M03 的练习引用测试各 4 组由代理实际运行通过；M04、M05 只核实测试文件和构造方式，未运行练习命令，也未发起真实 provider 请求或付费调用。
+
+生成器与网页另外修过一轮：Markdown 标签转义、CRLF 保留、非法 URL 不再让服务崩溃、符号链接逃逸校验、`--fix` 后重新渲染、表格里的转义/代码/引号竖线、页内锚点与标题永久链接、列表内缩进代码块、跨页重复标题 id、畸形 hash 不再白屏、行号上限不再多算结尾空行、`/open` 拒绝跨站来源和 HEAD、`index.html` 被删除时返回 503 而不是让服务崩溃、链接协议白名单、编辑器打开失败不再误报成功、搜索第一个 ArrowUp 从最后一项开始。独立审查代理复读了生成器与产物；上述问题均按其复现步骤修正后重跑。M01 与 traces 的复核还纠正了 stdin 读取顺序、`--theme`/`--use-theme`、`No models available` 文案、DEBUG_MAP 的 hook id 归属等表述。
+
+未同步上游 main；源码基线为当前 HEAD `5832a9b79`。本轮只写文档、生成器和 Skill，未改源码、schema、prompt 或配置，也未做上游语义复核。
+
 ## 2026-11-06：第五十五批示例与脚本全量注释
 
 第五十五批新增405个完整文件，覆盖 coding-agent 扩展104、Chord 示例190、Durable 示例38、仓库根启动器与 scripts 脚本67、agent/codemode 示例6；另把68个不可注释的插件清单、数据、忽略规则和 doom 生成物标为 reference。计划中的473个示例与脚本路径全部处理。`study-status.mjs`：1,502完整、1,292待处理、150来源/候选、0部分、0需复核，总数2,944。
