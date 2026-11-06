@@ -2,6 +2,10 @@
 
 分支：`learning/full-chain-study-bay`。日志记录具体完成范围和验证，不把计划写成已经完成。
 
+## 2026-11-06：清理学习目录的过程文档
+
+删除 `docs/learning/pi/session-reports/`（61 个并行代理分组报告）和已完成的 `SESSION_PLAN.md`。这些文件记录的是注释批次的执行过程，不是学习材料；课件、进度、覆盖清单和维护 Skill 不依赖它们。删除后同步修正了 `packages/env/docs/build-study.md` 和 `packages/schema/test/fixtures/STUDY_NOTES.md` 中指向该目录的引用。本日志和 `STUDY_PROGRESS.md` 正文里的 `session-reports/...` 路径是历史记录，目录已不存在，不再作为可点击依据。
+
 ## 2026-11-06：全链路学习课件与维护 Skill
 
 新增 `docs/learning/pi/modules-chain/` 课件 7,874 行：首页、课程地图、全链路、四条贯穿追踪、五个模块深潜、术语表、排障地图、编写指南；另加 `.pi/skills/learning-courseware.md`。每篇模块含学完能回答、大白话总览、关键概念、运行示例、链路位置、文件/函数路由、函数拆解、自测、练习、常见误解、继续阅读；五个模块页共 4,424 行，其中 M01、M03、M04、M05 超过 800 行。全链路页按 S1-S13 走一条 `pi -p "读取 README.md 前 20 行并总结"`，列出事件序列、数据形状和失败、压缩、多轮分支；traces 按消息、工具调用、上下文、事件四条生命周期展开。

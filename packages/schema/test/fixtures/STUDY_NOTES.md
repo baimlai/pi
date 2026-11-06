@@ -15,7 +15,7 @@
 
 Meta-schema 是“描述 schema 本身应该长什么样的 schema”，例如 `type` 关键字的值应为合法类型名称或名称数组。它不是业务数据，也不是 TypeScript 的类型声明。
 
-本地 [meta-schemas/README.md](meta-schemas/README.md) 记录官方地址和 AFL-3.0 或 BSD-3-Clause 许可来源；[官方规范仓库的 LICENSE](https://github.com/json-schema-org/json-schema-spec/blob/main/LICENSE) 提供相应许可文本。2026-11-05 从下表官方地址获取内容，9 份均与本地逐字节一致。原 meta-schema 来源记录没有固定 Git 提交，本次记录的是核对日期、地址与内容指纹，不把当前官网内容冒称成某个未核实的历史提交。逐文件 SHA-256 与来源见 [Session 16 报告](../../../../../docs/learning/pi/session-reports/16.md)。SHA-256 是文件字节的摘要，可用于发现后续内容变化，不能证明说明解释正确。
+本地 [meta-schemas/README.md](meta-schemas/README.md) 记录官方地址和 AFL-3.0 或 BSD-3-Clause 许可来源；[官方规范仓库的 LICENSE](https://github.com/json-schema-org/json-schema-spec/blob/main/LICENSE) 提供相应许可文本。2026-11-05 从下表官方地址获取内容，9 份均与本地逐字节一致。原 meta-schema 来源记录没有固定 Git 提交，本次记录的是核对日期、地址与内容指纹，不把当前官网内容冒称成某个未核实的历史提交。逐文件 SHA-256 与来源核对记录保存在学习分支的提交历史中。SHA-256 是文件字节的摘要，可用于发现后续内容变化，不能证明说明解释正确。
 
 | 本地 `meta-schemas/` 文件 | 官方来源与作用 |
 | --- | --- |
